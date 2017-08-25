@@ -6,6 +6,7 @@ Currently, there are a lot different development board for STM32 MCU. However, e
 
 This project tries to address this problem and provides small, universal, and breadboards-friendly adapter and development board for wide range of STM32 controllers. This is possible since STM32 MCU’s have really good compatibility to each other.
 
+## Schematic and board layout
 The directory **pcb** contains schematic and board layout developed in Eagle CAD:
 - The adapter boards are just one-side breadboard adapters for LQFP32/48/64 IC's:
 ![Adapter boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/adapter_boards_layout.png)
@@ -18,6 +19,10 @@ The final boards look like this:
 
 In the directory **images**, you can find some photos of assembled boards like this one:
 ![Assembled boards](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/assembled_boards_top_view.jpg)
+
+## Test
+
+The directory **src** contains test examples developed in [System Workbench for STM32](http://www.st.com/en/development-tools/sw4stm32.html). These test programms are based on HAL library and the second object-oriented abstraction layer called *StmPlusPlus*. Currently, following chips are tested: STM32F303K8Tx, STM32F303RBTx, STM32F373CBTx, STM32F373CCTx, STM32F410RBTx.
 
 ## License
 
