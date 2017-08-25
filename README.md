@@ -9,9 +9,10 @@ Currently, there are a lot different development board for STM32 MCU. However, e
 This project tries to address this problem and provides small, universal, and breadboards-friendly adapter and development board for wide range of STM32 controllers. This is possible since STM32 MCU’s have really good compatibility to each other.
 
 The directory **pcb** contains schematic and board layout developed in Eagle CAD. The final boards look like this:
-![mcu board layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/boards_top_view.jpg)
+![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/boards_top_view.jpg)
 
-In the directory **images**, you can find some photos of assembled boards.
+In the directory **images**, you can find some photos of assembled boards like this one:
+![Assembled boards](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/assembled_boards_top_view.jpg)
 
 ## License
 
