@@ -2,8 +2,6 @@
 
 This repository shares schematic, PCB, and source code templates that can be helpful for development using STM32 micro-controllers.
 
-This repository shares schematic, PCB, and source code templates that can be helpful for development using STM32 micro-controllers.
-
 Currently, there are a lot different development board for STM32 MCU. However, each such a board represents only one micro-controller, and almost all these boards are not suitable for breadboards.
 
 This project tries to address this problem and provides small, universal, and breadboards-friendly adapter and development board for wide range of STM32 controllers. This is possible since STM32 MCU’s have really good compatibility to each other.
