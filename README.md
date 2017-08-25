@@ -6,7 +6,14 @@ Currently, there are a lot different development board for STM32 MCU. However, e
 
 This project tries to address this problem and provides small, universal, and breadboards-friendly adapter and development board for wide range of STM32 controllers. This is possible since STM32 MCU’s have really good compatibility to each other.
 
-The directory **pcb** contains schematic and board layout developed in Eagle CAD. The final boards look like this:
+The directory **pcb** contains schematic and board layout developed in Eagle CAD:
+- The adapter boards are just one-side breadboard adapters for LQFP32/48/64 IC's:
+![Adapter boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/adapter_boards_layout.png)
+
+- The developments boards are two-side breadboard adapters for LQFP32/48/64 IC's, equipent with adaptable power supply circuit, HSE and LSE crystal circuit, reset button, and a **custom** 10-pin JTAG connector. SMD size for passive components is 0805. The adapter between 20-pin JTAG and this custom connector is also included in the set:
+![Development boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/development_boards_layout.png)
+
+The final boards look like this:
 ![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/boards_top_view.jpg)
 
 In the directory **images**, you can find some photos of assembled boards like this one:
