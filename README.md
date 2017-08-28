@@ -24,6 +24,9 @@ In the directory **images**, you can find some photos of assembled boards like t
 
 The directory **src** contains test examples developed in [System Workbench for STM32](http://www.st.com/en/development-tools/sw4stm32.html). These test programms are based on HAL library and the second object-oriented abstraction layer called *StmPlusPlus*. Currently, following chips are tested: STM32F303K8Tx, STM32F303RBTx, STM32F373CBTx, STM32F373CCTx, STM32F410RBTx.
 
+## Reviews and publications:
+* [Discussion on www.mikrocontroller.net (In German)](https://www.mikrocontroller.net/topic/433910)
+
 ## License
 
 This software is published under the *GNU General Public License, Version 3*
