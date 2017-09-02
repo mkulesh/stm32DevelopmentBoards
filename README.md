@@ -26,6 +26,7 @@ The directory **src** contains test examples developed in [System Workbench for 
 
 ## Reviews and publications:
 * [Discussion on www.mikrocontroller.net (In German)](https://www.mikrocontroller.net/topic/433910)
+* [Нестандартный способ подружиться с STM32: не Ардуино и не Discovery (In Russian)](https://geektimes.ru/post/292493)
 
 ## License
 
