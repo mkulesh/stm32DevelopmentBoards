@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/badge/license-GNU_GPLv3-orange.svg)](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/LICENSE)
+
 # <img src="https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32_image.png" align="center" height="48" width="48"> "Development boards and software templates for STM32 MCU"
 
 This repository shares schematic, PCB, and source code templates that can be helpful for development using STM32 micro-controllers.
@@ -21,7 +23,6 @@ In the directory **images**, you can find some photos of assembled boards like t
 ![Assembled boards](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/assembled_boards_top_view.jpg)
 
 ## Test
-
 The directory **src** contains test examples developed in [System Workbench for STM32](http://www.st.com/en/development-tools/sw4stm32.html). These test programms are based on HAL library and the second object-oriented abstraction layer called *StmPlusPlus*. Currently, following chips are tested: STM32F303K8Tx, STM32F303RBTx, STM32F373CBTx, STM32F373CCTx, STM32F410RBTx.
 
 ## Reviews and publications:
@@ -29,7 +30,6 @@ The directory **src** contains test examples developed in [System Workbench for 
 * [Нестандартный способ подружиться с STM32: не Ардуино и не Discovery (In Russian)](https://geektimes.ru/post/292493)
 
 ## License
-
 This software is published under the *GNU General Public License, Version 3*
 
 Copyright (C) 2014-2017 Mikhail Kulesh
