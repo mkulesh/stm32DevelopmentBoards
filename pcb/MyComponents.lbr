@@ -968,34 +968,6 @@ drill 1.0 mm</description>
 <rectangle x1="0.7112" y1="-1.2954" x2="1.1684" y2="-0.7112" layer="51"/>
 <rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
 </package>
-<package name="DO35-7">
-<description>&lt;B&gt;DIODE&lt;/B&gt;&lt;p&gt;
-diameter 2 mm, horizontal, grid 7.62 mm</description>
-<wire x1="3.81" y1="0" x2="2.921" y2="0" width="0.508" layer="51"/>
-<wire x1="-3.81" y1="0" x2="-2.921" y2="0" width="0.508" layer="51"/>
-<wire x1="-0.635" y1="0" x2="0" y2="0" width="0.1524" layer="21"/>
-<wire x1="1.016" y1="0.635" x2="1.016" y2="-0.635" width="0.1524" layer="21"/>
-<wire x1="1.016" y1="-0.635" x2="0" y2="0" width="0.1524" layer="21"/>
-<wire x1="0" y1="0" x2="1.524" y2="0" width="0.1524" layer="21"/>
-<wire x1="0" y1="0" x2="1.016" y2="0.635" width="0.1524" layer="21"/>
-<wire x1="0" y1="0.635" x2="0" y2="0" width="0.1524" layer="21"/>
-<wire x1="0" y1="0" x2="0" y2="-0.635" width="0.1524" layer="21"/>
-<wire x1="2.032" y1="1.016" x2="2.286" y2="0.762" width="0.1524" layer="21" curve="-90"/>
-<wire x1="2.286" y1="0.762" x2="2.286" y2="-0.762" width="0.1524" layer="21"/>
-<wire x1="2.032" y1="-1.016" x2="2.286" y2="-0.762" width="0.1524" layer="21" curve="90"/>
-<wire x1="-2.286" y1="0.762" x2="-2.032" y2="1.016" width="0.1524" layer="21" curve="-90"/>
-<wire x1="-2.286" y1="-0.762" x2="-2.032" y2="-1.016" width="0.1524" layer="21" curve="90"/>
-<wire x1="-2.032" y1="-1.016" x2="2.032" y2="-1.016" width="0.1524" layer="21"/>
-<wire x1="-2.286" y1="0.762" x2="-2.286" y2="-0.762" width="0.1524" layer="21"/>
-<wire x1="-2.032" y1="1.016" x2="2.032" y2="1.016" width="0.1524" layer="21"/>
-<pad name="C" x="-3.81" y="0" drill="0.8128"/>
-<pad name="A" x="3.81" y="0" drill="0.8128"/>
-<text x="-2.286" y="1.27" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<text x="-2.286" y="-2.667" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
-<rectangle x1="-1.905" y1="-1.016" x2="-1.397" y2="1.016" layer="21"/>
-<rectangle x1="2.286" y1="-0.254" x2="2.921" y2="0.254" layer="21"/>
-<rectangle x1="-2.921" y1="-0.254" x2="-2.286" y2="0.254" layer="21"/>
-</package>
 <package name="MC-306">
 <description>&lt;b&gt;MC-306 CRYSTAL UNIT&lt;/b&gt;&lt;p&gt;
 Source: MC-306_405_406_E07X.PDF</description>
@@ -1491,6 +1463,23 @@ Source: MC-306_405_406_E07X.PDF</description>
 <rectangle x1="8.636" y1="-0.254" x2="9.144" y2="0.254" layer="51"/>
 <rectangle x1="13.716" y1="-0.254" x2="14.224" y2="0.254" layer="51"/>
 </package>
+<package name="SOT223">
+<description>&lt;b&gt;Smal Outline Transistor&lt;/b&gt;</description>
+<wire x1="-3.124" y1="1.731" x2="-3.124" y2="-1.729" width="0.1524" layer="21"/>
+<wire x1="3.124" y1="-1.729" x2="3.124" y2="1.731" width="0.1524" layer="21"/>
+<wire x1="-3.124" y1="1.731" x2="3.124" y2="1.731" width="0.1524" layer="21"/>
+<wire x1="3.124" y1="-1.729" x2="-3.124" y2="-1.729" width="0.1524" layer="21"/>
+<smd name="1" x="-2.2606" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
+<smd name="2" x="0.0254" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
+<smd name="3" x="2.3114" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
+<smd name="4" x="0" y="3.1496" dx="3.81" dy="2.0066" layer="1"/>
+<text x="-2.54" y="4.318" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<text x="-2.794" y="-5.842" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
+<rectangle x1="-1.524" y1="1.778" x2="1.524" y2="3.302" layer="51"/>
+<rectangle x1="-2.667" y1="-3.302" x2="-1.905" y2="-1.778" layer="51"/>
+<rectangle x1="1.905" y1="-3.302" x2="2.667" y2="-1.778" layer="51"/>
+<rectangle x1="-0.381" y1="-3.302" x2="0.381" y2="-1.778" layer="51"/>
+</package>
 </packages>
 <symbols>
 <symbol name="DC-POWER-JACK">
@@ -1941,19 +1930,6 @@ Cliff DC-8N</description>
 <pin name="D" x="0" y="-5.08" visible="off" length="short" direction="pas" rot="R90"/>
 <pin name="S" x="0" y="5.08" visible="off" length="short" direction="pas" rot="R270"/>
 </symbol>
-<symbol name="D">
-<wire x1="-1.27" y1="-1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
-<wire x1="1.27" y1="0" x2="-1.27" y2="1.27" width="0.254" layer="94"/>
-<wire x1="1.27" y1="1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
-<wire x1="-1.27" y1="1.27" x2="-1.27" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="1.27" y1="0" x2="1.27" y2="-1.27" width="0.254" layer="94"/>
-<text x="2.54" y="0.4826" size="1.778" layer="95">&gt;NAME</text>
-<text x="2.54" y="-2.3114" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="A" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
-<pin name="C" x="2.54" y="0" visible="off" length="short" direction="pas" rot="R180"/>
-<text x="-2.54" y="0" size="0.4064" layer="99" align="center">SpiceOrder 1</text>
-<text x="2.54" y="0" size="0.4064" layer="99" align="center">SpiceOrder 2</text>
-</symbol>
 <symbol name="Q">
 <wire x1="1.016" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
 <wire x1="-2.54" y1="0" x2="-1.016" y2="0" width="0.1524" layer="94"/>
@@ -2144,10 +2120,21 @@ Cliff DC-8N</description>
 <pin name="11" x="7.62" y="12.7" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R180"/>
 <pin name="12" x="7.62" y="15.24" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R180"/>
 </symbol>
+<symbol name="REG1117">
+<wire x1="-7.62" y1="-7.62" x2="7.62" y2="-7.62" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="-7.62" x2="7.62" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="5.08" x2="-7.62" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="-7.62" y1="5.08" x2="-7.62" y2="-7.62" width="0.4064" layer="94"/>
+<text x="0" y="6.35" size="1.778" layer="95" ratio="10" align="bottom-center">&gt;NAME</text>
+<text x="0" y="2.54" size="1.778" layer="96" ratio="10" align="bottom-center">&gt;VALUE</text>
+<pin name="VIN" x="-12.7" y="0" length="middle" direction="in"/>
+<pin name="VOUT" x="12.7" y="0" length="middle" direction="out" rot="R180"/>
+<pin name="GND" x="0" y="-12.7" length="middle" direction="pwr" rot="R90"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="DC-POWER-JACK" prefix="X">
-<description>Niedervolt-Steckverbinder Buchse</description>
+<description>DC Power Connector 1 mm X 3.2 mm</description>
 <gates>
 <gate name="G$1" symbol="DC-POWER-JACK" x="0" y="0"/>
 </gates>
@@ -2169,13 +2156,15 @@ Cliff DC-8N</description>
 <connect gate="G$1" pin="TERM" pad="3"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="490-PJ-043-SMT-TR" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MICRO-SD-DM3AT" prefix="X">
-<description>DM3AT-SF-PEJM5: DM3 Series microSDTM Card Connectors</description>
+<description>DM3 Series microSD Card Connectors</description>
 <gates>
 <gate name="G$1" symbol="MICRO-SD-2" x="0" y="0"/>
 </gates>
@@ -2194,13 +2183,15 @@ Cliff DC-8N</description>
 <connect gate="G$1" pin="VSS" pad="VSS"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="798-DM3ATSFPEJM511" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="LSP10" prefix="LSP">
-<description>&lt;b&gt;SOLDER PAD&lt;/b&gt;&lt;p&gt; drill 1.0 mm</description>
+<description>Solder Pad, drill 1.0 mm</description>
 <gates>
 <gate name="1" symbol="LSP" x="0" y="0"/>
 </gates>
@@ -2216,8 +2207,7 @@ Cliff DC-8N</description>
 </devices>
 </deviceset>
 <deviceset name="BUTTON-FSM14JRT" prefix="J">
-<description>Drucktastenschalter RADIAL TACT SWITCH
-TE Connectivity / Alcoswitch 1571010-1</description>
+<description>TE Connectivity / Alcoswitch Round Switch</description>
 <gates>
 <gate name="G$1" symbol="BUTTON-FSM14JRT" x="0" y="0"/>
 </gates>
@@ -2228,13 +2218,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="2" pad="P$2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="506-1571010-1" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MINI-USB-5-DPI" prefix="X">
-<description>XM7D-0512: Omron Electronics USB RightAngle DIP</description>
+<description>Mini USB Type B Connector</description>
 <gates>
 <gate name="G41" symbol="MINI-USB-5" x="0" y="0"/>
 <gate name="S" symbol="SHIELD4" x="2.54" y="-12.7" addlevel="request"/>
@@ -2254,16 +2246,14 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="653-XM7D-0512" constant="no"/>
 </technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="L-US" prefix="L" uservalue="yes">
+<description>SMD Ferrite Bead</description>
 <gates>
 <gate name="G$1" symbol="L-US" x="0" y="0"/>
 </gates>
@@ -2274,7 +2264,9 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="81-BLM11B421S" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="L3341" package="L3341">
@@ -2289,7 +2281,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="MA04-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 4 Position</description>
 <gates>
 <gate name="1" symbol="MA04-1" x="0" y="0"/>
 </gates>
@@ -2302,12 +2294,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="4" pad="4"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="" constant="no"/>
-<attribute name="OC_NEWARK" value="" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA04-1-NO-PL">
@@ -2324,7 +2311,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="MA08-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 8 Position</description>
 <gates>
 <gate name="1" symbol="MA08-1" x="0" y="0"/>
 </gates>
@@ -2341,12 +2328,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="8" pad="8"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA08-1-NO-PL">
@@ -2380,13 +2362,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="C" pad="C"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="604-WP154A4SUREQBFZG" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA03-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 3 Position</description>
 <gates>
 <gate name="G$1" symbol="MA03-1" x="0" y="0"/>
 </gates>
@@ -2398,12 +2382,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="3" pad="3"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA03-1-NO-PL">
@@ -2419,7 +2398,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="LSP27" prefix="LSP">
-<description>&lt;b&gt;SOLDER PAD&lt;/b&gt;&lt;p&gt; drill 2.75 mm</description>
+<description>Solder Pad, drill 2.75 mm</description>
 <gates>
 <gate name="1" symbol="LSP" x="0" y="0"/>
 </gates>
@@ -2458,6 +2437,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="C-US" prefix="C" uservalue="yes">
+<description>SMD Multilayer Ceramic Capacitor</description>
 <gates>
 <gate name="G$1" symbol="C-US" x="0" y="0"/>
 </gates>
@@ -2474,7 +2454,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="R-US" prefix="R" uservalue="yes">
-<description>SMD resistor</description>
+<description>SMD Resistor</description>
 <gates>
 <gate name="G$1" symbol="R-US" x="0" y="0"/>
 </gates>
@@ -2491,7 +2471,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="STF203" prefix="IC" uservalue="yes">
-<description>STF203-22.TCT: USB EMI filtering and ESD protection</description>
+<description>USB EMI filtering and ESD protection</description>
 <gates>
 <gate name="G$1" symbol="STF203" x="0" y="0"/>
 </gates>
@@ -2506,13 +2486,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="VBUS" pad="5"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="947-STF203-22.TCT" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA20-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 20 Position</description>
 <gates>
 <gate name="1" symbol="MA20-1" x="0" y="0"/>
 </gates>
@@ -2542,10 +2524,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="649-68000-420HLF" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2573,13 +2552,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="649-68000-420HLF" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA10-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 10 Position</description>
 <gates>
 <gate name="1" symbol="MA10-1" x="0" y="0"/>
 </gates>
@@ -2599,10 +2580,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="649-69190-410HLF" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2620,13 +2598,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="649-69190-410HLF" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA03-2" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 2 Row, 6 Position</description>
 <gates>
 <gate name="1" symbol="MA03-2" x="0" y="0"/>
 </gates>
@@ -2642,17 +2622,14 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="649-75867-331LF" constant="no"/>
 </technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="N2004" prefix="Q" uservalue="yes">
-<description>DMN2004K-7: N-channel enhancement mode MOSFET</description>
+<description>N-channel enhancement mode MOSFET</description>
 <gates>
 <gate name="G$1" symbol="N-MOS" x="0" y="0"/>
 </gates>
@@ -2664,13 +2641,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="S" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="621-DMN2004K-7" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="BSH205G2R" prefix="Q" uservalue="yes">
-<description>BSH205G2R: P-channel enhancement mode MOSFET</description>
+<description>P-channel enhancement mode MOSFET (-2.3A)</description>
 <gates>
 <gate name="G$1" symbol="P-MOS" x="0" y="0"/>
 </gates>
@@ -2682,31 +2661,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="S" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="1N4148" prefix="D">
-<description>&lt;B&gt;DIODE&lt;/B&gt;&lt;p&gt;
-high speed (Philips)</description>
-<gates>
-<gate name="G$1" symbol="D" x="0" y="0"/>
-</gates>
-<devices>
-<device name="DO35-7" package="DO35-7">
-<connects>
-<connect gate="G$1" pin="A" pad="A"/>
-<connect gate="G$1" pin="C" pad="C"/>
-</connects>
-<technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="771-BSH205G2R" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="Q-HC-46X" prefix="Q" uservalue="yes">
-<description>Quartz Crystal HC-46X</description>
+<description>Through Hole Quartz Crystal HC-46X</description>
 <gates>
 <gate name="G$1" symbol="Q" x="0" y="0"/>
 </gates>
@@ -2717,14 +2680,15 @@ high speed (Philips)</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="520-160-20-46X" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="Q-MC-306" prefix="Q" uservalue="yes">
-<description>&lt;b&gt;kHz RANGE CRYSTAL UNIT&lt;/b&gt; SMD&lt;p&gt;
-Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; Homepage &lt;/a&gt;</description>
+<description>32.768 kHz SMD Crystal</description>
 <gates>
 <gate name="P" symbol="Q" x="0" y="0"/>
 </gates>
@@ -2736,17 +2700,14 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="MC-306 60.0KHZ  100PPM ,12.5PF" constant="no"/>
-<attribute name="OC_FARNELL" value="1278040" constant="no"/>
-<attribute name="OC_NEWARK" value="31M5576" constant="no"/>
+<attribute name="MOUSER" value="732-MC30632.7680KA0R" constant="no"/>
 </technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA05-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 5 Position</description>
 <gates>
 <gate name="G$1" symbol="MA05-1" x="0" y="0"/>
 </gates>
@@ -2760,12 +2721,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 <connect gate="G$1" pin="5" pad="5"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA05-1-NO-PL">
@@ -2783,7 +2739,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 </devices>
 </deviceset>
 <deviceset name="MA05-2" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 2 Row, 10 Position</description>
 <gates>
 <gate name="G$1" symbol="MA05-2" x="0" y="0"/>
 </gates>
@@ -2802,18 +2758,13 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 <connect gate="G$1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA07-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 7 Position</description>
 <gates>
 <gate name="1" symbol="MA07-1" x="0" y="0"/>
 </gates>
@@ -2829,12 +2780,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 <connect gate="1" pin="7" pad="7"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA07-1-NO-PL">
@@ -2854,7 +2800,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 </devices>
 </deviceset>
 <deviceset name="MA09-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 9 Position</description>
 <gates>
 <gate name="1" symbol="MA09-1" x="0" y="0"/>
 </gates>
@@ -2872,12 +2818,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 <connect gate="1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA09-1-NO-PL">
@@ -2899,7 +2840,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 </devices>
 </deviceset>
 <deviceset name="MA10-2" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 2 Row, 20 Position</description>
 <gates>
 <gate name="G$1" symbol="MA10-2" x="0" y="0"/>
 </gates>
@@ -2939,7 +2880,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 </devices>
 </deviceset>
 <deviceset name="MA12-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 12 Position</description>
 <gates>
 <gate name="1" symbol="MA12-1" x="0" y="0"/>
 </gates>
@@ -2985,6 +2926,27 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 </connects>
 <technologies>
 <technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="REG1117" prefix="IC">
+<description>&lt;b&gt;800mA and 1A Low Dropout (LDO) Positive Regulator&lt;/b&gt;&lt;p&gt;
+1.8V, 2.5V, 2.85V, 3.3V, 5V, and Adj</description>
+<gates>
+<gate name="G$1" symbol="REG1117" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SOT223">
+<connects>
+<connect gate="G$1" pin="GND" pad="1"/>
+<connect gate="G$1" pin="VIN" pad="3"/>
+<connect gate="G$1" pin="VOUT" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="511-LD1117S33" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>

@@ -1152,6 +1152,23 @@ Source: MC-306_405_406_E07X.PDF</description>
 <text x="0" y="2.794" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
 <text x="0" y="-2.794" size="1.27" layer="27" rot="R180" align="bottom-center">&gt;VALUE</text>
 </package>
+<package name="SOT223">
+<description>&lt;b&gt;Smal Outline Transistor&lt;/b&gt;</description>
+<wire x1="-3.124" y1="1.731" x2="-3.124" y2="-1.729" width="0.1524" layer="21"/>
+<wire x1="3.124" y1="-1.729" x2="3.124" y2="1.731" width="0.1524" layer="21"/>
+<wire x1="-3.124" y1="1.731" x2="3.124" y2="1.731" width="0.1524" layer="21"/>
+<wire x1="3.124" y1="-1.729" x2="-3.124" y2="-1.729" width="0.1524" layer="21"/>
+<smd name="1" x="-2.2606" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
+<smd name="2" x="0.0254" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
+<smd name="3" x="2.3114" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
+<smd name="4" x="0" y="3.1496" dx="3.81" dy="2.0066" layer="1"/>
+<text x="-2.54" y="4.318" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<text x="-2.794" y="-5.842" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
+<rectangle x1="-1.524" y1="1.778" x2="1.524" y2="3.302" layer="51"/>
+<rectangle x1="-2.667" y1="-3.302" x2="-1.905" y2="-1.778" layer="51"/>
+<rectangle x1="1.905" y1="-3.302" x2="2.667" y2="-1.778" layer="51"/>
+<rectangle x1="-0.381" y1="-3.302" x2="0.381" y2="-1.778" layer="51"/>
+</package>
 </packages>
 <symbols>
 <symbol name="LSP">
@@ -1571,10 +1588,21 @@ Cliff DC-8N</description>
 <pin name="D" x="0" y="-5.08" visible="off" length="short" direction="pas" rot="R90"/>
 <pin name="S" x="0" y="5.08" visible="off" length="short" direction="pas" rot="R270"/>
 </symbol>
+<symbol name="REG1117">
+<wire x1="-7.62" y1="-7.62" x2="7.62" y2="-7.62" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="-7.62" x2="7.62" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="5.08" x2="-7.62" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="-7.62" y1="5.08" x2="-7.62" y2="-7.62" width="0.4064" layer="94"/>
+<text x="0" y="6.35" size="1.778" layer="95" ratio="10" align="bottom-center">&gt;NAME</text>
+<text x="0" y="2.54" size="1.778" layer="96" ratio="10" align="bottom-center">&gt;VALUE</text>
+<pin name="VIN" x="-12.7" y="0" length="middle" direction="in"/>
+<pin name="VOUT" x="12.7" y="0" length="middle" direction="out" rot="R180"/>
+<pin name="GND" x="0" y="-12.7" length="middle" direction="pwr" rot="R90"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="LSP10" prefix="LSP">
-<description>&lt;b&gt;SOLDER PAD&lt;/b&gt;&lt;p&gt; drill 1.0 mm</description>
+<description>Solder Pad, drill 1.0 mm</description>
 <gates>
 <gate name="1" symbol="LSP" x="0" y="0"/>
 </gates>
@@ -1603,12 +1631,15 @@ Cliff DC-8N</description>
 <connect gate="1" pin="C" pad="C"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="604-WP154A4SUREQBFZG" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="L-US" prefix="L" uservalue="yes">
+<description>SMD Ferrite Bead</description>
 <gates>
 <gate name="G$1" symbol="L-US" x="0" y="0"/>
 </gates>
@@ -1619,7 +1650,9 @@ Cliff DC-8N</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="81-BLM11B421S" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="L3341" package="L3341">
@@ -1634,7 +1667,7 @@ Cliff DC-8N</description>
 </devices>
 </deviceset>
 <deviceset name="LSP27" prefix="LSP">
-<description>&lt;b&gt;SOLDER PAD&lt;/b&gt;&lt;p&gt; drill 2.75 mm</description>
+<description>Solder Pad, drill 2.75 mm</description>
 <gates>
 <gate name="1" symbol="LSP" x="0" y="0"/>
 </gates>
@@ -1650,7 +1683,7 @@ Cliff DC-8N</description>
 </devices>
 </deviceset>
 <deviceset name="MINI-USB-5-DPI" prefix="X">
-<description>XM7D-0512: Omron Electronics USB RightAngle DIP</description>
+<description>Mini USB Type B Connector</description>
 <gates>
 <gate name="G41" symbol="MINI-USB-5" x="0" y="0"/>
 <gate name="S" symbol="SHIELD4" x="2.54" y="-12.7" addlevel="request"/>
@@ -1670,17 +1703,14 @@ Cliff DC-8N</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="653-XM7D-0512" constant="no"/>
 </technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="DC-POWER-JACK" prefix="X">
-<description>Niedervolt-Steckverbinder Buchse</description>
+<description>DC Power Connector 1 mm X 3.2 mm</description>
 <gates>
 <gate name="G$1" symbol="DC-POWER-JACK" x="0" y="0"/>
 </gates>
@@ -1702,7 +1732,9 @@ Cliff DC-8N</description>
 <connect gate="G$1" pin="TERM" pad="3"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="490-PJ-043-SMT-TR" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -1731,7 +1763,7 @@ Cliff DC-8N</description>
 </devices>
 </deviceset>
 <deviceset name="Q-HC-46X" prefix="Q" uservalue="yes">
-<description>Quartz Crystal HC-46X</description>
+<description>Through Hole Quartz Crystal HC-46X</description>
 <gates>
 <gate name="G$1" symbol="Q" x="0" y="0"/>
 </gates>
@@ -1742,14 +1774,15 @@ Cliff DC-8N</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="520-160-20-46X" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="BUTTON-FSM14JRT" prefix="J">
-<description>Drucktastenschalter RADIAL TACT SWITCH
-TE Connectivity / Alcoswitch 1571010-1</description>
+<description>TE Connectivity / Alcoswitch Round Switch</description>
 <gates>
 <gate name="G$1" symbol="BUTTON-FSM14JRT" x="0" y="0"/>
 </gates>
@@ -1760,13 +1793,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="2" pad="P$2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="506-1571010-1" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MICRO-SD-DM3AT" prefix="X">
-<description>DM3AT-SF-PEJM5: DM3 Series microSDTM Card Connectors</description>
+<description>DM3 Series microSD Card Connectors</description>
 <gates>
 <gate name="G$1" symbol="MICRO-SD-2" x="0" y="0"/>
 </gates>
@@ -1785,12 +1820,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="VSS" pad="VSS"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="798-DM3ATSFPEJM511" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="C-US" prefix="C" uservalue="yes">
+<description>SMD Multilayer Ceramic Capacitor</description>
 <gates>
 <gate name="G$1" symbol="C-US" x="0" y="0"/>
 </gates>
@@ -1807,7 +1845,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="R-US" prefix="R" uservalue="yes">
-<description>SMD resistor</description>
+<description>SMD Resistor</description>
 <gates>
 <gate name="G$1" symbol="R-US" x="0" y="0"/>
 </gates>
@@ -1824,7 +1862,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="STF203" prefix="IC" uservalue="yes">
-<description>STF203-22.TCT: USB EMI filtering and ESD protection</description>
+<description>USB EMI filtering and ESD protection</description>
 <gates>
 <gate name="G$1" symbol="STF203" x="0" y="0"/>
 </gates>
@@ -1839,13 +1877,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="VBUS" pad="5"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="947-STF203-22.TCT" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA20-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 20 Position</description>
 <gates>
 <gate name="1" symbol="MA20-1" x="0" y="0"/>
 </gates>
@@ -1875,10 +1915,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="649-68000-420HLF" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -1906,13 +1943,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="649-68000-420HLF" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA10-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 10 Position</description>
 <gates>
 <gate name="1" symbol="MA10-1" x="0" y="0"/>
 </gates>
@@ -1932,10 +1971,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="649-69190-410HLF" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -1953,13 +1989,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="649-69190-410HLF" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA03-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 3 Position</description>
 <gates>
 <gate name="G$1" symbol="MA03-1" x="0" y="0"/>
 </gates>
@@ -1971,12 +2009,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="3" pad="3"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA03-1-NO-PL">
@@ -1992,7 +2025,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="MA03-2" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 2 Row, 6 Position</description>
 <gates>
 <gate name="1" symbol="MA03-2" x="0" y="0"/>
 </gates>
@@ -2008,17 +2041,14 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="649-75867-331LF" constant="no"/>
 </technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="N2004" prefix="Q" uservalue="yes">
-<description>DMN2004K-7: N-channel enhancement mode MOSFET</description>
+<description>N-channel enhancement mode MOSFET</description>
 <gates>
 <gate name="G$1" symbol="N-MOS" x="0" y="0"/>
 </gates>
@@ -2030,13 +2060,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="S" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="621-DMN2004K-7" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="BSH205G2R" prefix="Q" uservalue="yes">
-<description>BSH205G2R: P-channel enhancement mode MOSFET</description>
+<description>P-channel enhancement mode MOSFET (-2.3A)</description>
 <gates>
 <gate name="G$1" symbol="P-MOS" x="0" y="0"/>
 </gates>
@@ -2048,14 +2080,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="S" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="771-BSH205G2R" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="Q-MC-306" prefix="Q" uservalue="yes">
-<description>&lt;b&gt;kHz RANGE CRYSTAL UNIT&lt;/b&gt; SMD&lt;p&gt;
-Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; Homepage &lt;/a&gt;</description>
+<description>32.768 kHz SMD Crystal</description>
 <gates>
 <gate name="P" symbol="Q" x="0" y="0"/>
 </gates>
@@ -2067,10 +2100,28 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="MC-306 60.0KHZ  100PPM ,12.5PF" constant="no"/>
-<attribute name="OC_FARNELL" value="1278040" constant="no"/>
-<attribute name="OC_NEWARK" value="31M5576" constant="no"/>
+<attribute name="MOUSER" value="732-MC30632.7680KA0R" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="REG1117" prefix="IC">
+<description>&lt;b&gt;800mA and 1A Low Dropout (LDO) Positive Regulator&lt;/b&gt;&lt;p&gt;
+1.8V, 2.5V, 2.85V, 3.3V, 5V, and Adj</description>
+<gates>
+<gate name="G$1" symbol="REG1117" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SOT223">
+<connects>
+<connect gate="G$1" pin="GND" pad="1"/>
+<connect gate="G$1" pin="VIN" pad="3"/>
+<connect gate="G$1" pin="VOUT" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="511-LD1117S33" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -3636,110 +3687,6 @@ Source: www.kingbright.com</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="burr-brown">
-<description>&lt;b&gt;Burr-Brown Components&lt;/b&gt;&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="SOT223">
-<description>&lt;b&gt;Smal Outline Transistor&lt;/b&gt;</description>
-<wire x1="-3.124" y1="1.731" x2="-3.124" y2="-1.729" width="0.1524" layer="21"/>
-<wire x1="3.124" y1="-1.729" x2="3.124" y2="1.731" width="0.1524" layer="21"/>
-<wire x1="-3.124" y1="1.731" x2="3.124" y2="1.731" width="0.1524" layer="21"/>
-<wire x1="3.124" y1="-1.729" x2="-3.124" y2="-1.729" width="0.1524" layer="21"/>
-<smd name="1" x="-2.2606" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
-<smd name="2" x="0.0254" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
-<smd name="3" x="2.3114" y="-3.1496" dx="1.4986" dy="2.0066" layer="1"/>
-<smd name="4" x="0" y="3.1496" dx="3.81" dy="2.0066" layer="1"/>
-<text x="-2.54" y="4.318" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<text x="-2.794" y="-5.842" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
-<rectangle x1="-1.524" y1="1.778" x2="1.524" y2="3.302" layer="51"/>
-<rectangle x1="-2.667" y1="-3.302" x2="-1.905" y2="-1.778" layer="51"/>
-<rectangle x1="1.905" y1="-3.302" x2="2.667" y2="-1.778" layer="51"/>
-<rectangle x1="-0.381" y1="-3.302" x2="0.381" y2="-1.778" layer="51"/>
-</package>
-<package name="DD-3">
-<description>&lt;b&gt;DPAC&lt;/b&gt;</description>
-<wire x1="-5.398" y1="-4.445" x2="-5.084" y2="-4.445" width="0.1524" layer="21"/>
-<wire x1="-5.084" y1="-4.445" x2="5.076" y2="-4.445" width="0.1524" layer="21"/>
-<wire x1="5.076" y1="-4.445" x2="5.398" y2="-4.445" width="0.1524" layer="21"/>
-<wire x1="5.398" y1="-4.445" x2="5.398" y2="4.128" width="0.1524" layer="21"/>
-<wire x1="5.398" y1="4.128" x2="-5.398" y2="4.128" width="0.1524" layer="21"/>
-<wire x1="-5.398" y1="4.128" x2="-5.398" y2="-4.445" width="0.1524" layer="21"/>
-<wire x1="-5.084" y1="3.81" x2="5.076" y2="3.81" width="0.1524" layer="21"/>
-<wire x1="5.076" y1="3.81" x2="5.076" y2="-4.445" width="0.1524" layer="21"/>
-<wire x1="-5.084" y1="-4.445" x2="-5.084" y2="3.81" width="0.1524" layer="21"/>
-<wire x1="-5.398" y1="4.128" x2="-5.084" y2="3.81" width="0.1524" layer="21"/>
-<wire x1="5.398" y1="4.128" x2="5.076" y2="3.81" width="0.1524" layer="21"/>
-<wire x1="-5.398" y1="4.128" x2="-5.398" y2="5.08" width="0.1524" layer="21"/>
-<wire x1="-5.398" y1="5.08" x2="-4.445" y2="5.715" width="0.1524" layer="21"/>
-<wire x1="-4.445" y1="5.715" x2="4.445" y2="5.715" width="0.1524" layer="21"/>
-<wire x1="4.445" y1="5.715" x2="5.398" y2="5.08" width="0.1524" layer="21"/>
-<wire x1="5.398" y1="5.08" x2="5.398" y2="4.128" width="0.1524" layer="21"/>
-<smd name="1" x="-2.54" y="-7.9375" dx="1.27" dy="5.08" layer="1"/>
-<smd name="2" x="0" y="-7.9375" dx="1.27" dy="5.08" layer="1"/>
-<smd name="3" x="2.54" y="-7.9375" dx="1.27" dy="5.08" layer="1"/>
-<text x="-3.81" y="-10.795" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
-<text x="-2.54" y="-1.27" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
-<rectangle x1="-3.175" y1="-9.525" x2="-1.905" y2="-4.445" layer="51"/>
-<rectangle x1="-0.635" y1="-9.525" x2="0.635" y2="-4.445" layer="51"/>
-<rectangle x1="1.905" y1="-9.525" x2="3.175" y2="-4.445" layer="51"/>
-</package>
-</packages>
-<symbols>
-<symbol name="REG1118">
-<wire x1="-7.62" y1="-7.62" x2="7.62" y2="-7.62" width="0.4064" layer="94"/>
-<wire x1="7.62" y1="-7.62" x2="7.62" y2="5.08" width="0.4064" layer="94"/>
-<wire x1="7.62" y1="5.08" x2="-7.62" y2="5.08" width="0.4064" layer="94"/>
-<wire x1="-7.62" y1="5.08" x2="-7.62" y2="-7.62" width="0.4064" layer="94"/>
-<text x="-7.62" y="5.715" size="1.778" layer="95" ratio="10">&gt;NAME</text>
-<text x="-5.08" y="2.54" size="1.778" layer="96" ratio="10">&gt;VALUE</text>
-<pin name="VIN" x="-12.7" y="0" length="middle" direction="in"/>
-<pin name="VOUT" x="12.7" y="0" length="middle" direction="sup" rot="R180"/>
-<pin name="GND" x="0" y="-12.7" length="middle" direction="pwr" rot="R90"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="REG1117" prefix="IC">
-<description>&lt;b&gt;800mA and 1A Low Dropout (LDO) Positive Regulator&lt;/b&gt;&lt;p&gt;
-1.8V, 2.5V, 2.85V, 3.3V, 5V, and Adj</description>
-<gates>
-<gate name="G$1" symbol="REG1118" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="SOT223">
-<connects>
-<connect gate="G$1" pin="GND" pad="1"/>
-<connect gate="G$1" pin="VIN" pad="3"/>
-<connect gate="G$1" pin="VOUT" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="REG1117" constant="no"/>
-<attribute name="OC_FARNELL" value="1097566" constant="no"/>
-<attribute name="OC_NEWARK" value="14P6981" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="F" package="DD-3">
-<connects>
-<connect gate="G$1" pin="GND" pad="1"/>
-<connect gate="G$1" pin="VIN" pad="3"/>
-<connect gate="G$1" pin="VOUT" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MF" value="TEXAS INSTRUMENTS" constant="no"/>
-<attribute name="MPN" value="REG1117FAKTTT" constant="no"/>
-<attribute name="OC_FARNELL" value="1296120" constant="no"/>
-<attribute name="OC_NEWARK" value="87H2562" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 </libraries>
 <attributes>
 </attributes>
@@ -3756,11 +3703,11 @@ Source: www.kingbright.com</description>
 <part name="LSP4" library="MyComponents" deviceset="LSP27" device=""/>
 <part name="SUPPLY37" library="supply2" deviceset="GND" device=""/>
 <part name="X3" library="MyComponents" deviceset="MINI-USB-5-DPI" device="" value="XM7D-0512"/>
-<part name="SV1" library="MyComponents" deviceset="MA03-2" device=""/>
-<part name="SV2" library="MyComponents" deviceset="MA03-2" device=""/>
+<part name="SV1" library="MyComponents" deviceset="MA03-2" device="" value="75867-331LF"/>
+<part name="SV2" library="MyComponents" deviceset="MA03-2" device="" value="75867-331LF"/>
 <part name="X1" library="MyComponents" deviceset="DC-POWER-JACK" device="2" value="PJ-043-SMT"/>
 <part name="IC2" library="MyComponents" deviceset="ESP-11" device=""/>
-<part name="IC3" library="burr-brown" deviceset="REG1117" device="" value="LD1117"/>
+<part name="IC3" library="MyComponents" deviceset="REG1117" device="" value="LD1117"/>
 <part name="C6" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
 <part name="C7" library="MyComponents" deviceset="C-US" device="0805" value="10 uF"/>
 <part name="SUPPLY31" library="supply2" deviceset="GND" device=""/>
@@ -3807,8 +3754,8 @@ Source: www.kingbright.com</description>
 <part name="SUPPLY24" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY23" library="supply2" deviceset="GND" device=""/>
 <part name="C12" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
-<part name="SV4" library="MyComponents" deviceset="MA20-1" device="NO-PL"/>
-<part name="SV5" library="MyComponents" deviceset="MA10-1" device="NO-PL"/>
+<part name="SV4" library="MyComponents" deviceset="MA20-1" device="NO-PL" value="68000-420HLF"/>
+<part name="SV5" library="MyComponents" deviceset="MA10-1" device="NO-PL" value="69190-410HLF"/>
 <part name="D1" library="MyComponents" deviceset="RGB-LED-5MM" device="" value="WP154A4SUREQBFZGC"/>
 <part name="R6" library="MyComponents" deviceset="R-US" device="0805" value="330"/>
 <part name="SUPPLY33" library="supply2" deviceset="GND" device=""/>
@@ -3822,7 +3769,7 @@ Source: www.kingbright.com</description>
 <part name="Q2" library="MyComponents" deviceset="N2004" device="" value="N2004"/>
 <part name="R2" library="MyComponents" deviceset="R-US" device="0805" value="330K"/>
 <part name="Q1" library="MyComponents" deviceset="BSH205G2R" device="" value="BSH205"/>
-<part name="IC1" library="burr-brown" deviceset="REG1117" device="" value="LD1117"/>
+<part name="IC1" library="MyComponents" deviceset="REG1117" device="" value="LD1117"/>
 <part name="C2" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
 <part name="C3" library="MyComponents" deviceset="C-US" device="0805" value="10 uF"/>
 <part name="R5" library="MyComponents" deviceset="R-US" device="0805" value="10K"/>
@@ -3844,7 +3791,7 @@ Source: www.kingbright.com</description>
 <sheet>
 <description>Centrale and sensor</description>
 <plain>
-<text x="165.1" y="181.61" size="1.778" layer="97">Vmax = min(V(N2004) + V(LD117)) = 20V+15V = 15V</text>
+<text x="165.1" y="181.61" size="1.778" layer="97">Vmax = min(V(N2004) + V(LD1117)) = 20V+15V = 15V</text>
 </plain>
 <instances>
 <instance part="LSP1" gate="1" x="40.64" y="248.92"/>
@@ -3854,11 +3801,11 @@ Source: www.kingbright.com</description>
 <instance part="SUPPLY37" gate="GND" x="48.26" y="238.76"/>
 <instance part="X3" gate="G41" x="259.08" y="15.24"/>
 <instance part="SV1" gate="1" x="86.36" y="246.38" smashed="yes" rot="R180">
-<attribute name="VALUE" x="90.17" y="254" size="1.778" layer="96" rot="R180"/>
-<attribute name="NAME" x="86.36" y="254" size="1.27" layer="95" rot="R180" align="bottom-center"/>
+<attribute name="VALUE" x="93.98" y="254" size="1.778" layer="96" rot="R180"/>
+<attribute name="NAME" x="86.36" y="238.76" size="1.27" layer="95" align="bottom-center"/>
 </instance>
 <instance part="SV2" gate="1" x="223.52" y="248.92" smashed="yes">
-<attribute name="VALUE" x="219.71" y="241.3" size="1.778" layer="96"/>
+<attribute name="VALUE" x="228.6" y="256.54" size="1.778" layer="96" rot="R180"/>
 <attribute name="NAME" x="223.52" y="241.3" size="1.27" layer="95" align="bottom-center"/>
 </instance>
 <instance part="X1" gate="G$1" x="170.18" y="165.1"/>
@@ -4408,7 +4355,7 @@ Source: www.kingbright.com</description>
 <wire x1="78.74" y1="109.22" x2="88.9" y2="109.22" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="BOOT1" class="0">
+<net name="BOOT" class="0">
 <segment>
 <pinref part="R8" gate="G$1" pin="1"/>
 <wire x1="71.12" y1="106.68" x2="71.12" y2="114.3" width="0.1524" layer="91"/>
@@ -5035,29 +4982,32 @@ Source: www.kingbright.com</description>
 <wire x1="38.1" y1="154.94" x2="40.64" y2="154.94" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$42" class="0">
+<net name="D1_BLUE" class="0">
 <segment>
 <pinref part="D1" gate="1" pin="AB"/>
 <pinref part="IC4" gate="MCU" pin="PC2"/>
 <wire x1="50.8" y1="154.94" x2="88.9" y2="154.94" width="0.1524" layer="91"/>
+<label x="76.2" y="154.94" size="1.27" layer="95"/>
 </segment>
 </net>
-<net name="N$43" class="0">
+<net name="D1_RED" class="0">
 <segment>
 <pinref part="D1" gate="1" pin="AR"/>
 <wire x1="50.8" y1="162.56" x2="53.34" y2="162.56" width="0.1524" layer="91"/>
 <wire x1="53.34" y1="162.56" x2="53.34" y2="157.48" width="0.1524" layer="91"/>
 <pinref part="IC4" gate="MCU" pin="PC3"/>
 <wire x1="53.34" y1="157.48" x2="88.9" y2="157.48" width="0.1524" layer="91"/>
+<label x="76.2" y="157.48" size="1.27" layer="95"/>
 </segment>
 </net>
-<net name="N$44" class="0">
+<net name="D1_GREEN" class="0">
 <segment>
 <pinref part="IC4" gate="MCU" pin="PC1"/>
 <wire x1="53.34" y1="152.4" x2="88.9" y2="152.4" width="0.1524" layer="91"/>
 <wire x1="53.34" y1="152.4" x2="53.34" y2="147.32" width="0.1524" layer="91"/>
 <pinref part="D1" gate="1" pin="AG"/>
 <wire x1="53.34" y1="147.32" x2="50.8" y2="147.32" width="0.1524" layer="91"/>
+<label x="76.2" y="152.4" size="1.27" layer="95"/>
 </segment>
 </net>
 <net name="PA0" class="0">
