@@ -12,10 +12,12 @@ This project tries to address this problem and provides small, universal, and br
 The directory **pcb** contains schematic and board layout developed in Eagle CAD:
 - The adapter boards are just one-side breadboard adapters for LQFP32/48/64 IC's:
 ![Adapter boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/adapter_boards_layout.png)
+
 You can order these boards [here](http://dev.dirtypcbs.com/store/designer/details/9348/5770/lqfp-adapters-zip)
 
 - The developments boards are two-side breadboard adapters for LQFP32/48/64 IC's, equipent with adaptable power supply circuit, HSE and LSE crystal circuit, reset button, and a **custom** 10-pin JTAG connector. SMD size for passive components is 0805. The adapter between 20-pin JTAG and this custom connector is also included in the set:
 ![Development boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/development_boards_layout.png)
+
 You can order these boards [here](http://dev.dirtypcbs.com/store/designer/details/9348/5771/stm32-development-boards)
 
 The final boards look like this:
