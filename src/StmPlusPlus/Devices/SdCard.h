@@ -22,6 +22,8 @@
 #define SDCARD_H_
 
 #ifdef STM32F405xx
+
+#include "stm32f4xx_hal.h"
 #ifdef HAL_SD_MODULE_ENABLED
 
 #include "../StmPlusPlus.h"

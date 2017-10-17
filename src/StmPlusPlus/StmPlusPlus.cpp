@@ -71,7 +71,7 @@ void System::setClock (uint32_t pllDiv, uint32_t pllMUL, uint32_t FLatency, RtcT
     RCC_OscInitStruct.PLL.PLLM = pllDiv;
     RCC_OscInitStruct.PLL.PLLN = pllMUL;
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ = 8;
+    RCC_OscInitStruct.PLL.PLLQ = RCC_PLLP_DIV4;
     #ifdef STM32F410Rx
     RCC_OscInitStruct.PLL.PLLR = 2;
     #endif
@@ -79,7 +79,7 @@ void System::setClock (uint32_t pllDiv, uint32_t pllMUL, uint32_t FLatency, RtcT
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
     #endif
 
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
