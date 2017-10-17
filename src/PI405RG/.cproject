@@ -32,11 +32,11 @@
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.593714392" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false"/>
 								<option id="gnu.c.compiler.option.debugging.level.1458489504" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1084480816" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/src"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/CMSIS/device"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/CMSIS/core"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/CMSIS/device"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/CMSIS/core"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/HAL_Driver/Inc/Legacy"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1710267109" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -53,11 +53,11 @@
 								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.1345484444" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.2131902376" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1601823830" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/src"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/CMSIS/device"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/CMSIS/core"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/CMSIS/device"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/CMSIS/core"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/HAL_Driver/Inc/Legacy"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.2106067797" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -82,11 +82,11 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.1955880712" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver"/>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.165129431" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.493425010" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/src"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/CMSIS/device"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/CMSIS/core"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="/work/mcu/solutions/stm32DevelopmentBoards/src/PI405RG/HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/CMSIS/device"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/CMSIS/core"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/HAL_Driver/Inc/Legacy"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.680104601" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.164963780" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
@@ -128,11 +128,11 @@
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.107701947" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1389765819" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.543127194" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/CMSIS/device&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/CMSIS/core&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/HAL_Driver/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/HAL_Driver/Inc/Legacy&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/CMSIS/device&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/CMSIS/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/HAL_Driver/Inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/HAL_Driver/Inc/Legacy&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.2045051992" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32F405RGTx"/>
@@ -148,11 +148,11 @@
 								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.533815402" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.cpp.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.274001249" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1577783779" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/CMSIS/device&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/CMSIS/core&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/HAL_Driver/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/HAL_Driver/Inc/Legacy&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/CMSIS/device&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/CMSIS/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/HAL_Driver/Inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/HAL_Driver/Inc/Legacy&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1537507510" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32F405RGTx"/>
@@ -174,11 +174,11 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.1454179055" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver"/>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.371612627" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.1502525708" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/CMSIS/device&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/CMSIS/core&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/HAL_Driver/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/HAL_Driver/Inc/Legacy&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/CMSIS/device&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/CMSIS/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/HAL_Driver/Inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;$${ProjDirPath}/HAL_Driver/Inc/Legacy&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.273539881" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1693886156" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
