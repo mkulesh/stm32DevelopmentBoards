@@ -2,10 +2,10 @@
 
 * Ensure that the [esptool](https://github.com/themadinventor/esptool) is istalled and goto ditectory *stm32DevelopmentBoards/src/PI405RG/esp*
 
-* Ensure that power if OFF
+* Ensure that power is OFF
 
 * Connect an USB-UART adapter to ESP pins GND/TX/RX as shown on the figure below:
-![Page logo](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/src/PI405RG/before_programming.jpg)
+![Before programming](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/src/PI405RG/esp/before_programming.jpg)
 
 * On the host, ensure whether the USB-UART adapter is alive:
 ```
@@ -13,7 +13,7 @@
 Bus 001 Device 035: ID 0403:6001 Future Technology Devices International, Ltd FT232 Serial (UART) IC
 ```
 
-* Run any terminal and coonect to the ESP using following settings: baudrate **9600**, data bits **8**, parity **none**, stop bits **1**.
+* Run any terminal and connect to the ESP using following settings: baudrate **9600**, data bits **8**, parity **none**, stop bits **1**.
 For example, you can run CoolTerm, open there a file *CoolTermConfig.stc* and change the baudrate to **9600**.
 
 * Switch power to ON
@@ -48,7 +48,7 @@ Hard resetting...
 
 * Switch power to OFF, disconnect **FLASH** pins
 
-* In the terminal, change the baudrate to **115299**, connect to ESP in terminal and switch power to ON again. 
+* In the terminal, change the baudrate to **115299**, connect to ESP and switch power to ON again. 
 After ESP logs *ready*, check the actial firmware version using command *AT+GMR*:
 ```
 AT+GMR
