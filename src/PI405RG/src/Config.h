@@ -141,6 +141,11 @@ public:
         return parameters[CfgParameter::WLAN_NAME];
     }
     
+    inline const char * getWlanPass () const
+    {
+        return parameters[CfgParameter::WLAN_PASS];
+    }
+
     inline const char * getThisIp () const
     {
         return parameters[CfgParameter::THIS_IP];

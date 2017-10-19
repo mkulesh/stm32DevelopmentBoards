@@ -287,7 +287,7 @@ public:
         case EspState::SSID_FOUND:
             if (esp.isPendingProcessing())
             {
-                if (esp.connectToWlan(cfg.getWlanName(), "ri1UR0lLuIvJq2iIdrqg"))
+                if (esp.connectToWlan(cfg.getWlanName(), cfg.getWlanPass()))
                 {
                     esp.delay(0);
                     espState = EspState::SSID_CONNECTED;
