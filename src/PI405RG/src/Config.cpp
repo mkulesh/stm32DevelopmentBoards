@@ -30,8 +30,8 @@ using namespace StmPlusPlus;
  * Class ConfigurationParametes
  ************************************************************************/
 
-const char * CfgParameter::strings[] = { "THIS_IP", "IP_MASK", "GATE_IP", "WLAN_NAME", "WLAN_PASS", "SERVER_IP",
-                                         "SERVER_PORT" };
+const char * CfgParameter::strings[] = { "THIS_IP", "IP_MASK", "GATE_IP", "WLAN_NAME", "WLAN_PASS",
+                                         "SERVER_IP", "SERVER_PORT" };
 
 ConvertClass<CfgParameter::Type, CfgParameter::size, CfgParameter::strings> CfgParameter::Convert;
 

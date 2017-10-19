@@ -132,9 +132,40 @@ public:
     static const char SEPARATOR = '=';
     static const size_t MAX_LINE_LENGTH = 32;
 
-    Config (StmPlusPlus::IOPin & _pinSdPower, StmPlusPlus::Devices::SdCard & _sdCard, const char * _fileName);
+    Config (StmPlusPlus::IOPin & _pinSdPower, StmPlusPlus::Devices::SdCard & _sdCard,
+            const char * _fileName);
     bool readConfiguration ();
 
+    inline const char * getWlanName () const
+    {
+        return parameters[CfgParameter::WLAN_NAME];
+    }
+    
+    inline const char * getThisIp () const
+    {
+        return parameters[CfgParameter::THIS_IP];
+    }
+    
+    inline const char * getGateIp () const
+    {
+        return parameters[CfgParameter::GATE_IP];
+    }
+    
+    inline const char * getIpMask () const
+    {
+        return parameters[CfgParameter::IP_MASK];
+    }
+    
+    inline const char * getServerIp () const
+    {
+        return parameters[CfgParameter::SERVER_IP];
+    }
+    
+    inline const char * getServerPort () const
+    {
+        return parameters[CfgParameter::SERVER_PORT];
+    }
+    
 private:
     
     // File handling
