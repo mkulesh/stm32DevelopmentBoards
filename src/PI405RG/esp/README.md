@@ -6,7 +6,8 @@
 
 * Ensure that power for STM32-Pi board is OFF
 
-* Connect pins 1 and 2 on the ESP-PWR switch. Connect an USB-UART adapter to ESP pins GND/TX/RX as shown on the figure below:
+* Connect pins **1** and **2** on the **ESP-PWR** switch. Connect an USB-UART adapter to ESP pins GND/TX/RX as shown on the figure below:
+
 ![Before programming](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/src/PI405RG/esp/before_programming.jpg)
 
 * On the host, ensure whether the USB-UART adapter is alive:
@@ -58,4 +59,4 @@ SDK version:1.0.1
 compile time:May  9 2015 16:00:00
 OK
 ``` 
-* Connect pins 2 and 3 on the ESP-PWR switch. Now ESP can be accessed from MCU using USART2.
+* Connect pins **2** and **3** on the **ESP-PWR** switch. Now ESP can be accessed from MCU using USART2.
