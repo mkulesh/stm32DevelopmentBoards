@@ -1,10 +1,12 @@
 # How to setup ESP-11 and flash firmware (on Linux host)
 
-* Ensure that the [esptool](https://github.com/themadinventor/esptool) is istalled and goto ditectory *stm32DevelopmentBoards/src/PI405RG/esp*
+* Ensure that the [esptool](https://github.com/themadinventor/esptool) is istalled on the host PC
 
-* Ensure that power is OFF
+* Select ditectory *stm32DevelopmentBoards/src/PI405RG/esp*
 
-* Connect an USB-UART adapter to ESP pins GND/TX/RX as shown on the figure below:
+* Ensure that power for STM32-Pi board is OFF
+
+* Connect pins 1 and 2 on the ESP-PWR switch. Connect an USB-UART adapter to ESP pins GND/TX/RX as shown on the figure below:
 ![Before programming](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/src/PI405RG/esp/before_programming.jpg)
 
 * On the host, ensure whether the USB-UART adapter is alive:
@@ -13,8 +15,7 @@
 Bus 001 Device 035: ID 0403:6001 Future Technology Devices International, Ltd FT232 Serial (UART) IC
 ```
 
-* Run any terminal and connect to the ESP using following settings: baudrate **9600**, data bits **8**, parity **none**, stop bits **1**.
-For example, you can run CoolTerm, open there a file *CoolTermConfig.stc* and change the baudrate to **9600**.
+* Run any terminal and connect to the ESP using following settings: baudrate **9600**, data bits **8**, parity **none**, stop bits **1**. For example, you can run CoolTerm, open there a file *CoolTermConfig.stc* and change the baudrate to **9600**.
 
 * Switch power to ON
 
@@ -26,7 +27,7 @@ ready
 
 * Switch power to OFF, disconnect terminal, connect the pins **FLASH** and switch power to ON again.
 
-* Run the script *flash-firmware.sh*: 
+* Adapt and run the script *flash-firmware.sh*: 
 ```
 [stm32DevelopmentBoards/src/PI405RG/esp]# ./flash-firmware.sh 
 Make sure that GPIO0 is connected to ground
@@ -48,7 +49,7 @@ Hard resetting...
 
 * Switch power to OFF, disconnect **FLASH** pins
 
-* In the terminal, change the baudrate to **115299**, connect to ESP and switch power to ON again. 
+* In the terminal, change the baudrate to **115200**, connect to ESP and switch power to ON again. 
 After ESP logs *ready*, check the actial firmware version using command *AT+GMR*:
 ```
 AT+GMR
@@ -57,3 +58,4 @@ SDK version:1.0.1
 compile time:May  9 2015 16:00:00
 OK
 ``` 
+* Connect pins 2 and 3 on the ESP-PWR switch. Now ESP can be accessed from MCU using USART2.
