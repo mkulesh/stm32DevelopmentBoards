@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.0005" altunitdist="inch" altunit="inch"/>
+<grid distance="0.25" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.0005" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -40,7 +40,7 @@
 <layer number="44" name="Drills" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
 <layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
@@ -168,7 +168,7 @@
 <text x="14.25" y="24.5" size="1.016" layer="25" align="center-left">GND</text>
 <text x="14.25" y="27" size="1.016" layer="25" align="center-left">TX</text>
 <text x="14.25" y="29.5" size="1.016" layer="25" align="center-left">RX</text>
-<text x="61.25" y="17.5" size="1.016" layer="25" align="bottom-center">SD
+<text x="64.75" y="15.75" size="1.016" layer="25" align="bottom-center">SD
 VDD</text>
 <text x="12" y="54.25" size="1.016" layer="25" rot="R180" align="center-left">ESP-VDD</text>
 <text x="14.25" y="11.5" size="1.016" layer="25" align="center-left">GND</text>
@@ -177,9 +177,10 @@ VDD</text>
 <text x="8.25" y="3.5" size="1.016" layer="25" align="center-left">SWCLK/
 SWDIO</text>
 <dimension x1="51" y1="53.1" x2="51" y2="2.9" x3="93.02" y3="28" textsize="1.27" layer="47"/>
-<text x="63.5" y="39.5" size="1.016" layer="25">STM32-Pi Board
-Revision 1.0
+<text x="62.25" y="36.25" size="1.016" layer="25">STM32-Pi Board
+Revision 1.1
 (C) Mikhail Kulesh, 2017</text>
+<text x="8.5" y="13.5" size="1.016" layer="25" align="center-left">N/C</text>
 </plain>
 <libraries>
 <library name="stm32">
@@ -1007,9 +1008,9 @@ design rules under a new name.</description>
 <element name="LSP2" library="MyComponents" package="LSP27" value="LSP27" x="80.5" y="52.5" smashed="yes" rot="R90"/>
 <element name="LSP3" library="MyComponents" package="LSP27" value="LSP27" x="22.5" y="3.5" smashed="yes" rot="R90"/>
 <element name="LSP4" library="MyComponents" package="LSP27" value="LSP27" x="22.5" y="52.5" smashed="yes" rot="R90"/>
-<element name="X3" library="MyComponents" package="XM7D-0512" value="XM7D-0512" x="72.9" y="49" smashed="yes">
-<attribute name="VALUE" x="73" y="45.25" size="1.016" layer="25" align="bottom-center"/>
-<attribute name="MOUSER" value="653-XM7D-0512" x="72.9" y="49" size="1.778" layer="27" display="off"/>
+<element name="X3" library="MyComponents" package="XM7D-0512" value="XM7D-0512" x="73.15" y="49.25" smashed="yes">
+<attribute name="VALUE" x="73.25" y="45.5" size="1.016" layer="25" align="bottom-center"/>
+<attribute name="MOUSER" value="653-XM7D-0512" x="73.15" y="49.25" size="1.778" layer="27" display="off"/>
 </element>
 <element name="SV1" library="MyComponents" package="MA03-2" value="75867-331LF" x="11" y="9" smashed="yes" rot="R90">
 <attribute name="VALUE" x="15.191" y="7.73" size="1.27" layer="27" ratio="10" rot="R90"/>
@@ -1029,28 +1030,28 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="31" y="38.5" size="1.016" layer="26" ratio="10" rot="MR180" align="bottom-center"/>
 <attribute name="MOUSER" value="511-LD1117S33" x="31" y="37" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
-<element name="C6" library="MyComponents" package="C0805" value="0.1 uF" x="34.25" y="43.5" smashed="yes" rot="MR0">
+<element name="C6" library="MyComponents" package="C0805" value="0.1uF" x="34.25" y="43.5" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="34.25" y="44.75" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 </element>
-<element name="C7" library="MyComponents" package="C0805" value="10 uF" x="29.75" y="29.25" smashed="yes" rot="MR0">
+<element name="C7" library="MyComponents" package="C0805" value="10uF" x="29.75" y="29.25" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="29.75" y="30.5" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 </element>
 <element name="IC4" library="stm32" package="LQFP64" value="STM32F405RG" x="47" y="24" smashed="yes" rot="R180">
 <attribute name="VALUE" x="47" y="16.5" size="1.016" layer="25" rot="R180" align="bottom-center"/>
 </element>
-<element name="C8" library="MyComponents" package="C0805" value="0.1 uF" x="54.75" y="17.25" smashed="yes" rot="R180">
+<element name="C8" library="MyComponents" package="C0805" value="0.1uF" x="54.75" y="17.25" smashed="yes" rot="R180">
 <attribute name="VALUE" x="54.75" y="18.5" size="1.016" layer="25" align="bottom-center"/>
 </element>
-<element name="C9" library="MyComponents" package="C0805" value="0.1 uF" x="40.25" y="16.25" smashed="yes" rot="R90">
+<element name="C9" library="MyComponents" package="C0805" value="0.1uF" x="40.25" y="16.25" smashed="yes" rot="R90">
 <attribute name="VALUE" x="40.25" y="14" size="1.016" layer="25" rot="R180" align="bottom-center"/>
 </element>
-<element name="C10" library="MyComponents" package="C0805" value="0.1 uF" x="43.5" y="33.75" smashed="yes" rot="R180">
+<element name="C10" library="MyComponents" package="C0805" value="0.1uF" x="43.5" y="33.75" smashed="yes" rot="R180">
 <attribute name="VALUE" x="43.5" y="32.52" size="1.016" layer="25" rot="R180" align="bottom-center"/>
 </element>
 <element name="C14" library="MyComponents" package="C0805" value="4.7uF" x="29.75" y="26.25" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="29.75" y="25" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
 </element>
-<element name="C16" library="MyComponents" package="C0805" value="0.1 uF" x="16.75" y="16.25" smashed="yes" rot="MR180">
+<element name="C16" library="MyComponents" package="C0805" value="0.1uF" x="16.75" y="16.25" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="16.75" y="17.5" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 </element>
 <element name="R8" library="MyComponents" package="R0805" value="10K" x="54.25" y="25.75" smashed="yes" rot="MR180">
@@ -1083,24 +1084,24 @@ design rules under a new name.</description>
 <element name="R7" library="MyComponents" package="R0805" value="150" x="53" y="36.25" smashed="yes" rot="R90">
 <attribute name="VALUE" x="53" y="38.5" size="1.016" layer="25" align="bottom-center"/>
 </element>
-<element name="C18" library="MyComponents" package="C0805" value="2.2 uF" x="54.25" y="20.25" smashed="yes" rot="MR0">
+<element name="C18" library="MyComponents" package="C0805" value="2.2uF" x="54.25" y="20.25" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="54.25" y="18.98" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
 </element>
-<element name="C17" library="MyComponents" package="C0805" value="2.2 uF" x="40.04" y="22.658" smashed="yes" rot="MR180">
+<element name="C17" library="MyComponents" package="C0805" value="2.2uF" x="40.04" y="22.658" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="40.04" y="23.908" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 </element>
-<element name="C11" library="MyComponents" package="C0805" value="0.1 uF" x="38" y="28.25" smashed="yes" rot="R270">
+<element name="C11" library="MyComponents" package="C0805" value="0.1uF" x="38" y="28.25" smashed="yes" rot="R270">
 <attribute name="VALUE" x="38" y="25.75" size="1.016" layer="25" rot="R180" align="bottom-center"/>
 </element>
-<element name="C13" library="MyComponents" package="C0805" value="1.0 uF" x="43.5" y="36" smashed="yes" rot="R180">
+<element name="C13" library="MyComponents" package="C0805" value="1.0uF" x="43.5" y="36" smashed="yes" rot="R180">
 <attribute name="VALUE" x="43.5" y="38.52" size="1.016" layer="25" align="bottom-center"/>
 </element>
 <element name="X2" library="MyComponents" package="DM3AT" value="DM3AT" x="75" y="27" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="75" y="19.5" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
 <attribute name="MOUSER" value="798-DM3ATSFPEJM511" x="75" y="27" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
-<element name="C19" library="MyComponents" package="C0805" value="0.1 uF" x="62.5" y="27.75" smashed="yes" rot="MR180">
-<attribute name="VALUE" x="62.5" y="29.02" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<element name="C19" library="MyComponents" package="C0805" value="0.1uF" x="61.5" y="27.75" smashed="yes" rot="MR180">
+<attribute name="VALUE" x="61.5" y="29.02" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 </element>
 <element name="R13" library="MyComponents" package="R0805" value="330" x="82" y="10" smashed="yes" rot="R90">
 <attribute name="VALUE" x="79.5" y="10" size="1.016" layer="25" rot="R180" align="bottom-center"/>
@@ -1108,28 +1109,15 @@ design rules under a new name.</description>
 <element name="LED2" library="led" package="CHIP-LED0805" value="R971" x="82" y="15.5" smashed="yes" rot="R180">
 <attribute name="NAME" x="79.25" y="15.5" size="1.016" layer="25" rot="R180" align="bottom-center"/>
 </element>
-<element name="R12" library="MyComponents" package="R0805" value="10K" x="69.5" y="12" smashed="yes" rot="MR0">
-<attribute name="VALUE" x="69.5" y="13.27" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
-</element>
-<element name="R9" library="MyComponents" package="R0805" value="1.4M" x="69.5" y="8" smashed="yes" rot="MR180">
-<attribute name="VALUE" x="69.5" y="9.27" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
-</element>
-<element name="Q6" library="MyComponents" package="SOT23" value="N2004" x="64" y="15" smashed="yes" rot="MR270">
-<attribute name="VALUE" x="61.905" y="12.825" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
-<attribute name="MOUSER" value="621-DMN2004K-7" x="64" y="15" size="1.778" layer="28" rot="MR270" display="off"/>
-</element>
-<element name="R11" library="MyComponents" package="R0805" value="330K" x="69.5" y="16" smashed="yes" rot="MR0">
-<attribute name="VALUE" x="69.5" y="17.27" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
-</element>
-<element name="Q5" library="MyComponents" package="SOT23" value="BSH205" x="64" y="9" smashed="yes" rot="MR270">
-<attribute name="VALUE" x="61.405" y="10.325" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
-<attribute name="MOUSER" value="771-BSH205G2R" x="64" y="9" size="1.778" layer="28" rot="MR270" display="off"/>
+<element name="Q5" library="MyComponents" package="SOT23" value="BSH205" x="61.5" y="23.5" smashed="yes" rot="MR90">
+<attribute name="VALUE" x="61.5" y="21.5" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="771-BSH205G2R" x="61.5" y="23.5" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="IC5" library="MyComponents" package="SC70-6" value="STF203-22" x="72.9" y="44.5" smashed="yes" rot="MR180">
-<attribute name="VALUE" x="72.9" y="40.028" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="VALUE" x="72.9" y="39.778" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 <attribute name="MOUSER" value="947-STF203-22.TCT" x="72.9" y="44.5" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
-<element name="C12" library="MyComponents" package="C0805" value="0.1 uF" x="56" y="28.5" smashed="yes" rot="R90">
+<element name="C12" library="MyComponents" package="C0805" value="0.1uF" x="56" y="28.5" smashed="yes" rot="R90">
 <attribute name="VALUE" x="56" y="30.77" size="1.016" layer="25" align="bottom-center"/>
 </element>
 <element name="SV4" library="MyComponents" package="MA20-1-NO-PL" value="68000-420HLF" x="51" y="2.9" smashed="yes" rot="R180">
@@ -1145,7 +1133,7 @@ design rules under a new name.</description>
 <attribute name="MOUSER" value="604-WP154A4SUREQBFZG" x="40.75" y="43.25" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R6" library="MyComponents" package="R0805" value="330" x="38.25" y="42.5" smashed="yes" rot="MR90">
-<attribute name="VALUE" x="38.25" y="44.75" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="VALUE" x="38.25" y="40.25" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
 </element>
 <element name="L2" library="MyComponents" package="L0603" value="420 Ohms" x="38.5" y="35.25" smashed="yes" rot="R270">
 <attribute name="NAME" x="38.5" y="32.98" size="1.016" layer="25" rot="R180" align="bottom-center"/>
@@ -1182,10 +1170,10 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="22.5" y="35.75" size="1.016" layer="25" ratio="10" align="bottom-center"/>
 <attribute name="MOUSER" value="511-LD1117S33" x="22.5" y="35.5" size="1.778" layer="27" display="off"/>
 </element>
-<element name="C2" library="MyComponents" package="C0805" value="0.1 uF" x="23.75" y="29.75" smashed="yes">
+<element name="C2" library="MyComponents" package="C0805" value="0.1uF" x="23.75" y="29.75" smashed="yes">
 <attribute name="VALUE" x="26" y="29.75" size="1.016" layer="25" align="center-left"/>
 </element>
-<element name="C3" library="MyComponents" package="C0805" value="10 uF" x="17.25" y="34.25" smashed="yes" rot="MR90">
+<element name="C3" library="MyComponents" package="C0805" value="10uF" x="17.25" y="34.25" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="17.25" y="36.5" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 </element>
 <element name="R5" library="MyComponents" package="R0805" value="10K" x="14" y="44.75" smashed="yes" rot="MR270">
@@ -1340,9 +1328,7 @@ design rules under a new name.</description>
 <contactref element="C10" pad="1"/>
 <contactref element="C11" pad="1"/>
 <contactref element="C13" pad="1"/>
-<contactref element="R11" pad="1"/>
 <contactref element="R13" pad="1"/>
-<contactref element="R12" pad="1"/>
 <contactref element="X2" pad="VSS"/>
 <contactref element="C19" pad="1"/>
 <contactref element="X2" pad="DETECT1"/>
@@ -1472,10 +1458,8 @@ design rules under a new name.</description>
 <contactref element="C11" pad="2"/>
 <contactref element="C13" pad="2"/>
 <contactref element="IC4" pad="13"/>
-<contactref element="R9" pad="2"/>
 <contactref element="Q5" pad="2"/>
 <contactref element="SV1" pad="1"/>
-<wire x1="67.15" y1="6" x2="65.1" y2="8.05" width="0.254" layer="16"/>
 <wire x1="44.75" y1="29.75" x2="44.75" y2="31.5" width="0.254" layer="1"/>
 <wire x1="44.75" y1="31.5" x2="44" y2="32.25" width="0.254" layer="1"/>
 <wire x1="44" y1="32.25" x2="43.25" y2="32.25" width="0.254" layer="1"/>
@@ -1513,15 +1497,6 @@ design rules under a new name.</description>
 <wire x1="42.55" y1="37.45" x2="42.55" y2="36" width="0.254" layer="1"/>
 <wire x1="38" y1="27.3" x2="37.95" y2="27.25" width="0.254" layer="1"/>
 <wire x1="37.95" y1="27.25" x2="36.25" y2="27.25" width="0.254" layer="1"/>
-<wire x1="67.15" y1="6" x2="70" y2="6" width="0.254" layer="16"/>
-<wire x1="70" y1="6" x2="70.5" y2="6.5" width="0.254" layer="16"/>
-<wire x1="70.5" y1="6.5" x2="70.5" y2="7.95" width="0.254" layer="16"/>
-<wire x1="70.5" y1="7.95" x2="70.45" y2="8" width="0.254" layer="16"/>
-<via x="72.25" y="8" extent="1-16" drill="0.5"/>
-<wire x1="72.25" y1="8" x2="64.75" y2="15.5" width="0.254" layer="1"/>
-<wire x1="64.75" y1="15.5" x2="53.75" y2="15.5" width="0.254" layer="1"/>
-<wire x1="70.5" y1="7.95" x2="70.55" y2="8" width="0.254" layer="16"/>
-<wire x1="70.55" y1="8" x2="72.25" y2="8" width="0.254" layer="16"/>
 <wire x1="28.8" y1="17.95" x2="31.25" y2="15.5" width="0.6096" layer="16"/>
 <wire x1="36.75" y1="15.5" x2="38.5" y2="17.25" width="0.6096" layer="16"/>
 <via x="31.25" y="15.5" extent="1-16" drill="0.5"/>
@@ -1562,6 +1537,13 @@ design rules under a new name.</description>
 <wire x1="26.5" y1="39.75" x2="26.5" y2="35.25" width="0.254" layer="1"/>
 <wire x1="26.85" y1="11.1" x2="26.87" y2="11.1" width="0.6096" layer="1"/>
 <wire x1="26.87" y1="11.1" x2="26.87" y2="2.9" width="0.6096" layer="1"/>
+<via x="58.75" y="19.5" extent="1-16" drill="0.5"/>
+<wire x1="58.75" y1="19.5" x2="58.75" y2="23.75" width="0.254" layer="16"/>
+<wire x1="58.75" y1="23.75" x2="59.45" y2="24.45" width="0.254" layer="16"/>
+<wire x1="59.45" y1="24.45" x2="60.4" y2="24.45" width="0.254" layer="16"/>
+<wire x1="58.75" y1="19.5" x2="58.75" y2="16.75" width="0.254" layer="1"/>
+<wire x1="58.75" y1="16.75" x2="57.5" y2="15.5" width="0.254" layer="1"/>
+<wire x1="57.5" y1="15.5" x2="53.75" y2="15.5" width="0.254" layer="1"/>
 </signal>
 <signal name="NRST">
 <contactref element="IC4" pad="7"/>
@@ -1665,54 +1647,39 @@ design rules under a new name.</description>
 <wire x1="48.75" y1="31.5" x2="52.55" y2="35.3" width="0.254" layer="1"/>
 <wire x1="53" y1="35.3" x2="52.55" y2="35.3" width="0.254" layer="1"/>
 </signal>
-<signal name="N$136">
-<contactref element="R12" pad="2"/>
-<contactref element="Q6" pad="2"/>
-<wire x1="65.1" y1="14.05" x2="66.5" y2="14.05" width="0.254" layer="16"/>
-<wire x1="66.5" y1="14.05" x2="68.55" y2="12" width="0.254" layer="16"/>
-</signal>
 <signal name="N$120">
 <contactref element="LED2" pad="C"/>
 <contactref element="R13" pad="2"/>
 <wire x1="82" y1="14.45" x2="82" y2="10.95" width="0.254" layer="1"/>
-</signal>
-<signal name="D_VG">
-<contactref element="Q6" pad="3"/>
-<contactref element="R9" pad="1"/>
-<contactref element="Q5" pad="1"/>
-<wire x1="62.9" y1="15" x2="62.9" y2="12.15" width="0.254" layer="16"/>
-<wire x1="62.9" y1="12.15" x2="65.1" y2="9.95" width="0.254" layer="16"/>
-<wire x1="68.55" y1="8" x2="68.55" y2="8.028" width="0.254" layer="16"/>
-<wire x1="65.1" y1="9.95" x2="66.6" y2="9.95" width="0.254" layer="16"/>
-<wire x1="66.6" y1="9.95" x2="68.55" y2="8" width="0.254" layer="16"/>
 </signal>
 <signal name="SD-VDD">
 <contactref element="LED2" pad="A"/>
 <contactref element="Q5" pad="3"/>
 <contactref element="X2" pad="VDD"/>
 <contactref element="C19" pad="2"/>
-<wire x1="63.45" y1="27.75" x2="67.305" y2="27.75" width="0.254" layer="16"/>
+<wire x1="62.45" y1="27.75" x2="67.305" y2="27.75" width="0.254" layer="16"/>
 <wire x1="67.305" y1="27.75" x2="67.315" y2="27.76" width="0.254" layer="16"/>
-<wire x1="63.45" y1="27.75" x2="63.45" y2="19.7" width="0.254" layer="16"/>
-<wire x1="61.25" y1="10.65" x2="62.9" y2="9" width="0.254" layer="16"/>
-<via x="61.25" y="16.5" extent="1-16" drill="0.6" diameter="1.27"/>
-<wire x1="61.25" y1="10.65" x2="61.25" y2="16.5" width="0.254" layer="16"/>
-<wire x1="63.45" y1="19.7" x2="61.25" y2="17.5" width="0.254" layer="16"/>
-<wire x1="61.25" y1="17.5" x2="61.25" y2="16.5" width="0.254" layer="16"/>
+<via x="64.75" y="19.5" extent="1-16" drill="0.6" diameter="1.27"/>
 <contactref element="R17" pad="2"/>
 <contactref element="R16" pad="2"/>
 <contactref element="R15" pad="2"/>
 <contactref element="R14" pad="2"/>
 <contactref element="R10" pad="2"/>
-<wire x1="61.25" y1="16.5" x2="69.75" y2="16.5" width="0.254" layer="1"/>
-<wire x1="69.75" y1="16.5" x2="81.95" y2="16.5" width="0.254" layer="1"/>
 <wire x1="69.7" y1="33.75" x2="69.7" y2="31" width="0.254" layer="1"/>
 <wire x1="69.7" y1="31" x2="69.7" y2="28.25" width="0.254" layer="1"/>
 <wire x1="69.7" y1="28.25" x2="69.7" y2="25.5" width="0.254" layer="1"/>
 <wire x1="69.7" y1="25.5" x2="69.7" y2="22.75" width="0.254" layer="1"/>
 <wire x1="69.7" y1="22.75" x2="69.75" y2="22.7" width="0.254" layer="1"/>
-<wire x1="69.75" y1="22.7" x2="69.75" y2="16.5" width="0.254" layer="1"/>
 <wire x1="81.95" y1="16.5" x2="82" y2="16.55" width="0.254" layer="1"/>
+<wire x1="62.45" y1="27.75" x2="62.6" y2="27.75" width="0.254" layer="16"/>
+<wire x1="62.6" y1="27.75" x2="62.6" y2="23.5" width="0.254" layer="16"/>
+<wire x1="64.75" y1="19.5" x2="62.6" y2="21.65" width="0.254" layer="16"/>
+<wire x1="62.6" y1="21.65" x2="62.6" y2="23.5" width="0.254" layer="16"/>
+<wire x1="81.95" y1="16.5" x2="78.95" y2="19.5" width="0.254" layer="1"/>
+<wire x1="78.95" y1="19.5" x2="69.75" y2="19.5" width="0.254" layer="1"/>
+<wire x1="69.75" y1="19.5" x2="64.75" y2="19.5" width="0.254" layer="1"/>
+<wire x1="69.7" y1="28.25" x2="69.75" y2="28.2" width="0.254" layer="1"/>
+<wire x1="69.75" y1="28.2" x2="69.75" y2="19.5" width="0.254" layer="1"/>
 </signal>
 <signal name="SD-D1">
 <contactref element="IC4" pad="40"/>
@@ -1782,16 +1749,13 @@ design rules under a new name.</description>
 <wire x1="67.8" y1="28.25" x2="66.3" y2="29.75" width="0.254" layer="1"/>
 </signal>
 <signal name="SD-ON">
-<contactref element="Q6" pad="1"/>
-<contactref element="R11" pad="2"/>
 <contactref element="IC4" pad="50"/>
-<via x="63.75" y="17.75" extent="1-16" drill="0.5"/>
-<wire x1="52.75" y1="20.75" x2="60.75" y2="20.75" width="0.254" layer="1"/>
-<wire x1="60.75" y1="20.75" x2="63.75" y2="17.75" width="0.254" layer="1"/>
-<wire x1="63.75" y1="17.75" x2="63.75" y2="17.3" width="0.254" layer="16"/>
-<wire x1="63.75" y1="17.3" x2="65.1" y2="15.95" width="0.254" layer="16"/>
-<wire x1="65.1" y1="15.95" x2="65.15" y2="16" width="0.254" layer="16"/>
-<wire x1="65.15" y1="16" x2="68.55" y2="16" width="0.254" layer="16"/>
+<via x="60.5" y="19.5" extent="1-16" drill="0.5"/>
+<wire x1="52.75" y1="20.75" x2="59.25" y2="20.75" width="0.254" layer="1"/>
+<contactref element="Q5" pad="1"/>
+<wire x1="59.25" y1="20.75" x2="60.5" y2="19.5" width="0.254" layer="1"/>
+<wire x1="60.4" y1="22.55" x2="60.4" y2="19.6" width="0.254" layer="16"/>
+<wire x1="60.4" y1="19.6" x2="60.5" y2="19.5" width="0.254" layer="16"/>
 </signal>
 <signal name="SD-D2">
 <contactref element="IC4" pad="51"/>
@@ -1866,18 +1830,18 @@ design rules under a new name.</description>
 <contactref element="X3" pad="3"/>
 <contactref element="IC5" pad="1"/>
 <wire x1="72.25" y1="45.55" x2="72.25" y2="47.45" width="0.254" layer="16"/>
-<wire x1="72.25" y1="47.45" x2="72.9" y2="48.1" width="0.254" layer="16"/>
+<wire x1="72.25" y1="47.45" x2="73.15" y2="48.35" width="0.254" layer="16"/>
 </signal>
 <signal name="N$36">
 <contactref element="X3" pad="2"/>
 <contactref element="IC5" pad="3"/>
-<wire x1="73.7" y1="49.3" x2="74.8" y2="49.3" width="0.254" layer="16"/>
-<wire x1="74.8" y1="49.3" x2="75.4" y2="48.7" width="0.254" layer="16"/>
-<wire x1="75.4" y1="48.7" x2="75.4" y2="47.6" width="0.254" layer="16"/>
-<wire x1="75.4" y1="47.6" x2="74.9" y2="47.1" width="0.254" layer="16"/>
+<wire x1="73.95" y1="49.55" x2="75.05" y2="49.55" width="0.254" layer="16"/>
+<wire x1="75.65" y1="48.95" x2="75.65" y2="47.85" width="0.254" layer="16"/>
+<wire x1="75.65" y1="47.85" x2="74.9" y2="47.1" width="0.254" layer="16"/>
 <wire x1="73.55" y1="45.55" x2="73.55" y2="46.45" width="0.254" layer="16"/>
 <wire x1="73.55" y1="46.45" x2="74.2" y2="47.1" width="0.254" layer="16"/>
 <wire x1="74.2" y1="47.1" x2="74.9" y2="47.1" width="0.254" layer="16"/>
+<wire x1="75.05" y1="49.55" x2="75.65" y2="48.95" width="0.254" layer="16"/>
 </signal>
 <signal name="USB-VBUS">
 <contactref element="X3" pad="1"/>
@@ -1894,7 +1858,7 @@ design rules under a new name.</description>
 <wire x1="55.5" y1="29.5" x2="50.25" y2="29.5" width="0.254" layer="16"/>
 <wire x1="63.75" y1="37.75" x2="69.15" y2="37.75" width="0.254" layer="16"/>
 <wire x1="72.9" y1="41.5" x2="72.9" y2="46.5" width="0.254" layer="1"/>
-<wire x1="72.9" y1="46.5" x2="74.5" y2="48.1" width="0.254" layer="1"/>
+<wire x1="72.9" y1="46.5" x2="74.75" y2="48.35" width="0.254" layer="1"/>
 <wire x1="72.9" y1="41.5" x2="72.9" y2="43.45" width="0.254" layer="16"/>
 </signal>
 <signal name="USB-DM">

@@ -3708,16 +3708,16 @@ Source: www.kingbright.com</description>
 <part name="X1" library="MyComponents" deviceset="DC-POWER-JACK" device="2" value="PJ-043-SMT"/>
 <part name="IC2" library="MyComponents" deviceset="ESP-11" device=""/>
 <part name="IC3" library="MyComponents" deviceset="REG1117" device="" value="LD1117"/>
-<part name="C6" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
-<part name="C7" library="MyComponents" deviceset="C-US" device="0805" value="10 uF"/>
+<part name="C6" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
+<part name="C7" library="MyComponents" deviceset="C-US" device="0805" value="10uF"/>
 <part name="SUPPLY31" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY34" library="supply2" deviceset="VCC" device=""/>
 <part name="IC4" library="stm32" deviceset="STM32F405R*T" device="" technology="G" value="STM32F405RG"/>
-<part name="C8" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
-<part name="C9" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
-<part name="C10" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
+<part name="C8" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
+<part name="C9" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
+<part name="C10" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="C14" library="MyComponents" deviceset="C-US" device="0805" value="4.7uF"/>
-<part name="C16" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
+<part name="C16" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="R8" library="MyComponents" deviceset="R-US" device="0805" value="10K"/>
 <part name="RESET" library="MyComponents" deviceset="BUTTON-FSM14JRT" device=""/>
 <part name="LSE" library="MyComponents" deviceset="Q-MC-306" device="" value="32.7680kHz"/>
@@ -3729,20 +3729,16 @@ Source: www.kingbright.com</description>
 <part name="R7" library="MyComponents" deviceset="R-US" device="0805" value="150"/>
 <part name="SUPPLY36" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY30" library="supply2" deviceset="VCC" device=""/>
-<part name="C18" library="MyComponents" deviceset="C-US" device="0805" value="2.2 uF"/>
-<part name="C17" library="MyComponents" deviceset="C-US" device="0805" value="2.2 uF"/>
+<part name="C18" library="MyComponents" deviceset="C-US" device="0805" value="2.2uF"/>
+<part name="C17" library="MyComponents" deviceset="C-US" device="0805" value="2.2uF"/>
 <part name="SUPPLY29" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY32" library="supply2" deviceset="GND" device=""/>
-<part name="C11" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
-<part name="C13" library="MyComponents" deviceset="C-US" device="0805" value="1.0 uF"/>
+<part name="C11" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
+<part name="C13" library="MyComponents" deviceset="C-US" device="0805" value="1.0uF"/>
 <part name="X2" library="MyComponents" deviceset="MICRO-SD-DM3AT" device="" value="DM3AT"/>
-<part name="C19" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
+<part name="C19" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="R13" library="MyComponents" deviceset="R-US" device="0805" value="330"/>
 <part name="LED2" library="led" deviceset="LED" device="CHIP-LED0805" value="R971"/>
-<part name="R12" library="MyComponents" deviceset="R-US" device="0805" value="10K"/>
-<part name="R9" library="MyComponents" deviceset="R-US" device="0805" value="1.4M"/>
-<part name="Q6" library="MyComponents" deviceset="N2004" device="" value="N2004"/>
-<part name="R11" library="MyComponents" deviceset="R-US" device="0805" value="330K"/>
 <part name="Q5" library="MyComponents" deviceset="BSH205G2R" device="" value="BSH205"/>
 <part name="SUPPLY27" library="supply2" deviceset="VCC" device=""/>
 <part name="SUPPLY25" library="supply2" deviceset="GND" device=""/>
@@ -3753,7 +3749,7 @@ Source: www.kingbright.com</description>
 <part name="IC5" library="MyComponents" deviceset="STF203" device="-22" value="STF203-22"/>
 <part name="SUPPLY24" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY23" library="supply2" deviceset="GND" device=""/>
-<part name="C12" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
+<part name="C12" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="SV4" library="MyComponents" deviceset="MA20-1" device="NO-PL" value="68000-420HLF"/>
 <part name="SV5" library="MyComponents" deviceset="MA10-1" device="NO-PL" value="69190-410HLF"/>
 <part name="D1" library="MyComponents" deviceset="RGB-LED-5MM" device="" value="WP154A4SUREQBFZGC"/>
@@ -3770,8 +3766,8 @@ Source: www.kingbright.com</description>
 <part name="R2" library="MyComponents" deviceset="R-US" device="0805" value="330K"/>
 <part name="Q1" library="MyComponents" deviceset="BSH205G2R" device="" value="BSH205"/>
 <part name="IC1" library="MyComponents" deviceset="REG1117" device="" value="LD1117"/>
-<part name="C2" library="MyComponents" deviceset="C-US" device="0805" value="0.1 uF"/>
-<part name="C3" library="MyComponents" deviceset="C-US" device="0805" value="10 uF"/>
+<part name="C2" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
+<part name="C3" library="MyComponents" deviceset="C-US" device="0805" value="10uF"/>
 <part name="R5" library="MyComponents" deviceset="R-US" device="0805" value="10K"/>
 <part name="R10" library="MyComponents" deviceset="R-US" device="0805" value="47K"/>
 <part name="R14" library="MyComponents" deviceset="R-US" device="0805" value="47K"/>
@@ -3791,7 +3787,10 @@ Source: www.kingbright.com</description>
 <sheet>
 <description>Centrale and sensor</description>
 <plain>
-<text x="165.1" y="181.61" size="1.778" layer="97">Vmax = min(V(N2004) + V(LD1117)) = 20V+15V = 15V</text>
+<text x="162.56" y="181.61" size="1.778" layer="97">Vmax = min(V(N2004) + V(LD1117)) = 20V+15V = 15V</text>
+<text x="45.72" y="58.42" size="1.778" layer="97">SD-ON connected to 
+PA15 (JTDI) that is in 
+pull-up after reset</text>
 </plain>
 <instances>
 <instance part="LSP1" gate="1" x="40.64" y="248.92"/>
@@ -3854,13 +3853,9 @@ Source: www.kingbright.com</description>
 <instance part="C19" gate="G$1" x="104.14" y="60.96" rot="R270"/>
 <instance part="R13" gate="G$1" x="73.66" y="27.94" rot="R90"/>
 <instance part="LED2" gate="G$1" x="73.66" y="40.64"/>
-<instance part="R12" gate="G$1" x="55.88" y="27.94" rot="R90"/>
-<instance part="R9" gate="G$1" x="55.88" y="53.34" rot="R90"/>
-<instance part="Q6" gate="G$1" x="55.88" y="40.64"/>
-<instance part="R11" gate="G$1" x="45.72" y="27.94" rot="R90"/>
 <instance part="Q5" gate="G$1" x="73.66" y="53.34"/>
-<instance part="SUPPLY27" gate="G$1" x="63.5" y="66.04"/>
-<instance part="SUPPLY25" gate="GND" x="63.5" y="15.24"/>
+<instance part="SUPPLY27" gate="G$1" x="73.66" y="63.5"/>
+<instance part="SUPPLY25" gate="GND" x="73.66" y="17.78"/>
 <instance part="SUPPLY28" gate="GND" x="109.22" y="66.04" rot="R180"/>
 <instance part="SUPPLY26" gate="GND" x="132.08" y="15.24"/>
 <instance part="SUPPLY39" gate="GND" x="76.2" y="241.3"/>
@@ -3936,7 +3931,7 @@ Source: www.kingbright.com</description>
 <busses>
 <bus name="SD-ON,SD-D1,SD-D0,SD-CK,SD-CMD,SD-D3,SD-D2,SD-DET">
 <segment>
-<wire x1="35.56" y1="0" x2="139.7" y2="0" width="0.762" layer="92"/>
+<wire x1="55.88" y1="0" x2="139.7" y2="0" width="0.762" layer="92"/>
 <label x="109.22" y="-2.54" size="1.27" layer="95" rot="R180"/>
 </segment>
 </bus>
@@ -4014,19 +4009,9 @@ Source: www.kingbright.com</description>
 <junction x="261.62" y="127"/>
 </segment>
 <segment>
-<pinref part="R11" gate="G$1" pin="1"/>
-<wire x1="45.72" y1="22.86" x2="45.72" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="R13" gate="G$1" pin="1"/>
-<wire x1="45.72" y1="20.32" x2="55.88" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="20.32" x2="63.5" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="63.5" y1="20.32" x2="73.66" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="20.32" x2="73.66" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="SUPPLY25" gate="GND" pin="GND"/>
-<wire x1="63.5" y1="17.78" x2="63.5" y2="20.32" width="0.1524" layer="91"/>
-<junction x="63.5" y="20.32"/>
-<pinref part="R12" gate="G$1" pin="1"/>
-<wire x1="55.88" y1="22.86" x2="55.88" y2="20.32" width="0.1524" layer="91"/>
-<junction x="55.88" y="20.32"/>
+<wire x1="73.66" y1="20.32" x2="73.66" y2="22.86" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="X2" gate="G$1" pin="VSS"/>
@@ -4246,15 +4231,9 @@ Source: www.kingbright.com</description>
 <junction x="83.82" y="124.46"/>
 </segment>
 <segment>
-<pinref part="R9" gate="G$1" pin="2"/>
-<wire x1="55.88" y1="58.42" x2="55.88" y2="60.96" width="0.1524" layer="91"/>
 <pinref part="Q5" gate="G$1" pin="S"/>
-<wire x1="55.88" y1="60.96" x2="63.5" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="63.5" y1="60.96" x2="73.66" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="60.96" x2="73.66" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="SUPPLY27" gate="G$1" pin="VCC"/>
-<wire x1="63.5" y1="63.5" x2="63.5" y2="60.96" width="0.1524" layer="91"/>
-<junction x="63.5" y="60.96"/>
+<wire x1="73.66" y1="60.96" x2="73.66" y2="58.42" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="SV1" gate="1" pin="1"/>
@@ -4370,30 +4349,11 @@ Source: www.kingbright.com</description>
 <wire x1="81.28" y1="134.62" x2="88.9" y2="134.62" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$136" class="0">
-<segment>
-<pinref part="R12" gate="G$1" pin="2"/>
-<pinref part="Q6" gate="G$1" pin="S"/>
-<wire x1="55.88" y1="33.02" x2="55.88" y2="35.56" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$120" class="0">
 <segment>
 <pinref part="LED2" gate="G$1" pin="C"/>
 <pinref part="R13" gate="G$1" pin="2"/>
 <wire x1="73.66" y1="35.56" x2="73.66" y2="33.02" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="D_VG" class="0">
-<segment>
-<pinref part="Q6" gate="G$1" pin="D"/>
-<pinref part="R9" gate="G$1" pin="1"/>
-<wire x1="55.88" y1="48.26" x2="55.88" y2="45.72" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="45.72" x2="63.5" y2="45.72" width="0.1524" layer="91"/>
-<junction x="55.88" y="45.72"/>
-<wire x1="63.5" y1="45.72" x2="63.5" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="Q5" gate="G$1" pin="G"/>
-<wire x1="63.5" y1="55.88" x2="68.58" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SD-VDD" class="0">
@@ -4500,14 +4460,10 @@ Source: www.kingbright.com</description>
 </net>
 <net name="SD-ON" class="0">
 <segment>
-<wire x1="40.64" y1="0" x2="40.64" y2="38.1" width="0.1524" layer="91"/>
-<pinref part="Q6" gate="G$1" pin="G"/>
-<pinref part="R11" gate="G$1" pin="2"/>
-<wire x1="50.8" y1="38.1" x2="45.72" y2="38.1" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="38.1" x2="45.72" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="40.64" y1="38.1" x2="45.72" y2="38.1" width="0.1524" layer="91"/>
-<junction x="45.72" y="38.1"/>
-<label x="40.64" y="2.54" size="1.27" layer="95" rot="R90"/>
+<wire x1="58.42" y1="0" x2="58.42" y2="55.88" width="0.1524" layer="91"/>
+<label x="60.96" y="2.54" size="1.27" layer="95" rot="R90"/>
+<pinref part="Q5" gate="G$1" pin="G"/>
+<wire x1="58.42" y1="55.88" x2="68.58" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="IC4" gate="MCU" pin="PA15"/>
@@ -5190,4 +5146,10 @@ Source: www.kingbright.com</description>
 </sheets>
 </schematic>
 </drawing>
+<compatibility>
+<note version="6.3" minversion="6.2.2" severity="warning">
+Since Version 6.2.2 text objects can contain more than one line,
+which will not be processed correctly with this version.
+</note>
+</compatibility>
 </eagle>
