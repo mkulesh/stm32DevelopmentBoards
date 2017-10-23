@@ -6,29 +6,29 @@ This repository contains schematic of development boards, PCB, and C++ source co
 
 ## STM32-Pi Board
 
-The first board is a two-layers STM32F4 board that have a form-factor of Raspberry Pi B+ that allows us to use any case available for this single-board computer:
+The first board is a two-layers STM32F4 board, which have a form-factor of Raspberry Pi B+ that allows us to use any case available for this single-board computer:
 
 ![Case view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-perspective.jpg)
 
 This board has following specification:
-* based on high-performance ARM®Cortex®-M4 32-bit RISC micro-controller [STM32F405RG](http://www.st.com/en/microcontrollers/stm32f405rg.html)
+* It is based on high-performance ARM®Cortex®-M4 32-bit RISC micro-controller [STM32F405RG](http://www.st.com/en/microcontrollers/stm32f405rg.html)
+* HSE and LSE crystals
 * Micro SD Card Connector
 * Mini USB Type B Connector with USB EMI filtering and ESD protection. This connector is used for data transfer only
-* A separate 5V DC connector (1 mm X 3.2 mm) instead of Raspberry Pi audio jack
+* A separate +5V DC connector (1 mm X 3.2 mm) instead of Raspberry Pi audio jack
 * 6-pin SWD connector used to program the MCU
 * [ESP8266](https://en.wikipedia.org/wiki/ESP8266) WiFi Module ESP-11 instead of Raspberry Pi network connector
-* 6-pin connector used to flash and program the SP-11 module
-* breadboard-compatible 1x20-pin and 1x10-pin headers connected to free MCU pins
-* reset button
-* HSE and LSE crystals
-* one RGB LED
+* 6-pin connector used to flash and program the ESP-11 module
+* Breadboard-compatible 1x20-pin and 1x10-pin headers connected to free MCU pins
+* Reset button
+* One RGB LED
 * SMD size for passive components is 0805
 
 ![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-top.jpg)
 
 For more details, see [schematic](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_sch.pdf), [dimensions](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_mech.pdf), [top layer](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_top.pdf),
 [bottom layer](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bottom.pdf), [bill of materials](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bom.html)
-of this board.
+of this board. The C++ example in the directory [src/PI405RG](https://github.com/mkulesh/stm32DevelopmentBoards/tree/master/src/PI405RG) demonstrates how to use RTC, SD Card with FatFS and ESP-11 module.
 
 ## Universal STM32 boards:
 
@@ -47,6 +47,7 @@ You can order these boards [here](http://dev.dirtypcbs.com/store/designer/detail
 These boards are just one-side breadboard adapters for LQFP32/48/64 IC's:
 
 ![Adapter boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/adapter_boards_layout.png)
+
 You can order these boards [here](http://dev.dirtypcbs.com/store/designer/details/9348/5770/lqfp-adapters-zip)
 
 ## Repository content:
