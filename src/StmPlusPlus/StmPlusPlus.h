@@ -64,13 +64,32 @@ typedef int64_t duration_ms;
  */
 class System
 {
-
 private:
 
     static uint32_t externalOscillatorFreq;
     static uint32_t mcuFreq;
 
 public:
+
+    class ClockDiv
+    {
+    public:
+
+        uint32_t PLLM; // Division factor for PLL VCO input clock
+        uint32_t PLLN; // Multiplication factor for PLL VCO output clock.
+        uint32_t PLLP; // Division factor for main system clock (SYSCLK)
+        uint32_t PLLQ; // Division factor for OTG FS, SDIO and RNG clocks
+        uint32_t PLLR; // PLL division factor for I2S, SAI, SYSTEM, SPDIFRX clocks (STM32F410xx)
+        uint32_t AHBCLKDivider; // The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
+        uint32_t APB1CLKDivider;// The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
+        uint32_t APB2CLKDivider;//  The APB2 clock (PCLK2) divider. This clock is derived from the AHB clock (HCLK).
+
+        ClockDiv(): PLLM(16), PLLN(20), PLLP(2), PLLQ(4), PLLR(2),
+                AHBCLKDivider(1), APB1CLKDivider(2), APB2CLKDivider(2)
+        {
+            // empty
+        }
+    };
 
     enum class RtcType
     {
@@ -89,7 +108,7 @@ public:
         return mcuFreq;
     }
 
-    static void setClock (uint32_t pllDiv, uint32_t pllMUL, uint32_t FLatency, RtcType rtcType, int32_t msAdjustment = 0);
+    static void setClock (const ClockDiv & clkDiv, uint32_t FLatency, RtcType rtcType, int32_t msAdjustment = 0);
 
 };
 

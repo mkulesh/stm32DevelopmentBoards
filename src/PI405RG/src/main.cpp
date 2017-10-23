@@ -166,7 +166,7 @@ public:
         }
         while (status != HAL_OK);
         
-        status = timer.start(TIM_COUNTERMODE_UP, System::getMcuFreq() / 2000 - 1, LED_PERIOD - 1);
+        status = timer.start(TIM_COUNTERMODE_UP, System::getMcuFreq() / 4000 - 1, LED_PERIOD - 1);
         USART_DEBUG("Timer start status: " << status);
         timer.startInterrupt(irqPrioTimer, this);
         
@@ -384,11 +384,20 @@ int main (void)
     IOPort defaultPortB(IOPort::PortName::B, GPIO_MODE_INPUT, GPIO_PULLDOWN);
     IOPort defaultPortC(IOPort::PortName::C, GPIO_MODE_INPUT, GPIO_PULLDOWN);
     
+    // Set system frequency to 168MHz
+    System::ClockDiv clkDiv;
+    clkDiv.PLLM = 16;
+    clkDiv.PLLN = 336;
+    clkDiv.PLLP = 2;
+    clkDiv.PLLQ = 7;
+    clkDiv.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    clkDiv.APB1CLKDivider = RCC_HCLK_DIV8;
+    clkDiv.APB2CLKDivider = RCC_HCLK_DIV8;
     do
     {
-        System::setClock(32, 192, FLASH_LATENCY_3, System::RtcType::RTC_EXT);
+        System::setClock(clkDiv, FLASH_LATENCY_3, System::RtcType::RTC_EXT);
     }
-    while (System::getMcuFreq() != 48000000L);
+    while (System::getMcuFreq() != 168000000L);
     
     MyApplication app;
     appPtr = &app;

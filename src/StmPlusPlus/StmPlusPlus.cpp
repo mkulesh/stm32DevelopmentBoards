@@ -34,7 +34,7 @@ using namespace StmPlusPlus;
 uint32_t System::externalOscillatorFreq = 16000000;
 uint32_t System::mcuFreq = 16000000;
 
-void System::setClock (uint32_t pllDiv, uint32_t pllMUL, uint32_t FLatency, RtcType rtcType, int32_t msAdjustment)
+void System::setClock (const System::ClockDiv & clkDiv, uint32_t FLatency, RtcType rtcType, int32_t msAdjustment)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -42,18 +42,18 @@ void System::setClock (uint32_t pllDiv, uint32_t pllMUL, uint32_t FLatency, RtcT
     #ifdef STM32F3
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-    RCC_OscInitStruct.HSEPredivValue = pllDiv;
+    RCC_OscInitStruct.HSEPredivValue = clkDiv.PLLM;
     RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
     RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
     RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL = pllMUL;
+    RCC_OscInitStruct.PLL.PLLMUL = clkDiv.PLLN;
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider =  clkDiv.AHBCLKDivider;
+    RCC_ClkInitStruct.APB1CLKDivider = clkDiv.APB1CLKDivider;
+    RCC_ClkInitStruct.APB2CLKDivider = clkDiv.APB2CLKDivider;
     #endif
 
     #ifdef STM32F4
@@ -68,18 +68,18 @@ void System::setClock (uint32_t pllDiv, uint32_t pllMUL, uint32_t FLatency, RtcT
     RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = pllDiv;
-    RCC_OscInitStruct.PLL.PLLN = pllMUL;
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ = RCC_PLLP_DIV4;
+    RCC_OscInitStruct.PLL.PLLM = clkDiv.PLLM;
+    RCC_OscInitStruct.PLL.PLLN = clkDiv.PLLN;
+    RCC_OscInitStruct.PLL.PLLP = clkDiv.PLLP;
+    RCC_OscInitStruct.PLL.PLLQ = clkDiv.PLLQ;
     #ifdef STM32F410Rx
-    RCC_OscInitStruct.PLL.PLLR = 2;
+    RCC_OscInitStruct.PLL.PLLR = clkDiv.PLLR;
     #endif
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
+    RCC_ClkInitStruct.AHBCLKDivider =  clkDiv.AHBCLKDivider;
+    RCC_ClkInitStruct.APB1CLKDivider = clkDiv.APB1CLKDivider;
+    RCC_ClkInitStruct.APB2CLKDivider = clkDiv.APB2CLKDivider;
     #endif
 
     RCC_PeriphCLKInitTypeDef PeriphClkInit;

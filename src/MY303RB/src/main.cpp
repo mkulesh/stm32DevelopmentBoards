@@ -125,9 +125,16 @@ int main(void)
     IOPort defaultPortB(IOPort::PortName::B, GPIO_MODE_INPUT, GPIO_PULLDOWN);
     IOPort defaultPortC(IOPort::PortName::C, GPIO_MODE_INPUT, GPIO_PULLDOWN);
 
+    // Set system frequency to 72MHz
+    System::ClockDiv clkDiv;
+    clkDiv.PLLM = RCC_HSE_PREDIV_DIV2;
+    clkDiv.PLLN = RCC_PLL_MUL9;
+    clkDiv.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    clkDiv.APB1CLKDivider = RCC_HCLK_DIV2;
+    clkDiv.APB2CLKDivider = RCC_HCLK_DIV1;
     do
     {
-        System::setClock(RCC_HSE_PREDIV_DIV2, RCC_PLL_MUL9, FLASH_LATENCY_2, System::RtcType::RTC_EXT);
+        System::setClock(clkDiv, FLASH_LATENCY_2, System::RtcType::RTC_EXT);
     }
     while (System::getMcuFreq() != 72000000L);
 
