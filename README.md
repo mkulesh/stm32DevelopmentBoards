@@ -30,7 +30,7 @@ For more details, see [schematic](https://github.com/mkulesh/stm32DevelopmentBoa
 [bottom layer](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bottom.pdf), [bill of materials](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bom.html)
 of this board. The C++ example in the directory [src/PI405RG](https://github.com/mkulesh/stm32DevelopmentBoards/tree/master/src/PI405RG) demonstrates how to use RTC, SD Card with FatFS and ESP-11 module.
 
-## Universal STM32 boards:
+## Universal STM32 Boards:
 
 These developments boards are two-side breadboard adapters for LQFP32/48/64 IC's, equipment with adaptable power supply circuit, HSE and LSE crystal circuit, reset button, and a **custom** 10-pin JTAG connector. SMD size for passive components is 0805. 
 
@@ -42,7 +42,7 @@ The adapter between 20-pin JTAG and this custom connector is also included in th
 
 You can order these boards [here](http://dev.dirtypcbs.com/store/designer/details/9348/5771/stm32-development-boards)
 
-## LQFP-Breadboard adapters:
+## LQFP-Breadboard Adapters:
 
 These boards are just one-side breadboard adapters for LQFP32/48/64 IC's:
 
@@ -50,13 +50,13 @@ These boards are just one-side breadboard adapters for LQFP32/48/64 IC's:
 
 You can order these boards [here](http://dev.dirtypcbs.com/store/designer/details/9348/5770/lqfp-adapters-zip)
 
-## Repository content:
+## Repository Content:
 
 * The directory **pcb** contains schematic and board layout developed in [Eagle CAD](https://www.autodesk.com/products/eagle/free-download)
 * In the directory **images**, you can find some photos of assembled boards
 * The directory **src** contains test examples developed in [System Workbench for STM32](http://www.st.com/en/development-tools/sw4stm32.html). These test programs are based on HAL library and an object-oriented abstraction layer called *StmPlusPlus*. Currently, following chips are tested: STM32F303K8Tx, STM32F303RBTx, STM32F373CBTx, STM32F373CCTx, STM32F410RBTx,  STM32F405RGTx
 
-## Reviews and publications:
+## Reviews and Publications:
 * [Discussion on www.mikrocontroller.net (In German)](https://www.mikrocontroller.net/topic/433910)
 * [Нестандартный способ подружиться с STM32: не Ардуино и не Discovery (In Russian)](https://geektimes.ru/post/292493)
 
