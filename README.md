@@ -10,7 +10,7 @@ The first board is a two-layers STM32F4 board, which have a form-factor of Raspb
 
 ![Case view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-perspective.jpg)
 
-This board has following specification:
+### Specification
 * It is based on high-performance ARM®Cortex®-M4 32-bit RISC micro-controller [STM32F405RG](http://www.st.com/en/microcontrollers/stm32f405rg.html)
 * HSE and LSE crystals
 * Micro SD Card Connector
@@ -24,11 +24,15 @@ This board has following specification:
 * One RGB LED
 * SMD size for passive components is 0805
 
-![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-top.jpg)
+![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-labels.jpg)
 
-For more details, see [schematic](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_sch.pdf), [dimensions](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_mech.pdf), [top layer](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_top.pdf),
-[bottom layer](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bottom.pdf), [bill of materials](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bom.html)
-of this board. The C++ example in the directory [src/PI405RG](https://github.com/mkulesh/stm32DevelopmentBoards/tree/master/src/PI405RG) demonstrates how to use RTC, SD Card with FatFS and ESP-11 module.
+### Documentation
+* [Schematic](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_sch.pdf), 
+* [Dimensions](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_mech.pdf), 
+* [Top layer](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_top.pdf),
+* [Bottom layer](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bottom.pdf), 
+* [Bill of materials](http://htmlpreview.github.io/?https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bom.html)
+* The C++ example in the directory [src/PI405RG](https://github.com/mkulesh/stm32DevelopmentBoards/tree/master/src/PI405RG) demonstrates how to use RTC, SD Card with FatFS, and ESP-11 module.
 
 ## Universal STM32 Boards:
 

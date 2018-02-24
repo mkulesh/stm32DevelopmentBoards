@@ -6,7 +6,7 @@
 
 * Ensure that power for STM32-Pi board is OFF
 
-* Connect pins **1** and **2** on the **ESP-PWR** switch. Connect an USB-UART adapter to ESP pins GND/TX/RX as shown on the figure below:
+* Connect pins **1** and **2** on the **PWR** switch. Connect an USB-UART adapter to ESP pins GND/TX/RX as shown on the figure below:
 
 ![Before programming](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/src/PI405RG/esp/before_programming.jpg)
 
@@ -26,7 +26,9 @@ Bus 001 Device 035: ID 0403:6001 Future Technology Devices International, Ltd FT
 ready
 ```
 
-* Switch power to OFF, disconnect terminal, connect the pins **FLASH** and switch power to ON again.
+* Switch power to OFF, disconnect terminal, connect the pins **FLASH** as shown on the figure below and switch power to ON again.
+
+![Programming](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/src/PI405RG/esp/programming.jpg)
 
 * Adapt and run the script *flash-firmware.sh*: 
 ```
@@ -59,4 +61,4 @@ SDK version:1.0.1
 compile time:May  9 2015 16:00:00
 OK
 ``` 
-* Connect pins **2** and **3** on the **ESP-PWR** switch. Now ESP can be accessed from MCU using USART2.
+* Connect pins **2** and **3** on the **PWR** switch. Now ESP can be accessed from MCU using USART2.
