@@ -27,10 +27,10 @@ The first board is a two-layers STM32F4 board, which have a form-factor of Raspb
 ![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-labels.jpg)
 
 ### Documentation
-* [Schematic](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_sch.pdf), 
-* [Dimensions](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_mech.pdf), 
-* [Top layer](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_top.pdf),
-* [Bottom layer](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bottom.pdf), 
+* [Schematic](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/raw/master/pcb/stm32_pi_board_sch.pdf) 
+* [Dimensions](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/raw/master/pcb/stm32_pi_board_mech.pdf) 
+* [Top layer](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/raw/master/pcb/stm32_pi_board_top.pdf)
+* [Bottom layer](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/raw/master/pcb/stm32_pi_board_bottom.pdf) 
 * [Bill of materials](http://htmlpreview.github.io/?https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/pcb/stm32_pi_board_bom.html)
 * The C++ example in the directory [src/PI405RG](https://github.com/mkulesh/stm32DevelopmentBoards/tree/master/src/PI405RG) demonstrates how to use RTC, SD Card with FatFS, and ESP-11 module.
 
