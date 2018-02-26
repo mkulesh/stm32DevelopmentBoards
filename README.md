@@ -10,7 +10,7 @@ The first board is a two-layers STM32F4 board, which have a form-factor of Raspb
 
 ![Case view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-perspective.jpg)
 
-Ig you like to test this board, you can order it [on DirtyPCBs.com](http://dev.dirtypcbs.com/store/designer/details/9348/5825/stm32-pi-board-v-1-1)
+If you like to test this board, you can order it [on DirtyPCBs.com](http://dev.dirtypcbs.com/store/designer/details/9348/5825/stm32-pi-board-v-1-1)
 
 ### Specification
 * It is based on high-performance ARM®Cortex®-M4 32-bit RISC micro-controller [STM32F405RG](http://www.st.com/en/microcontrollers/stm32f405rg.html)
