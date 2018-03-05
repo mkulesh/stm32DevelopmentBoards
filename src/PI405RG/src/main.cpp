@@ -19,8 +19,7 @@
 
 #include "StmPlusPlus/StmPlusPlus.h"
 #include "StmPlusPlus/Devices/SdCard.h"
-#include "StmPlusPlus/Devices/Esp11.h"
-#include "Config.h"
+#include "EspSender.h"
 
 using namespace StmPlusPlus;
 using namespace StmPlusPlus::Devices;
@@ -32,20 +31,6 @@ class MyApplication : public Timer::EventHandler, RealTimeClock::EventHandler
 public:
     
     static const size_t LED_PERIOD = 333; // Period for LED toggle in milliseconds
-    
-    enum class EspState
-    {
-        PENDING,
-        STARTED,
-        NOT_STARTED,
-        AT_READY,
-        MODE_SET,
-        ADDR_SET,
-        SSID_FOUND,
-        SSID_CONNECTED,
-        SERVER_FOUND,
-        SERVER_CONNECTED
-    };
 
 private:
     
@@ -75,10 +60,9 @@ private:
 
     // ESP
     Esp11 esp;
-    EspState espState;
+    EspSender espSender;
 
     // Message
-    bool isMessagePending;
     char messageBuffer[2048];
 
 public:
@@ -127,10 +111,8 @@ public:
 
             //ESP
             esp(Usart::USART_2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, irqPrioEsp, IOPort::A, GPIO_PIN_1, Timer::TIM_6),
-            espState(EspState::PENDING),
+            espSender(config, esp)
 
-            // Message
-            isMessagePending(false)
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_4);
     }
@@ -181,7 +163,7 @@ public:
         {
             updateSdCardState();
             updateLed();
-            sendEspMessage(config);
+            espSender.periodic();
         }
     }
     
@@ -199,7 +181,10 @@ public:
         ++seconds;
         uint32_t sysTicks = HAL_GetTick() % LED_PERIOD;
         USART_DEBUG(seconds << ": sysTicks = " << sysTicks);
-        isMessagePending = true;
+        if (!espSender.isMessagePending())
+        {
+            espSender.sendMessage(fillMessage());
+        }
     }
     
     void updateSdCardState ()
@@ -217,134 +202,6 @@ public:
         ledGreen.putBit(n == 0);
         ledBlue.putBit(n == 1);
         ledRed.putBit(n == 2);
-    }
-
-    void sendEspMessage (const Config & cfg)
-    {
-        switch (espState)
-        {
-        case EspState::PENDING:
-            USART_DEBUG("Sending state message to " << cfg.getWlanName());
-            if (esp.init())
-            {
-                espState = EspState::STARTED;
-                USART_DEBUG("ESP is started, resetting");
-                esp.setEcho(false);
-            }
-            else
-            {
-                espState = EspState::NOT_STARTED;
-                USART_DEBUG("ESP error: Board is not started");
-            }
-            break;
-
-        case EspState::STARTED:
-            if (esp.isReady())
-            {
-                espState = EspState::AT_READY;
-            }
-            else
-            {
-                USART_DEBUG("ESP error: AT is not ready");
-            }
-            break;
-
-        case EspState::AT_READY:
-            esp.setMode(1);
-            if (esp.getMode() == 1)
-            {
-                espState = EspState::MODE_SET;
-            }
-            else
-            {
-                USART_DEBUG("ESP error: Can not set client mode");
-            }
-            break;
-
-        case EspState::MODE_SET:
-            if (esp.setIpAddress(cfg.getThisIp(), cfg.getGateIp(), cfg.getIpMask()))
-            {
-                espState = EspState::ADDR_SET;
-            }
-            else
-            {
-                USART_DEBUG("ESP error: Can not set IP address");
-            }
-            break;
-
-        case EspState::ADDR_SET:
-            if (esp.isWlanAvailable(cfg.getWlanName()))
-            {
-                esp.delay(0);
-                espState = EspState::SSID_FOUND;
-            }
-            else
-            {
-                USART_DEBUG("ESP error: Can not find " << cfg.getWlanName());
-            }
-            break;
-
-        case EspState::SSID_FOUND:
-            if (esp.isPendingProcessing())
-            {
-                if (esp.connectToWlan(cfg.getWlanName(), cfg.getWlanPass()))
-                {
-                    esp.delay(0);
-                    espState = EspState::SSID_CONNECTED;
-                    USART_DEBUG(esp.getBuffer());
-                }
-                else
-                {
-                    esp.delay(2000);
-                    USART_DEBUG("ESP error: Can not connect to " << cfg.getWlanName());
-                }
-            }
-            break;
-
-        case EspState::SSID_CONNECTED:
-            if (esp.ping(cfg.getServerIp()))
-            {
-                esp.delay(0);
-                espState = EspState::SERVER_FOUND;
-            }
-            break;
-
-        case EspState::SERVER_FOUND:
-            if (esp.isPendingProcessing())
-            {
-                if (esp.connectToServer(cfg.getServerIp(), cfg.getServerPort()))
-                {
-                    esp.delay(0);
-                    espState = EspState::SERVER_CONNECTED;
-                }
-                else
-                {
-                    esp.delay(2000);
-                    USART_DEBUG("ESP error: Can not connect to server " << cfg.getServerIp());
-                }
-            }
-            break;
-
-        case EspState::SERVER_CONNECTED:
-            if (esp.isPendingProcessing() && isMessagePending)
-            {
-                if (esp.sendString(fillMessage()))
-                {
-                    isMessagePending = false;
-                }
-                else
-                {
-                    esp.closeConnection();
-                    espState = EspState::SERVER_FOUND;
-                    esp.delay(2000);
-                    USART_DEBUG("ESP error: Can not send message");
-                }
-            }
-            break;
-
-        default:
-            break;
-        }
     }
 
     const char * fillMessage ()
