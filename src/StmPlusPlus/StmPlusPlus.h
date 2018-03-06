@@ -294,6 +294,10 @@ public:
     PeriodicalEvent (const RealTimeClock & _rtc, time_ms _delay, long _maxOccurrence = -1);
     void resetTime ();
     bool isOccured ();
+    inline long occurance () const
+    {
+        return occurred;
+    }
 };
 
 

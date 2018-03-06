@@ -21,16 +21,18 @@
 #include "StmPlusPlus/Devices/SdCard.h"
 #include "EspSender.h"
 
+#include <array>
+
 using namespace StmPlusPlus;
 using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "Main: "
 
-class MyApplication : public Timer::EventHandler, RealTimeClock::EventHandler
+class MyApplication : public RealTimeClock::EventHandler
 {
 public:
-    
-    static const size_t LED_PERIOD = 333; // Period for LED toggle in milliseconds
+
+    static const size_t INPUT_PINS = 16;  // Number of monitored input pins
 
 private:
     
@@ -38,16 +40,13 @@ private:
 
     RealTimeClock rtc;
     IOPin ledGreen, ledBlue, ledRed;
+    PeriodicalEvent hardBitEvent;
     IOPin mco;
-    Timer timer;
-
-    volatile size_t seconds, ledNumber;
 
     // Interrupt priorities
     InterruptPriority irqPrioEsp;
     InterruptPriority irqPrioSd;
     InterruptPriority irqPrioRtc;
-    InterruptPriority irqPrioTimer;
 
     // SD card
     IOPin pinSdPower, pinSdDetect;
@@ -61,6 +60,10 @@ private:
     // ESP
     Esp11 esp;
     EspSender espSender;
+
+    // Input pins
+    std::array<IOPin, INPUT_PINS> pins;
+    std::array<bool, INPUT_PINS> pinsState;
 
     // Message
     char messageBuffer[2048];
@@ -76,20 +79,16 @@ public:
             ledGreen(IOPort::C, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP),
             ledBlue(IOPort::C, GPIO_PIN_2, GPIO_MODE_OUTPUT_PP),
             ledRed(IOPort::C, GPIO_PIN_3, GPIO_MODE_OUTPUT_PP),
+            hardBitEvent(rtc, 10, 2),
             mco(IOPort::A, GPIO_PIN_8, GPIO_MODE_AF_PP),
-            timer(Timer::TIM_5, TIM5_IRQn),
-            seconds(0),
-            ledNumber(0),
             
             // Interrupt priorities
             irqPrioEsp(5, 0),
             irqPrioSd(3, 0), // SD DMA interrupt priority: 4 will be also used
             irqPrioRtc(2, 0),
-            irqPrioTimer(1, 0),
             
             // SD card
-            pinSdPower(IOPort::A, GPIO_PIN_15, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_HIGH,
-                       true, false),
+            pinSdPower(IOPort::A, GPIO_PIN_15, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_HIGH, true, false),
             pinSdDetect(IOPort::B, GPIO_PIN_3, GPIO_MODE_INPUT, GPIO_PULLUP),
             portSd1(IOPort::C,
                     /* mode     = */GPIO_MODE_OUTPUT_PP,
@@ -98,7 +97,7 @@ public:
                     /* pin      = */GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12,
                     /* callInit = */false),
             portSd2(IOPort::D,
-            /* mode     = */GPIO_MODE_OUTPUT_PP,
+                    /* mode     = */GPIO_MODE_OUTPUT_PP,
                     /* pull     = */GPIO_PULLUP,
                     /* speed    = */GPIO_SPEED_FREQ_VERY_HIGH,
                     /* pin      = */GPIO_PIN_2,
@@ -111,8 +110,26 @@ public:
 
             //ESP
             esp(Usart::USART_2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, irqPrioEsp, IOPort::A, GPIO_PIN_1, Timer::TIM_6),
-            espSender(config, esp)
+            espSender(config, esp, ledRed),
 
+            // Input pins
+            pins { { IOPin(IOPort::A, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::A, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::A, GPIO_PIN_6,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::A, GPIO_PIN_7,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::C, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::C, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_0,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_2,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_11, GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_12, GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_15, GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::B, GPIO_PIN_15, GPIO_MODE_INPUT, GPIO_PULLDOWN),
+                     IOPin(IOPort::C, GPIO_PIN_6,  GPIO_MODE_INPUT, GPIO_PULLDOWN)
+            } }
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_4);
     }
@@ -120,11 +137,6 @@ public:
     virtual ~MyApplication ()
     {
         // empty
-    }
-    
-    inline const Timer & getTimer () const
-    {
-        return timer;
     }
     
     inline RealTimeClock & getRtc ()
@@ -137,8 +149,8 @@ public:
         log.initInstance();
 
         USART_DEBUG("--------------------------------------------------------");
-        USART_DEBUG("Oscillator frequency: " << System::getExternalOscillatorFreq()
-                << ", MCU frequency: " << System::getMcuFreq());
+        USART_DEBUG("Oscillator frequency: " 
+                << System::getExternalOscillatorFreq() << ", MCU frequency: " << System::getMcuFreq());
         
         HAL_StatusTypeDef status = HAL_TIMEOUT;
         do
@@ -148,10 +160,6 @@ public:
         }
         while (status != HAL_OK);
         
-        status = timer.start(TIM_COUNTERMODE_UP, System::getMcuFreq() / 4000 - 1, LED_PERIOD - 1);
-        USART_DEBUG("Timer start status: " << status);
-        timer.startInterrupt(irqPrioTimer, this);
-        
         sdCard.setIrqPrio(irqPrioSd);
         sdCard.initInstance();
         if (sdCard.isCardInserted())
@@ -159,31 +167,57 @@ public:
             updateSdCardState();
         }
         
+        USART_DEBUG("Input pins: " << pins.size());
+        pinsState.fill(false);
+        USART_DEBUG("Pin state: " << fillMessage());
+        esp.assignSendLed(&ledGreen);
+
+        bool reportState = false;
         while (true)
         {
             updateSdCardState();
-            updateLed();
-            espSender.periodic();
+            if (isInputPinsChanged())
+            {
+                USART_DEBUG("Input pins change detected");
+                ledBlue.putBit(true);
+                reportState = true;
+            }
+            if (reportState && !espSender.isMessagePending())
+            {
+                espSender.sendMessage(fillMessage());
+                reportState = false;
+            }
+            espSender.periodic(rtc.getTimeSec());
+            if (!reportState && !espSender.isMessagePending())
+            {
+                ledBlue.putBit(false);
+            }
+            if (hardBitEvent.isOccured())
+            {
+                ledGreen.putBit(hardBitEvent.occurance() == 1);
+            }
         }
     }
     
-    virtual void onTimerUpdate (const Timer *)
+    bool isInputPinsChanged ()
     {
-        ++ledNumber;
-        if (ledNumber > 2)
+        bool isChanged = false;
+        for (size_t i = 0; i < INPUT_PINS; ++i)
         {
-            ledNumber = 0;
+            if (pins[i].getBit() != pinsState[i])
+            {
+                isChanged = true;
+                pinsState[i] = pins[i].getBit();
+            }
         }
+        return isChanged;
     }
     
     virtual void onRtcWakeUp ()
     {
-        ++seconds;
-        uint32_t sysTicks = HAL_GetTick() % LED_PERIOD;
-        USART_DEBUG(seconds << ": sysTicks = " << sysTicks);
-        if (!espSender.isMessagePending())
+        if (!espSender.isMessagePending() && rtc.getTimeSec() % 2 == 0)
         {
-            espSender.sendMessage(fillMessage());
+            hardBitEvent.resetTime();
         }
     }
     
@@ -195,22 +229,26 @@ public:
         }
         sdCardInserted = sdCard.isCardInserted();
     }
-    
-    void updateLed ()
-    {
-        size_t n = ledNumber;
-        ledGreen.putBit(n == 0);
-        ledBlue.putBit(n == 1);
-        ledRed.putBit(n == 2);
-    }
 
     const char * fillMessage ()
     {
         char digits[9];
-        ::__itoa(seconds, digits, 10);
-        ::strcpy(messageBuffer, "<message time=\"");
-        ::strcat(messageBuffer, digits);
-        ::strcat(messageBuffer, "\"/>");
+        ::__utoa(rtc.getTimeSec(), digits, 10);
+        ::strcpy(messageBuffer, "<message>");
+        ::strcat(messageBuffer, "<name>BOARD_STATE</name>");
+        // the first parameter: board ID
+        ::strcat(messageBuffer, "<p>");
+        ::strcat(messageBuffer, config.getBoardId());
+        ::strcat(messageBuffer, "</p>");
+        // the second parameter: state
+        ::strcat(messageBuffer, "<p>");
+        for (auto &p : pins)
+        {
+            ::__itoa(p.getBit(), digits, 10);
+            ::strcat(messageBuffer, digits);
+        }
+        ::strcat(messageBuffer, "</p>");
+        ::strcat(messageBuffer, "</message>");
         return &messageBuffer[0];
     }
 
@@ -264,53 +302,54 @@ int main (void)
 
 extern "C"
 {
-    void SysTick_Handler (void)
-    {
-        HAL_IncTick();
-    }
+void SysTick_Handler (void)
+{
+    HAL_IncTick();
+    appPtr->getRtc().onMilliSecondInterrupt();
+}
 
-    void TIM5_IRQHandler ()
-    {
-        appPtr->getTimer().processInterrupt();
-    }
+void TIM5_IRQHandler ()
+{
+    // empty
+}
 
-    void RTC_WKUP_IRQHandler ()
-    {
-        appPtr->getRtc().onSecondInterrupt();
-    }
+void RTC_WKUP_IRQHandler ()
+{
+    appPtr->getRtc().onSecondInterrupt();
+}
 
-    void DMA2_Stream3_IRQHandler (void)
-    {
-        Devices::SdCard::getInstance()->processDmaRxInterrupt();
-    }
+void DMA2_Stream3_IRQHandler (void)
+{
+    Devices::SdCard::getInstance()->processDmaRxInterrupt();
+}
 
-    void DMA2_Stream6_IRQHandler (void)
-    {
-        Devices::SdCard::getInstance()->processDmaTxInterrupt();
-    }
+void DMA2_Stream6_IRQHandler (void)
+{
+    Devices::SdCard::getInstance()->processDmaTxInterrupt();
+}
 
-    void SDIO_IRQHandler (void)
-    {
-        Devices::SdCard::getInstance()->processSdIOInterrupt();
-    }
+void SDIO_IRQHandler (void)
+{
+    Devices::SdCard::getInstance()->processSdIOInterrupt();
+}
 
-    void USART2_IRQHandler (void)
-    {
-        appPtr->UartEspLineIrqHandler();
-    }
+void USART2_IRQHandler (void)
+{
+    appPtr->UartEspLineIrqHandler();
+}
 
-    void HAL_UART_TxCpltCallback (UART_HandleTypeDef * channel)
-    {
-        appPtr->UartCpltCallback(channel);
-    }
+void HAL_UART_TxCpltCallback (UART_HandleTypeDef * channel)
+{
+    appPtr->UartCpltCallback(channel);
+}
 
-    void HAL_UART_RxCpltCallback (UART_HandleTypeDef * channel)
-    {
-        appPtr->UartCpltCallback(channel);
-    }
+void HAL_UART_RxCpltCallback (UART_HandleTypeDef * channel)
+{
+    appPtr->UartCpltCallback(channel);
+}
 
-    void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
-    {
-        appPtr->UartCpltCallback(channel);
-    }
+void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
+{
+    appPtr->UartCpltCallback(channel);
+}
 }

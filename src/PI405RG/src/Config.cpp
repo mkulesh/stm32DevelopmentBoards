@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include <cstdlib>
 #include <cctype>
 
 #include <Config.h>
@@ -30,8 +29,8 @@ using namespace StmPlusPlus;
  * Class ConfigurationParametes
  ************************************************************************/
 
-const char * CfgParameter::strings[] = { "THIS_IP", "IP_MASK", "GATE_IP", "WLAN_NAME", "WLAN_PASS",
-                                         "SERVER_IP", "SERVER_PORT" };
+const char * CfgParameter::strings[] = { "BOARD_ID", "THIS_IP", "IP_MASK", "GATE_IP", "WLAN_NAME", "WLAN_PASS",
+                                         "SERVER_IP", "SERVER_PORT", "REPEAT_DELAY", "TURN_OFF_DELAY" };
 
 ConvertClass<CfgParameter::Type, CfgParameter::size, CfgParameter::strings> CfgParameter::Convert;
 
@@ -44,7 +43,9 @@ AsStringClass<CfgParameter::Type, CfgParameter::size, CfgParameter::strings> Cfg
 Config::Config (IOPin & _pinSdPower, Devices::SdCard & _sdCard, const char * _fileName) :
         fileName(_fileName),
         pinSdPower(_pinSdPower),
-        sdCard(_sdCard)
+        sdCard(_sdCard),
+        repeatDelay(0),
+        turnOffDelay(0)
 {
     for (size_t i = 0; i < CfgParameter::size; ++i)
     {
@@ -81,6 +82,7 @@ bool Config::readConfiguration ()
 
 FRESULT Config::readFile (const char * fileName)
 {
+    USART_DEBUG("Reading file: " << fileName);
     FRESULT code = f_open(&cfgFile, fileName, FA_READ);
     if (code != FR_OK)
     {
@@ -127,6 +129,19 @@ FRESULT Config::readFile (const char * fileName)
         }
         
         ::strncpy(parameters[(size_t) par], value, MAX_LINE_LENGTH);
+
+        switch (par)
+        {
+        case CfgParameter::REPEAT_DELAY:
+            repeatDelay = ::atoi(value);
+            break;
+        case CfgParameter::TURN_OFF_DELAY:
+            turnOffDelay = ::atoi(value);
+            break;
+        default:
+            // nothing to do
+            break;
+        }
     }
     f_close(&cfgFile);
     return FR_OK;

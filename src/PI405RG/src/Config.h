@@ -21,6 +21,7 @@
 #define CONFIG_H_
 
 #include <cstring>
+#include <cstdlib>
 
 #include "StmPlusPlus/Devices/SdCard.h"
 
@@ -89,13 +90,16 @@ public:
      */
     enum Type
     {
-        THIS_IP = 0,
-        IP_MASK = 1,
-        GATE_IP = 2,
-        WLAN_NAME = 3,
-        WLAN_PASS = 4,
-        SERVER_IP = 5,
-        SERVER_PORT = 6
+        BOARD_ID       = 0,
+        THIS_IP        = 1,
+        IP_MASK        = 2,
+        GATE_IP        = 3,
+        WLAN_NAME      = 4,
+        WLAN_PASS      = 5,
+        SERVER_IP      = 6,
+        SERVER_PORT    = 7,
+        REPEAT_DELAY   = 8,
+        TURN_OFF_DELAY = 9
     };
 
     /**
@@ -103,7 +107,7 @@ public:
      */
     enum
     {
-        size = 7
+        size = 10
     };
 
     /**
@@ -135,6 +139,11 @@ public:
     Config (StmPlusPlus::IOPin & _pinSdPower, StmPlusPlus::Devices::SdCard & _sdCard,
             const char * _fileName);
     bool readConfiguration ();
+
+    inline const char * getBoardId () const
+    {
+        return parameters[CfgParameter::BOARD_ID];
+    }
 
     inline const char * getWlanName () const
     {
@@ -170,6 +179,16 @@ public:
     {
         return parameters[CfgParameter::SERVER_PORT];
     }
+
+    inline int getRepeatDelay () const
+    {
+        return repeatDelay;
+    }
+
+    inline int getTurnOffDelay () const
+    {
+        return turnOffDelay;
+    }
     
 private:
     
@@ -180,6 +199,7 @@ private:
     StmPlusPlus::Devices::SdCard & sdCard;
 
     char parameters[CfgParameter::size][MAX_LINE_LENGTH + 1];
+    int repeatDelay, turnOffDelay; // delays in seconds
 
     FRESULT readFile (const char * fileName);
     void dump () const;
