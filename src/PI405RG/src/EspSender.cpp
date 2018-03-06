@@ -27,143 +27,184 @@ using namespace StmPlusPlus;
  * Class EspSender
  ************************************************************************/
 
+EspSender::EspSender (const Config & _cfg, Devices::Esp11 & _esp, IOPin & _errorLed) :
+        config(_cfg),
+        esp(_esp),
+        errorLed(_errorLed),
+        espState(EspState::DOWN),
+        message(NULL),
+        currentTime(0),
+        nextOperationTime(0),
+        messageSendTime(0)
+{
+    // empty
+}
+
 void EspSender::sendMessage (const char * string)
 {
     USART_DEBUG("Sending state message to " << config.getWlanName() << ": " << string);
-    messagePending = true;
     message = string;
 }
 
-void EspSender::periodic ()
+void EspSender::periodic (time_t seconds)
 {
+    currentTime = seconds;
+
     if (message == NULL)
+    {
+        if (espState == EspState::MESSAGE_SEND && currentTime > messageSendTime + SWITCH_OFF_DELAY)
+        {
+            espState = EspState::DOWN;
+            // Call close connection twice since ESP need some time to finish operation
+            esp.closeConnection();
+            esp.closeConnection();
+            esp.powerOff();
+            stateReport(true, "board switched off");
+        }
+        return;
+    }
+    
+    if (currentTime < nextOperationTime)
     {
         return;
     }
-
+    
+    errorLed.putBit(false);
     switch (espState)
     {
     case EspState::DOWN:
         if (esp.init())
         {
             espState = EspState::STARTED;
-            USART_DEBUG("ESP is started, resetting");
+            stateReport(true, "started");
         }
         else
         {
             espState = EspState::NOT_STARTED;
-            USART_DEBUG("ESP error: Board is not started");
+            stateReport(false, "board not started");
         }
         break;
-
+        
     case EspState::STARTED:
         esp.setEcho(false);
         if (esp.isReady())
         {
             espState = EspState::AT_READY;
+            stateReport(true, "AT ready");
         }
         else
         {
-            USART_DEBUG("ESP error: AT is not ready");
+            stateReport(false, "AT not ready");
         }
         break;
-
+        
     case EspState::AT_READY:
         esp.setMode(1);
         if (esp.getMode() == 1)
         {
             espState = EspState::MODE_SET;
+            stateReport(true, "client mode set");
         }
         else
         {
-            USART_DEBUG("ESP error: Can not set client mode");
+            stateReport(false, "can not set client mode");
         }
         break;
-
+        
     case EspState::MODE_SET:
         if (esp.setIpAddress(config.getThisIp(), config.getGateIp(), config.getIpMask()))
         {
             espState = EspState::ADDR_SET;
+            stateReport(true, "IP address set");
         }
         else
         {
-            USART_DEBUG("ESP error: Can not set IP address");
+            stateReport(false, "can not set IP address");
         }
         break;
-
+        
     case EspState::ADDR_SET:
         if (esp.isWlanAvailable(config.getWlanName()))
         {
-            esp.delay(0);
             espState = EspState::SSID_FOUND;
+            stateReport(true, "found SSID");
         }
         else
         {
-            USART_DEBUG("ESP error: Can not find " << config.getWlanName());
+            stateReport(false, "can not find SSID");
         }
         break;
-
+        
     case EspState::SSID_FOUND:
-        if (esp.isPendingProcessing())
+        if (esp.connectToWlan(config.getWlanName(), config.getWlanPass()))
         {
-            if (esp.connectToWlan(config.getWlanName(), config.getWlanPass()))
-            {
-                esp.delay(0);
-                espState = EspState::SSID_CONNECTED;
-                USART_DEBUG(esp.getBuffer());
-            }
-            else
-            {
-                esp.delay(2000);
-                USART_DEBUG("ESP error: Can not connect to " << config.getWlanName());
-            }
+            espState = EspState::SSID_CONNECTED;
+            stateReport(true, "connected to SSID");
+        }
+        else
+        {
+            delayNextOperation(NEXT_OPERATION_DELAY);
+            stateReport(false, "can not connect to SSID");
         }
         break;
-
+        
     case EspState::SSID_CONNECTED:
         if (esp.ping(config.getServerIp()))
         {
-            esp.delay(0);
             espState = EspState::SERVER_FOUND;
+            stateReport(true, "found server");
         }
         break;
-
+        
     case EspState::SERVER_FOUND:
-        if (esp.isPendingProcessing())
+        if (esp.connectToServer(config.getServerIp(), config.getServerPort()))
         {
-            if (esp.connectToServer(config.getServerIp(), config.getServerPort()))
-            {
-                esp.delay(0);
-                espState = EspState::SERVER_CONNECTED;
-            }
-            else
-            {
-                esp.delay(2000);
-                USART_DEBUG("ESP error: Can not connect to server " << config.getServerIp());
-            }
+            espState = EspState::SERVER_CONNECTED;
+            stateReport(true, "connected to server");
+        }
+        else
+        {
+            delayNextOperation(NEXT_OPERATION_DELAY);
+            stateReport(false, "can not connect to server");
         }
         break;
-
+        
     case EspState::SERVER_CONNECTED:
-        if (esp.isPendingProcessing() && messagePending && message != NULL)
+    case EspState::MESSAGE_SEND:
+        if (message != NULL)
         {
             if (esp.sendString(message))
             {
-                messagePending = false;
                 message = NULL;
+                messageSendTime = currentTime;
+                espState = EspState::MESSAGE_SEND;
+                stateReport(true, "message sent");
             }
             else
             {
                 esp.closeConnection();
                 espState = EspState::SERVER_FOUND;
-                esp.delay(2000);
-                USART_DEBUG("ESP error: Can not send message");
+                delayNextOperation(NEXT_OPERATION_DELAY);
+                stateReport(false, "can not send message");
             }
         }
         break;
-
+        
     default:
         break;
     }
 }
 
+void EspSender::stateReport (bool result, const char * description)
+{
+    if (result)
+    {
+        USART_DEBUG("ESP state: " << description);
+        errorLed.putBit(false);
+    }
+    else
+    {
+        USART_DEBUG("ESP error: " << description);
+        errorLed.putBit(true);
+    }
+}

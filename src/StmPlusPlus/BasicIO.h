@@ -456,7 +456,7 @@ public:
 
     inline HAL_StatusTypeDef startCounterInMillis ()
     {
-        return startCounter(TIM_COUNTERMODE_UP, SystemCoreClock/2000 - 1, __UINT32_MAX__, TIM_CLOCKDIVISION_DIV1);
+        return startCounter(TIM_COUNTERMODE_UP, SystemCoreClock/4000 - 1, __UINT32_MAX__, TIM_CLOCKDIVISION_DIV1);
     }
 
     HAL_StatusTypeDef stopCounter ();

@@ -71,14 +71,13 @@ private:
     InterruptPriority & usartPrio;
     IOPin pinPower;
     TimerBase timer;
+    IOPin * sendLed;
 
     __IO size_t currChar;__IO bool espResponseCode;
 
     char bufferRx[BUFFER_SIZE];
     char bufferTx[BUFFER_SIZE];
     char cmdBuffer[256];
-
-    uint32_t pendingProcessing;
 
 public:
     
@@ -128,16 +127,6 @@ public:
         return sendCmd(CMD_AT);
     }
     
-    inline void delay (uint32_t d)
-    {
-        pendingProcessing = timer.getValue() + d;
-    }
-    
-    inline bool isPendingProcessing ()
-    {
-        return timer.getValue() > pendingProcessing;
-    }
-    
     inline const char * getBuffer () const
     {
         return bufferRx;
@@ -147,11 +136,16 @@ public:
     {
         return sendCmd(CMD_CLOSE_CONNECT);
     }
-
+    
     inline void powerOff ()
     {
         pinPower.putBit(false);
         timer.stopCounter();
+    }
+    
+    inline void assignSendLed (IOPin * _sendLed)
+    {
+        sendLed = _sendLed;
     }
     
     bool init ();

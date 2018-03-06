@@ -33,9 +33,9 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         usartPrio(prio),
         pinPower(powerPort, powerPin, GPIO_MODE_OUTPUT_PP),
         timer(timerName),
+        sendLed(NULL),
         currChar(0),
-        espResponseCode(false),
-        pendingProcessing(0)
+        espResponseCode(false)
 {
     // empty
 }
@@ -44,7 +44,7 @@ bool Esp11::init ()
 {
     timer.startCounterInMillis();
     HAL_StatusTypeDef status = usart.start(UART_MODE_RX, ESP_BAUDRATE, UART_WORDLENGTH_8B,
-                                           UART_STOPBITS_1,UART_PARITY_NONE);
+    					   UART_STOPBITS_1, UART_PARITY_NONE);
     if (status != HAL_OK)
     {
         USART_DEBUG("Cannot start ESP USART/RX: " << status);
@@ -148,6 +148,10 @@ bool Esp11::sendCmd (const char * cmd)
         return false;
     }
     
+    if (sendLed != NULL)
+    {
+        sendLed->putBit(true);
+    }
     timer.reset();
     USART_DEBUG("[" << timer.getValue() << "] -> " << cmd);
     
@@ -163,6 +167,10 @@ bool Esp11::sendCmd (const char * cmd)
     usart.stop();
     
     USART_DEBUG("[" << timer.getValue() << "] <- " << bufferRx);
+    if (sendLed != NULL)
+    {
+        sendLed->putBit(false);
+    }
     return espResponseCode;
 }
 
@@ -170,17 +178,17 @@ void Esp11::setEcho (bool val)
 {
     if (val)
     {
-        sendCmd (CMD_ECHO_ON);
+        sendCmd(CMD_ECHO_ON);
     }
     else
     {
-        sendCmd (CMD_ECHO_OFF);
+        sendCmd(CMD_ECHO_OFF);
     }
 }
 
 int Esp11::getMode ()
 {
-    if (sendCmd (CMD_GETMODE))
+    if (sendCmd(CMD_GETMODE))
     {
         const char * answer = ::strstr(bufferRx, RESP_GETMODE);
         if (answer != 0)
@@ -213,7 +221,7 @@ bool Esp11::setIpAddress (const char * ip, const char * gatway, const char * mas
 
 const char * Esp11::getIpAddress ()
 {
-    sendCmd (CMD_GETIP);
+    sendCmd(CMD_GETIP);
     return bufferRx;
 }
 
@@ -223,7 +231,7 @@ bool Esp11::isWlanAvailable (const char * ssid)
     ::strcat(cmdBuffer, "\"");
     ::strcat(cmdBuffer, ssid);
     ::strcat(cmdBuffer, "\"");
-    if (sendCmd (cmdBuffer))
+    if (sendCmd(cmdBuffer))
     {
         if (::strstr(bufferRx, RESP_GETNET) != NULL && ::strstr(bufferRx, ssid) != NULL)
         {
@@ -258,7 +266,7 @@ bool Esp11::createServer (const char * port)
     ::strcpy(cmdBuffer, CMD_TCPSERVER);
     ::strcat(cmdBuffer, port);
     
-    if (sendCmd (CMD_MULTCON))
+    if (sendCmd(CMD_MULTCON))
     {
         return sendCmd(cmdBuffer);
     }
@@ -275,7 +283,7 @@ bool Esp11::connectToServer (const char * ip, const char * port)
         ::strcat(cmdBuffer, ip);
         ::strcat(cmdBuffer, "\",");
         ::strcat(cmdBuffer, port);
-        if (sendCmd (cmdBuffer))
+        if (sendCmd(cmdBuffer))
         {
             return (::strstr(bufferRx, CMD_CONNECT_SERVER_RESPONCE) != NULL);
         }
@@ -289,7 +297,7 @@ bool Esp11::sendString (const char * string)
     ::strcpy(cmdBuffer, CMD_SEND);
     ::__itoa(len, cmdBuffer + ::strlen(CMD_SEND), 10);
     ::strcat(cmdBuffer, CMD_END);
-    if (sendCmd (cmdBuffer))
+    if (sendCmd(cmdBuffer))
     {
         return sendCmd(string);
     }

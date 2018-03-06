@@ -28,6 +28,9 @@ using namespace StmPlusPlus;
 class EspSender
 {
 public:
+    
+    static const time_t NEXT_OPERATION_DELAY = 5; // in seconds
+    static const time_t SWITCH_OFF_DELAY = 30; // in seconds
 
     enum class EspState
     {
@@ -40,35 +43,34 @@ public:
         SSID_FOUND,
         SSID_CONNECTED,
         SERVER_FOUND,
-        SERVER_CONNECTED
+        SERVER_CONNECTED,
+        MESSAGE_SEND
     };
 
-    EspSender (const Config & _cfg, Devices::Esp11 & _esp):
-        config(_cfg),
-        esp(_esp),
-        espState(EspState::DOWN),
-        messagePending(false),
-        message(NULL)
-    {
-        // empty
-    }
+    EspSender (const Config & _cfg, Devices::Esp11 & _esp, IOPin & _errorLed);
 
     inline bool isMessagePending () const
     {
-        return messagePending;
+        return message != NULL;
     }
-
-
+    
     void sendMessage (const char * string);
-    void periodic ();
+    void periodic (time_t seconds);
 
 private:
-
+    
     const Config & config;
     Devices::Esp11 & esp;
+    IOPin & errorLed;
     EspState espState;
-    volatile bool messagePending;
     const char * message;
+    time_t currentTime, nextOperationTime, messageSendTime;
+
+    inline void delayNextOperation (uint64_t delay)
+    {
+        nextOperationTime = currentTime + delay;
+    }
+    void stateReport (bool result, const char * description);
 };
 
 #endif
