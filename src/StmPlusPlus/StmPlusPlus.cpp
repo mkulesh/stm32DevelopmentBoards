@@ -102,6 +102,13 @@ void System::setClock (const System::ClockDiv & clkDiv, uint32_t FLatency, RtcTy
         break;
     }
 
+    if (clkDiv.PLLI2SN != 0 && clkDiv.PLLI2SR != 0)
+    {
+        PeriphClkInit.PeriphClockSelection |= RCC_PERIPHCLK_I2S;
+        PeriphClkInit.PLLI2S.PLLI2SN = clkDiv.PLLI2SN;
+        PeriphClkInit.PLLI2S.PLLI2SR = clkDiv.PLLI2SR;
+    }
+
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
     HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLatency);
 
@@ -671,3 +678,89 @@ float AnalogToDigitConverter::getVoltage ()
 {
     return (vRef * (float)getValue())/4095.0;
 }
+
+/************************************************************************
+ * Class I2S
+ ************************************************************************/
+I2S::I2S (PortName name, uint32_t pin, const InterruptPriority & prio):
+    IOPort(name, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, pin, false),
+    irqPrio(prio)
+{
+    setAlternate(GPIO_AF5_SPI2);
+
+    i2s.Instance = SPI2;
+    i2s.Init.Mode = I2S_MODE_MASTER_TX;
+    i2s.Init.Standard = I2S_STANDARD_PHILIPS;
+    i2s.Init.DataFormat = I2S_DATAFORMAT_16B; // will be re-defined at communication start
+    i2s.Init.MCLKOutput = I2S_MCLKOUTPUT_DISABLE;
+    i2s.Init.AudioFreq = I2S_AUDIOFREQ_44K; // will be re-defined at communication start
+    i2s.Init.CPOL = I2S_CPOL_LOW;
+    i2s.Init.ClockSource = I2S_CLOCK_PLL;
+    i2s.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_DISABLE;
+
+    i2sDmaTx.Instance = DMA1_Stream4;
+    i2sDmaTx.Init.Channel = DMA_CHANNEL_0;
+    i2sDmaTx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    i2sDmaTx.Init.PeriphInc = DMA_PINC_DISABLE;
+    i2sDmaTx.Init.MemInc = DMA_MINC_ENABLE;
+    i2sDmaTx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    i2sDmaTx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    i2sDmaTx.Init.Mode = DMA_NORMAL;
+    i2sDmaTx.Init.Priority = DMA_PRIORITY_LOW;
+    i2sDmaTx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    i2sDmaTx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+    i2sDmaTx.Init.MemBurst = DMA_PBURST_SINGLE;
+    i2sDmaTx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+}
+
+
+HAL_StatusTypeDef I2S::start ()
+{
+    __HAL_RCC_SPI2_CLK_ENABLE();
+    HAL_StatusTypeDef status = HAL_I2S_Init(&i2s);
+    if (status != HAL_OK)
+    {
+        USART_DEBUG("Can not start I2S: " << status);
+        return HAL_ERROR;
+    }
+
+    __HAL_RCC_DMA1_CLK_ENABLE();
+    __HAL_LINKDMA(&i2s, hdmatx, i2sDmaTx);
+    status = HAL_DMA_Init(&i2sDmaTx);
+    if (status != HAL_OK)
+    {
+        USART_DEBUG("Can not initialize I2S DMA/TX channel: " << status);
+        return HAL_ERROR;
+    }
+
+    HAL_NVIC_SetPriority(I2S_IRQ, irqPrio.first, irqPrio.second);
+    HAL_NVIC_EnableIRQ(I2S_IRQ);
+    HAL_NVIC_SetPriority(DMA_TX_IRQ, irqPrio.first + 1, irqPrio.second);
+    HAL_NVIC_EnableIRQ(DMA_TX_IRQ);
+
+    return HAL_OK;
+}
+
+
+void I2S::stop ()
+{
+    HAL_NVIC_DisableIRQ(I2S_IRQ);
+    HAL_NVIC_DisableIRQ(DMA_TX_IRQ);
+    HAL_DMA_DeInit(&i2sDmaTx);
+    __HAL_RCC_DMA1_CLK_DISABLE();
+    HAL_I2S_DeInit(&i2s);
+    __HAL_RCC_SPI2_CLK_DISABLE();
+}
+
+
+void I2S::processI2SInterrupt ()
+{
+    HAL_I2S_IRQHandler(&i2s);
+}
+
+
+void I2S::processDmaTxInterrupt ()
+{
+    HAL_DMA_IRQHandler(&i2sDmaTx);
+}
+

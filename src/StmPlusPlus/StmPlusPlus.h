@@ -41,6 +41,7 @@
 #include "stm32f4xx_hal_rcc.h"
 #include "stm32f4xx_hal_rtc_ex.h"
 #include "stm32f4xx_hal_adc.h"
+#include "stm32f4xx_hal_i2s.h"
 #endif
 
 #include <ctime>
@@ -83,9 +84,11 @@ public:
         uint32_t AHBCLKDivider; // The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
         uint32_t APB1CLKDivider;// The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
         uint32_t APB2CLKDivider;//  The APB2 clock (PCLK2) divider. This clock is derived from the AHB clock (HCLK).
+        uint32_t PLLI2SN; // The multiplication factor for PLLI2S VCO output clock
+        uint32_t PLLI2SR; // The division factor for I2S clock
 
         ClockDiv(): PLLM(16), PLLN(20), PLLP(2), PLLQ(4), PLLR(2),
-                AHBCLKDivider(1), APB1CLKDivider(2), APB2CLKDivider(2)
+                AHBCLKDivider(1), APB1CLKDivider(2), APB2CLKDivider(2), PLLI2SN(0), PLLI2SR(0)
         {
             // empty
         }
@@ -334,6 +337,36 @@ private:
 
     void enableClock();
     void disableClock();
+};
+
+
+/**
+ * @brief Class that implements I2S interface
+ */
+class I2S : public IOPort
+{
+public:
+
+    const IRQn_Type I2S_IRQ = SPI2_IRQn;
+    const IRQn_Type DMA_TX_IRQ = DMA1_Stream4_IRQn;
+
+    I2S (PortName name, uint32_t pin, const InterruptPriority & prio);
+    HAL_StatusTypeDef start ();
+    void stop ();
+
+    inline HAL_StatusTypeDef transmit (uint16_t * pData, uint16_t size)
+    {
+        return HAL_I2S_Transmit_DMA(&i2s, pData, size);
+    }
+
+    void processI2SInterrupt ();
+    void processDmaTxInterrupt ();
+
+private:
+
+    I2S_HandleTypeDef i2s;
+    DMA_HandleTypeDef i2sDmaTx;
+    const InterruptPriority & irqPrio;
 };
 
 } // end namespace
