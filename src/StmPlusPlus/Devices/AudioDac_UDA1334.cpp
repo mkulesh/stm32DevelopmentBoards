@@ -28,36 +28,34 @@ using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "DAC: "
 
-AudioDac_UDA1334::AudioDac_UDA1334 (I2S & _i2s, IOPort::PortName powerPort, uint32_t powerPin):
-    i2s(_i2s),
-    power(powerPort, powerPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_HIGH, true, false),
-    sourceType(SourceType::STREAM),
-    dataPtr1(NULL),
-    dataPtr2(NULL),
-    currDataBuffer(NULL),
-    testPin(NULL)
+AudioDac_UDA1334::AudioDac_UDA1334 (I2S & _i2s, IOPort::PortName powerPort, uint32_t powerPin,
+                                    IOPort::PortName smplFreqPort, uint32_t smplFreqPin) :
+        i2s(_i2s),
+        power(powerPort, powerPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_HIGH, true, false),
+        smplFreq(smplFreqPort, smplFreqPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_HIGH, true, false),
+        sourceType(SourceType::STREAM),
+        dataPtr1(NULL),
+        dataPtr2(NULL),
+        currDataBuffer(NULL),
+        blockRequested(false),
+        testPin(NULL)
 {
     dataPtr1 = &dataBuffer1[0];
     dataPtr2 = &dataBuffer2[0];
 }
 
-
-bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s)
+bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s, uint32_t standard, uint32_t audioFreq,
+                              uint32_t dataFormat)
 {
     sourceType = s;
     currDataBuffer = NULL;
-
-    power.putBit(true);
-    HAL_StatusTypeDef status = i2s.start();
-    USART_DEBUG("I2S start status: " << status);
-    if (status != HAL_OK)
-    {
-        return false;
-    }
-
+    blockRequested = false;
+    
     switch (sourceType)
     {
     case SourceType::STREAM:
+        ::memset(dataBuffer1, MSB_OFFSET, BLOCK_SIZE2);
+        ::memset(dataBuffer2, MSB_OFFSET, BLOCK_SIZE2);
         // nothing to do
         break;
     case SourceType::TEST_LIN:
@@ -67,23 +65,40 @@ bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s)
         makeTestSignalSin();
         break;
     }
-
+    
+    HAL_StatusTypeDef status = i2s.start(standard, audioFreq, dataFormat);
+    USART_DEBUG("I2S start status: " << status);
+    if (status != HAL_OK)
+    {
+        return false;
+    }
+    
+    smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
+    power.putBit(true);
     currDataBuffer = dataPtr2;
     onBlockTransmissionFinished();
-
+    
     return true;
 }
 
+void AudioDac_UDA1334::stop ()
+{
+    power.putBit(false);
+    i2s.stop();
+    // do not clear sourceType
+    currDataBuffer = NULL;
+    blockRequested = false;
+}
 
 void AudioDac_UDA1334::onBlockTransmissionFinished ()
 {
-    if (testPin != NULL)
-    {
-        testPin->putBit(!testPin->getBit());
-    }
     if (currDataBuffer == NULL)
     {
         return;
+    }
+    if (testPin != NULL)
+    {
+        testPin->putBit(!testPin->getBit());
     }
     HAL_StatusTypeDef status = HAL_ERROR;
     if (currDataBuffer == dataPtr1)
@@ -100,36 +115,38 @@ void AudioDac_UDA1334::onBlockTransmissionFinished ()
     {
         USART_DEBUG("I2S/DMA transmission error: " << status);
     }
+    else
+    {
+        blockRequested = true;
+    }
 }
-
 
 void AudioDac_UDA1334::makeTestSignalLin ()
 {
     uint16_t l, r;
-    double maxValue = (double)0xFFFF;
-    double f = (double)(BLOCK_SIZE2);
-    for (size_t i = 0; i < BLOCK_SIZE2; i+=2)
+    double maxValue = (double) 0xFFFF;
+    double f = (double) (BLOCK_SIZE2);
+    for (size_t i = 0; i < BLOCK_SIZE2; i += 2)
     {
-        l = r = (uint16_t)(((double)i/f) * maxValue) + MSB_OFFSET;
+        l = r = (uint16_t) (((double) i / f) * maxValue) + MSB_OFFSET;
         dataPtr1[i + 0] = l;
         dataPtr1[i + 1] = r;
-        l = r = (uint16_t)((1.0 - (double)i/f) * maxValue) + MSB_OFFSET;
+        l = r = (uint16_t) ((1.0 - (double) i / f) * maxValue) + MSB_OFFSET;
         dataPtr2[i + 0] = l;
         dataPtr2[i + 1] = r;
     }
     USART_DEBUG("WAV streaming (LIN test signal) started...");
 }
 
-
 void AudioDac_UDA1334::makeTestSignalSin ()
 {
     uint16_t l, r;
-    double maxValue = (double)0xFFFF;
-    double f = (double)(BLOCK_SIZE2);
-    for (size_t i = 0; i < BLOCK_SIZE2; i+=2)
+    double maxValue = (double) 0xFFFF;
+    double f = (double) (BLOCK_SIZE2);
+    for (size_t i = 0; i < BLOCK_SIZE2; i += 2)
     {
-        l = (sin(2.0*M_PI*(double)i/f) + 1.0) * maxValue/2.0 + MSB_OFFSET;
-        r = (cos(4.0*M_PI*(double)i/f) + 1.0) * maxValue/2.0 + MSB_OFFSET;
+        l = (sin(2.0 * M_PI * (double) i / f) + 1.0) * maxValue / 2.0 + MSB_OFFSET;
+        r = (cos(4.0 * M_PI * (double) i / f) + 1.0) * maxValue / 2.0 + MSB_OFFSET;
         dataPtr1[i + 0] = l;
         dataPtr1[i + 1] = r;
         dataPtr2[i + 0] = l;

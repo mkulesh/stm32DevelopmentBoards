@@ -683,14 +683,12 @@ float AnalogToDigitConverter::getVoltage ()
  * Class I2S
  ************************************************************************/
 I2S::I2S (PortName name, uint32_t pin, const InterruptPriority & prio):
-    IOPort(name, GPIO_MODE_AF_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, pin, false),
+    IOPort(name, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, pin, false),
     irqPrio(prio)
 {
-    setAlternate(GPIO_AF5_SPI2);
-
     i2s.Instance = SPI2;
     i2s.Init.Mode = I2S_MODE_MASTER_TX;
-    i2s.Init.Standard = I2S_STANDARD_PHILIPS;
+    i2s.Init.Standard = I2S_STANDARD_PHILIPS; // will be re-defined at communication start
     i2s.Init.DataFormat = I2S_DATAFORMAT_16B; // will be re-defined at communication start
     i2s.Init.MCLKOutput = I2S_MCLKOUTPUT_DISABLE;
     i2s.Init.AudioFreq = I2S_AUDIOFREQ_44K; // will be re-defined at communication start
@@ -714,8 +712,14 @@ I2S::I2S (PortName name, uint32_t pin, const InterruptPriority & prio):
 }
 
 
-HAL_StatusTypeDef I2S::start ()
+HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t dataFormat)
 {
+    i2s.Init.Standard = standard;
+    i2s.Init.AudioFreq = audioFreq;
+    i2s.Init.DataFormat = dataFormat;
+    setMode(GPIO_MODE_AF_PP);
+    setAlternate(GPIO_AF5_SPI2);
+
     __HAL_RCC_SPI2_CLK_ENABLE();
     HAL_StatusTypeDef status = HAL_I2S_Init(&i2s);
     if (status != HAL_OK)
@@ -750,6 +754,7 @@ void I2S::stop ()
     __HAL_RCC_DMA1_CLK_DISABLE();
     HAL_I2S_DeInit(&i2s);
     __HAL_RCC_SPI2_CLK_DISABLE();
+    setMode(GPIO_MODE_INPUT);
 }
 
 

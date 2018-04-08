@@ -351,7 +351,7 @@ public:
     const IRQn_Type DMA_TX_IRQ = DMA1_Stream4_IRQn;
 
     I2S (PortName name, uint32_t pin, const InterruptPriority & prio);
-    HAL_StatusTypeDef start ();
+    HAL_StatusTypeDef start (uint32_t standard, uint32_t audioFreq, uint32_t dataFormat);
     void stop ();
 
     inline HAL_StatusTypeDef transmit (uint16_t * pData, uint16_t size)

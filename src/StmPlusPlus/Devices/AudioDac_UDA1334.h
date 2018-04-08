@@ -23,38 +23,71 @@
 
 #include "../StmPlusPlus.h"
 
-namespace StmPlusPlus {
-namespace Devices {
+namespace StmPlusPlus
+{
+namespace Devices
+{
 
 class AudioDac_UDA1334
 {
 public:
-
+    
     static const uint32_t BLOCK_SIZE = 2048;
-    static const uint32_t BLOCK_SIZE2 = BLOCK_SIZE/2;
-    static const uint32_t MSB_OFFSET = 0xFFFF/2 + 1;
+    static const uint32_t BLOCK_SIZE2 = BLOCK_SIZE / 2;
+    static const uint32_t MSB_OFFSET = 0xFFFF / 2 + 1;
 
     enum class SourceType
     {
-        STREAM = 0,
-        TEST_LIN = 1,
-        TEST_SIN = 2
+        STREAM = 0, TEST_LIN = 1, TEST_SIN = 2
     };
 
-    AudioDac_UDA1334 (I2S & _i2s, IOPort::PortName powerPort, uint32_t powerPin);
-    
-    bool start (SourceType s);
+    AudioDac_UDA1334 (I2S & _i2s, IOPort::PortName powerPort, uint32_t powerPin,
+                      IOPort::PortName smplFreqPort, uint32_t smplFreqPin);
+
+    bool start (SourceType s, uint32_t standard, uint32_t audioFreq, uint32_t dataFormat);
+    void stop ();
+
     void onBlockTransmissionFinished ();
 
     inline void setTestPin (IOPin * pin)
     {
         testPin = pin;
     }
-
+    
+    inline bool isActive () const
+    {
+        return currDataBuffer != NULL;
+    }
+    
+    inline SourceType getSourceType () const
+    {
+        return sourceType;
+    }
+    
+    inline bool isBlockRequested () const
+    {
+        return blockRequested;
+    }
+    
+    inline void confirmBlock ()
+    {
+        blockRequested = false;
+    }
+    
+    inline uint16_t * getBlockPtr ()
+    {
+        return (currDataBuffer == dataPtr1) ? dataPtr2 : dataPtr1;
+    }
+    
+    inline uint32_t getBlockSize () const
+    {
+        return BLOCK_SIZE2;
+    }
+    
 private:
-
+    
     I2S & i2s;
-    IOPin power;
+    IOPin power, smplFreq;
 
     // Source
     SourceType sourceType;
@@ -67,12 +100,13 @@ private:
 
     // These variables are modified from interrupt service routine, therefore declare them as volatile
     volatile uint16_t * currDataBuffer;
+    volatile bool blockRequested;
 
     // Test
     IOPin *testPin;
 
 protected:
-
+    
     void makeTestSignalLin ();
     void makeTestSignalSin ();
 };

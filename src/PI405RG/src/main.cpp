@@ -18,7 +18,7 @@
  ******************************************************************************/
 
 #include "StmPlusPlus/StmPlusPlus.h"
-#include "StmPlusPlus/Devices/SdCard.h"
+#include "StmPlusPlus/WavStreamer.h"
 #include "EspSender.h"
 
 #include <array>
@@ -28,11 +28,11 @@ using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "Main: "
 
-class MyApplication : public RealTimeClock::EventHandler
+class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler
 {
 public:
 
-    static const size_t INPUT_PINS = 16;  // Number of monitored input pins
+    static const size_t INPUT_PINS = 8;  // Number of monitored input pins
 
 private:
     
@@ -44,6 +44,7 @@ private:
     IOPin mco;
 
     // Interrupt priorities
+    InterruptPriority irqPrioI2S;
     InterruptPriority irqPrioEsp;
     InterruptPriority irqPrioSd;
     InterruptPriority irqPrioRtc;
@@ -68,6 +69,12 @@ private:
     // Message
     char messageBuffer[2048];
 
+    // I2S2 Audio
+    I2S i2s;
+    AudioDac_UDA1334 audioDac;
+    WavStreamer streamer;
+    IOPin playButton;
+
 public:
     
     MyApplication () :
@@ -83,6 +90,7 @@ public:
             mco(IOPort::A, GPIO_PIN_8, GPIO_MODE_AF_PP),
             
             // Interrupt priorities
+            irqPrioI2S(6, 0), // I2S DMA interrupt priority: 7 will be also used
             irqPrioEsp(5, 0),
             irqPrioSd(3, 0), // SD DMA interrupt priority: 4 will be also used
             irqPrioRtc(2, 0),
@@ -120,16 +128,18 @@ public:
                      IOPin(IOPort::C, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
                      IOPin(IOPort::C, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
                      IOPin(IOPort::B, GPIO_PIN_0,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_2,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_11, GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_12, GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_15, GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_15, GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::C, GPIO_PIN_6,  GPIO_MODE_INPUT, GPIO_PULLDOWN)
-            } }
+                     IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLDOWN)
+            } },
+
+            // I2S2 Audio Configuration
+            // PB10 --> I2S2_CK
+            // PB12 --> I2S2_WS
+            // PB15 --> I2S2_SD
+            i2s(IOPort::B, GPIO_PIN_10 | GPIO_PIN_12 | GPIO_PIN_15, irqPrioI2S),
+            audioDac(i2s, IOPort::B, GPIO_PIN_11, IOPort::C, GPIO_PIN_6),
+            streamer(sdCard, audioDac),
+            playButton(IOPort::B, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_PULLUP, GPIO_SPEED_LOW)
+
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_4);
     }
@@ -144,9 +154,15 @@ public:
         return rtc;
     }
     
+    inline I2S & getI2S ()
+    {
+        return i2s;
+    }
+
     void run ()
     {
         log.initInstance();
+        HAL_Delay(100);
 
         USART_DEBUG("--------------------------------------------------------");
         USART_DEBUG("Oscillator frequency: " 
@@ -159,7 +175,7 @@ public:
             USART_DEBUG("RTC start status: " << status);
         }
         while (status != HAL_OK);
-        
+
         sdCard.setIrqPrio(irqPrioSd);
         sdCard.initInstance();
         if (sdCard.isCardInserted())
@@ -172,10 +188,29 @@ public:
         USART_DEBUG("Pin state: " << fillMessage());
         esp.assignSendLed(&ledGreen);
 
+        streamer.setHandler(this);
+        streamer.setVolume(0.5);
+
         bool reportState = false;
         while (true)
         {
             updateSdCardState();
+            if (!playButton.getBit())
+            {
+                if (streamer.isActive())
+                {
+                    USART_DEBUG("Stopping WAV");
+                    streamer.stop();
+                    HAL_Delay(500);
+                }
+                else
+                {
+                    USART_DEBUG("Starting WAV");
+                    streamer.start(AudioDac_UDA1334::SourceType:: STREAM, "S48.WAV");
+                    HAL_Delay(500);
+                }
+            }
+            streamer.periodic();
             if (isInputPinsChanged())
             {
                 USART_DEBUG("Input pins change detected");
@@ -264,6 +299,33 @@ public:
     {
         esp.processInterrupt();
     }
+
+    inline void processDmaTxCpltCallback (I2S_HandleTypeDef * /*channel*/)
+    {
+        audioDac.onBlockTransmissionFinished();
+    }
+
+    virtual bool onStartSteaming (Devices::AudioDac_UDA1334::SourceType s)
+    {
+        if (s == Devices::AudioDac_UDA1334::SourceType::STREAM)
+        {
+            if (!sdCard.isCardInserted())
+            {
+                USART_DEBUG("SD Card is not inserted");
+                return false;
+            }
+            sdCard.clearPort();
+            pinSdPower.setLow();
+            HAL_Delay(250);
+        }
+        return true;
+    }
+
+    virtual void onFinishSteaming ()
+    {
+        pinSdPower.setHigh();
+    }
+
 };
 
 MyApplication * appPtr = NULL;
@@ -288,6 +350,8 @@ int main (void)
     clkDiv.AHBCLKDivider = RCC_SYSCLK_DIV1;
     clkDiv.APB1CLKDivider = RCC_HCLK_DIV8;
     clkDiv.APB2CLKDivider = RCC_HCLK_DIV8;
+    clkDiv.PLLI2SN = 192;
+    clkDiv.PLLI2SR = 2;
     do
     {
         System::setClock(clkDiv, FLASH_LATENCY_3, System::RtcType::RTC_EXT);
@@ -352,4 +416,21 @@ void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
 {
     appPtr->UartCpltCallback(channel);
 }
+
+void SPI2_IRQHandler(void)
+{
+    appPtr->getI2S().processI2SInterrupt();
 }
+
+void DMA1_Stream4_IRQHandler(void)
+{
+    appPtr->getI2S().processDmaTxInterrupt();
+}
+
+void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *channel)
+{
+    appPtr->processDmaTxCpltCallback(channel);
+}
+
+}
+
