@@ -136,9 +136,12 @@ public:
             // PB12 --> I2S2_WS
             // PB15 --> I2S2_SD
             i2s(IOPort::B, GPIO_PIN_10 | GPIO_PIN_12 | GPIO_PIN_15, irqPrioI2S),
-            audioDac(i2s, IOPort::B, GPIO_PIN_11, IOPort::C, GPIO_PIN_6),
+            audioDac(i2s,
+                     /* power    = */ IOPort::B, GPIO_PIN_11,
+                     /* mute     = */ IOPort::B, GPIO_PIN_13,
+                     /* smplFreq = */ IOPort::B, GPIO_PIN_14),
             streamer(sdCard, audioDac),
-            playButton(IOPort::B, GPIO_PIN_13, GPIO_MODE_INPUT, GPIO_PULLUP, GPIO_SPEED_LOW)
+            playButton(IOPort::B, GPIO_PIN_2, GPIO_MODE_INPUT, GPIO_PULLUP, GPIO_SPEED_LOW)
 
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_4);
@@ -157,6 +160,11 @@ public:
     inline I2S & getI2S ()
     {
         return i2s;
+    }
+
+    inline Esp11 & getEsp ()
+    {
+        return esp;
     }
 
     void run ()
@@ -188,6 +196,7 @@ public:
         USART_DEBUG("Pin state: " << fillMessage());
         esp.assignSendLed(&ledGreen);
 
+        streamer.stop();
         streamer.setHandler(this);
         streamer.setVolume(0.5);
 
@@ -206,7 +215,7 @@ public:
                 else
                 {
                     USART_DEBUG("Starting WAV");
-                    streamer.start(AudioDac_UDA1334::SourceType:: STREAM, "S48.WAV");
+                    streamer.start(AudioDac_UDA1334::SourceType:: STREAM, "S44.WAV");
                     HAL_Delay(500);
                 }
             }
@@ -285,19 +294,6 @@ public:
         ::strcat(messageBuffer, "</p>");
         ::strcat(messageBuffer, "</message>");
         return &messageBuffer[0];
-    }
-
-    inline void UartCpltCallback (UART_HandleTypeDef * channel)
-    {
-        if (channel->Instance == USART2)
-        {
-            esp.processRxTxCpltCallback();
-        }
-    }
-
-    inline void UartEspLineIrqHandler ()
-    {
-        esp.processInterrupt();
     }
 
     inline void processDmaTxCpltCallback (I2S_HandleTypeDef * /*channel*/)
@@ -399,22 +395,31 @@ void SDIO_IRQHandler (void)
 
 void USART2_IRQHandler (void)
 {
-    appPtr->UartEspLineIrqHandler();
+    appPtr->getEsp().processInterrupt();
 }
 
 void HAL_UART_TxCpltCallback (UART_HandleTypeDef * channel)
 {
-    appPtr->UartCpltCallback(channel);
+    if (channel->Instance == USART2)
+    {
+        appPtr->getEsp().processTxCpltCallback();
+    }
 }
 
 void HAL_UART_RxCpltCallback (UART_HandleTypeDef * channel)
 {
-    appPtr->UartCpltCallback(channel);
+    if (channel->Instance == USART2)
+    {
+        appPtr->getEsp().processRxCpltCallback();
+    }
 }
 
 void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
 {
-    appPtr->UartCpltCallback(channel);
+    if (channel->Instance == USART2)
+    {
+        appPtr->getEsp().processErrorCallback();
+    }
 }
 
 void SPI2_IRQHandler(void)

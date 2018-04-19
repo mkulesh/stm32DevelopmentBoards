@@ -28,11 +28,14 @@ using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "DAC: "
 
-AudioDac_UDA1334::AudioDac_UDA1334 (I2S & _i2s, IOPort::PortName powerPort, uint32_t powerPin,
+AudioDac_UDA1334::AudioDac_UDA1334 (I2S & _i2s,
+                                    IOPort::PortName powerPort, uint32_t powerPin,
+                                    IOPort::PortName mutePort, uint32_t mutePin,
                                     IOPort::PortName smplFreqPort, uint32_t smplFreqPin) :
         i2s(_i2s),
-        power(powerPort, powerPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_HIGH, true, false),
-        smplFreq(smplFreqPort, smplFreqPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_HIGH, true, false),
+        power(powerPort, powerPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_LOW, true, false),
+        mute(mutePort, mutePin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_LOW, true, false),
+        smplFreq(smplFreqPort, smplFreqPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_LOW, true, false),
         sourceType(SourceType::STREAM),
         dataPtr1(NULL),
         dataPtr2(NULL),
@@ -73,9 +76,15 @@ bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s, uint32_t standard,
         return false;
     }
     
-    smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
     power.putBit(true);
+    smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
+    mute.putBit(true);
     currDataBuffer = dataPtr2;
+    if (START_DELAY > 0)
+    {
+        HAL_Delay(START_DELAY);
+    }
+    mute.putBit(false);
     onBlockTransmissionFinished();
     
     return true;
@@ -83,6 +92,8 @@ bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s, uint32_t standard,
 
 void AudioDac_UDA1334::stop ()
 {
+    mute.putBit(false);
+    smplFreq.putBit(false);
     power.putBit(false);
     i2s.stop();
     // do not clear sourceType

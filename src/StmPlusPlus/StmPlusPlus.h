@@ -359,8 +359,15 @@ public:
         return HAL_I2S_Transmit_DMA(&i2s, pData, size);
     }
 
-    void processI2SInterrupt ();
-    void processDmaTxInterrupt ();
+    inline void processI2SInterrupt ()
+    {
+        HAL_I2S_IRQHandler(&i2s);
+    }
+
+    inline void processDmaTxInterrupt ()
+    {
+        HAL_DMA_IRQHandler(&i2sDmaTx);
+    }
 
 private:
 

@@ -29,44 +29,58 @@ class EspSender
 {
 public:
     
-    enum class EspState
-    {
-        DOWN,
-        STARTED,
-        NOT_STARTED,
-        AT_READY,
-        MODE_SET,
-        ADDR_SET,
-        SSID_FOUND,
-        SSID_CONNECTED,
-        SERVER_FOUND,
-        SERVER_CONNECTED,
-        MESSAGE_SEND
-    };
-
     EspSender (const Config & _cfg, Devices::Esp11 & _esp, IOPin & _errorLed);
 
     inline bool isMessagePending () const
     {
         return message != NULL;
     }
-    
+
     void sendMessage (const char * string);
     void periodic (time_t seconds);
 
 private:
+
+    static const size_t STATE_NUMBER = 19;
+
+    class AsyncState
+    {
+    public:
+
+        Devices::Esp11::AsyncCmd cmd;
+        Devices::Esp11::AsyncCmd okNextCmd, errorNextCmd;
+        const char * description;
+
+        AsyncState(Devices::Esp11::AsyncCmd _cmd, Devices::Esp11::AsyncCmd _okState, const char * _description)
+        {
+            cmd = _cmd;
+            okNextCmd = _okState;
+            errorNextCmd = _cmd;
+            description = _description;
+        }
+
+        AsyncState(Devices::Esp11::AsyncCmd _cmd, Devices::Esp11::AsyncCmd _okState, Devices::Esp11::AsyncCmd _errorState, const char * _description)
+        {
+            cmd = _cmd;
+            okNextCmd = _okState;
+            errorNextCmd = _errorState;
+            description = _description;
+        }
+    };
     
     const Config & config;
     Devices::Esp11 & esp;
     IOPin & errorLed;
-    EspState espState;
+    Devices::Esp11::AsyncCmd espState;
     const char * message;
-    time_t currentTime, nextOperationTime, messageSendTime;
+    time_t currentTime, nextOperationTime, turnOffTime;
+    std::array<AsyncState, STATE_NUMBER> asyncStates;
 
     inline void delayNextOperation (uint64_t delay)
     {
         nextOperationTime = currentTime + delay;
     }
+
     void stateReport (bool result, const char * description);
 };
 

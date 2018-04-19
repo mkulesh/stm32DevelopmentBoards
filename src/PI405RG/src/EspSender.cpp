@@ -20,6 +20,7 @@
 #include <EspSender.h>
 
 using namespace StmPlusPlus;
+using namespace Devices;
 
 #define USART_DEBUG_MODULE "ESPS: "
 
@@ -31,11 +32,32 @@ EspSender::EspSender (const Config & _cfg, Devices::Esp11 & _esp, IOPin & _error
         config(_cfg),
         esp(_esp),
         errorLed(_errorLed),
-        espState(EspState::DOWN),
+        espState(Esp11::AsyncCmd::OFF),
         message(NULL),
         currentTime(0),
         nextOperationTime(0),
-        messageSendTime(0)
+        turnOffTime(__LONG_MAX__),
+        asyncStates { {
+            AsyncState(Esp11::AsyncCmd::POWER_ON,       Esp11::AsyncCmd::ECHO_OFF,       "power on"),
+            AsyncState(Esp11::AsyncCmd::ECHO_OFF,       Esp11::AsyncCmd::ENSURE_READY,   "echo off"),
+            AsyncState(Esp11::AsyncCmd::ENSURE_READY,   Esp11::AsyncCmd::SET_MODE,       "ensure ready"),
+            AsyncState(Esp11::AsyncCmd::SET_MODE,       Esp11::AsyncCmd::ENSURE_MODE,    "set ESP mode"),
+            AsyncState(Esp11::AsyncCmd::ENSURE_MODE,    Esp11::AsyncCmd::SET_ADDR,       "ensure set ESP"),
+            AsyncState(Esp11::AsyncCmd::SET_ADDR,       Esp11::AsyncCmd::ENSURE_WLAN,    "set IP"),
+            AsyncState(Esp11::AsyncCmd::ENSURE_WLAN,    Esp11::AsyncCmd::CONNECT_WLAN,   "search SSID"),
+            AsyncState(Esp11::AsyncCmd::CONNECT_WLAN,   Esp11::AsyncCmd::PING_SERVER,    "connect SSID"),
+            AsyncState(Esp11::AsyncCmd::PING_SERVER,    Esp11::AsyncCmd::SET_CON_MODE,   "ping server"),
+            AsyncState(Esp11::AsyncCmd::SET_CON_MODE,   Esp11::AsyncCmd::SET_SINDLE_CON, "set normal connection mode"),
+            AsyncState(Esp11::AsyncCmd::SET_SINDLE_CON, Esp11::AsyncCmd::CONNECT_SERVER, "set single connection"),
+            AsyncState(Esp11::AsyncCmd::CONNECT_SERVER, Esp11::AsyncCmd::SEND_MSG_SIZE,  "connect server"),
+            AsyncState(Esp11::AsyncCmd::SEND_MSG_SIZE,  Esp11::AsyncCmd::SEND_MESSAGE,   Esp11::AsyncCmd::RECONNECT, "send message size"),
+            AsyncState(Esp11::AsyncCmd::SEND_MESSAGE,   Esp11::AsyncCmd::WAITING,        Esp11::AsyncCmd::RECONNECT, "send message"),
+            AsyncState(Esp11::AsyncCmd::RECONNECT,      Esp11::AsyncCmd::PING_SERVER,    Esp11::AsyncCmd::PING_SERVER, "reconnect server"),
+            AsyncState(Esp11::AsyncCmd::WAITING,        Esp11::AsyncCmd::WAITING,        "waiting message"),
+            AsyncState(Esp11::AsyncCmd::DISCONNECT,     Esp11::AsyncCmd::POWER_OFF,      Esp11::AsyncCmd::POWER_OFF, "disconnect"),
+            AsyncState(Esp11::AsyncCmd::POWER_OFF,      Esp11::AsyncCmd::OFF,            "power off"),
+            AsyncState(Esp11::AsyncCmd::OFF,            Esp11::AsyncCmd::OFF,            "turned off")
+        } }
 {
     // empty
 }
@@ -44,154 +66,96 @@ void EspSender::sendMessage (const char * string)
 {
     USART_DEBUG("Sending state message to " << config.getWlanName() << ": " << string);
     message = string;
+    if (espState == Esp11::AsyncCmd::OFF)
+    {
+        espState = Esp11::AsyncCmd::POWER_ON;
+    }
+    else if (espState == Esp11::AsyncCmd::WAITING)
+    {
+        espState = Esp11::AsyncCmd::SEND_MSG_SIZE;
+    }
 }
 
 void EspSender::periodic (time_t seconds)
 {
-    currentTime = seconds;
-
-    if (message == NULL)
+    if (espState == Esp11::AsyncCmd::OFF)
     {
-        if (espState == EspState::MESSAGE_SEND && currentTime > messageSendTime + config.getTurnOffDelay())
-        {
-            espState = EspState::DOWN;
-            // Call close connection twice since ESP need some time to finish operation
-            esp.closeConnection();
-            esp.closeConnection();
-            esp.powerOff();
-            stateReport(true, "board switched off");
-        }
         return;
     }
-    
+
+    currentTime = seconds;
     if (currentTime < nextOperationTime)
     {
         return;
     }
+
+    if (espState == Esp11::AsyncCmd::WAITING)
+    {
+        if (message == NULL && currentTime > turnOffTime)
+        {
+            espState = Esp11::AsyncCmd::DISCONNECT;
+            delayNextOperation(config.getRepeatDelay());
+        }
+        else
+        {
+            return;
+        }
+    }
     
     errorLed.putBit(false);
-    switch (espState)
+    const AsyncState * s = NULL;
+    for (auto & ss : asyncStates)
     {
-    case EspState::DOWN:
-        if (esp.init())
+        if (ss.cmd == espState)
         {
-            espState = EspState::STARTED;
-            stateReport(true, "started");
+            s = &ss;
+            break;
         }
-        else
-        {
-            espState = EspState::NOT_STARTED;
-            stateReport(false, "board not started");
-        }
-        break;
-        
-    case EspState::STARTED:
-        esp.setEcho(false);
-        if (esp.isReady())
-        {
-            espState = EspState::AT_READY;
-            stateReport(true, "AT ready");
-        }
-        else
-        {
-            stateReport(false, "AT not ready");
-        }
-        break;
-        
-    case EspState::AT_READY:
+    }
+    if (s == NULL)
+    {
+        return;
+    }
+
+    if (s->cmd == Esp11::AsyncCmd::POWER_ON)
+    {
         esp.setMode(1);
-        if (esp.getMode() == 1)
+        esp.setIp(config.getThisIp());
+        esp.setGatway(config.getGateIp());
+        esp.setMask(config.getIpMask());
+        esp.setSsid(config.getWlanName());
+        esp.setPasswd(config.getWlanPass());
+        esp.setServer(config.getServerIp());
+        esp.setPort(config.getServerPort());
+        turnOffTime = __LONG_MAX__;
+    }
+    if (s->cmd == Esp11::AsyncCmd::SEND_MSG_SIZE)
+    {
+        if (message == NULL)
         {
-            espState = EspState::MODE_SET;
-            stateReport(true, "client mode set");
+            return;
         }
         else
         {
-            stateReport(false, "can not set client mode");
+            esp.setMessage(message);
         }
-        break;
-        
-    case EspState::MODE_SET:
-        if (esp.setIpAddress(config.getThisIp(), config.getGateIp(), config.getIpMask()))
+    }
+
+    if (esp.sendAsyncCmd(s->cmd))
+    {
+        if (s->cmd == Esp11::AsyncCmd::SEND_MESSAGE)
         {
-            espState = EspState::ADDR_SET;
-            stateReport(true, "IP address set");
+            message = NULL;
+            turnOffTime = currentTime + config.getTurnOffDelay();
         }
-        else
-        {
-            stateReport(false, "can not set IP address");
-        }
-        break;
-        
-    case EspState::ADDR_SET:
-        if (esp.isWlanAvailable(config.getWlanName()))
-        {
-            espState = EspState::SSID_FOUND;
-            stateReport(true, "found SSID");
-        }
-        else
-        {
-            stateReport(false, "can not find SSID");
-        }
-        break;
-        
-    case EspState::SSID_FOUND:
-        if (esp.connectToWlan(config.getWlanName(), config.getWlanPass()))
-        {
-            espState = EspState::SSID_CONNECTED;
-            stateReport(true, "connected to SSID");
-        }
-        else
-        {
-            delayNextOperation(config.getRepeatDelay());
-            stateReport(false, "can not connect to SSID");
-        }
-        break;
-        
-    case EspState::SSID_CONNECTED:
-        if (esp.ping(config.getServerIp()))
-        {
-            espState = EspState::SERVER_FOUND;
-            stateReport(true, "found server");
-        }
-        break;
-        
-    case EspState::SERVER_FOUND:
-        if (esp.connectToServer(config.getServerIp(), config.getServerPort()))
-        {
-            espState = EspState::SERVER_CONNECTED;
-            stateReport(true, "connected to server");
-        }
-        else
-        {
-            delayNextOperation(config.getRepeatDelay());
-            stateReport(false, "can not connect to server");
-        }
-        break;
-        
-    case EspState::SERVER_CONNECTED:
-    case EspState::MESSAGE_SEND:
-        if (message != NULL)
-        {
-            if (esp.sendString(message))
-            {
-                message = NULL;
-                messageSendTime = currentTime;
-                espState = EspState::MESSAGE_SEND;
-                stateReport(true, "message sent");
-            }
-            else
-            {
-                esp.closeConnection();
-                espState = EspState::SERVER_FOUND;
-                delayNextOperation(config.getRepeatDelay());
-                stateReport(false, "can not send message");
-            }
-        }
-        break;
-        
-    default:
-        break;
+        espState = s->okNextCmd;
+        stateReport(true, s->description);
+    }
+    else
+    {
+        espState = s->errorNextCmd;
+        delayNextOperation(config.getRepeatDelay());
+        stateReport(false, s->description);
     }
 }
 
@@ -199,12 +163,12 @@ void EspSender::stateReport (bool result, const char * description)
 {
     if (result)
     {
-        USART_DEBUG("ESP state: " << description);
+        USART_DEBUG("ESP state: " << description << " -> OK");
         errorLed.putBit(false);
     }
     else
     {
-        USART_DEBUG("ESP error: " << description);
+        USART_DEBUG("ESP error: " << description << " -> ERROR");
         errorLed.putBit(true);
     }
 }

@@ -34,14 +34,24 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         pinPower(powerPort, powerPin, GPIO_MODE_OUTPUT_PP),
         timer(timerName),
         sendLed(NULL),
+        commState(CommState::NONE),
         currChar(0),
-        espResponseCode(false)
+        mode(-1),
+        ip(NULL),
+        gatway(NULL),
+        mask(NULL),
+        ssid(NULL),
+        passwd(NULL),
+        server(NULL),
+        port(NULL),
+        message(NULL)
 {
     // empty
 }
 
 bool Esp11::init ()
 {
+    commState = CommState::NONE;
     timer.startCounterInMillis();
     HAL_StatusTypeDef status = usart.start(UART_MODE_RX, ESP_BAUDRATE, UART_WORDLENGTH_8B,
     					   UART_STOPBITS_1, UART_PARITY_NONE);
@@ -91,7 +101,7 @@ bool Esp11::waitForResponce (const char * responce)
     return retValue;
 }
 
-bool Esp11::transmitAndReceive (size_t cmdLen)
+void Esp11::transmitAndReceive (size_t cmdLen)
 {
     usart.enableClock();
     
@@ -99,49 +109,33 @@ bool Esp11::transmitAndReceive (size_t cmdLen)
     if (status != HAL_OK)
     {
         USART_DEBUG("Cannot start ESP USART/TX: " << status);
-        return false;
+        return;
     }
     
-    currChar = __UINT32_MAX__;
+    commState = CommState::TX;
+    currChar = 0;
     status = usart.transmitIt(bufferTx, cmdLen);
     if (status != HAL_OK)
     {
         USART_DEBUG("Cannot transmit ESP request message: " << status);
-        return false;
+        return;
     }
-    
-    while (!usart.isFinished());
-    
-    status = usart.startMode(UART_MODE_RX);
-    if (status != HAL_OK)
-    {
-        USART_DEBUG("Cannot start ESP USART/RX: " << status);
-        return false;
-    }
-    
-    currChar = 0;
-    status = usart.receiveIt(bufferRx, BUFFER_SIZE);
-    if (status != HAL_OK)
-    {
-        USART_DEBUG("Cannot receive ESP response message: " << status);
-        return false;
-    }
-    
+
     uint32_t operationEnd = timer.getValue() + ESP_TIMEOUT;
-    while (!usart.isFinished())
+    while (commState < CommState::RX_CMPL)
     {
         if (timer.getValue() > operationEnd)
         {
-            espResponseCode = false;
+            commState = CommState::ERROR;
             USART_DEBUG("Cannot receive ESP response message: ESP_TIMEOUT");
-            return false;
+            return;
         }
     }
-    return true;
 }
 
 bool Esp11::sendCmd (const char * cmd)
 {
+    commState = CommState::NONE;
     size_t cmdLen = ::strlen(cmd);
     if (cmdLen == 0)
     {
@@ -160,7 +154,6 @@ bool Esp11::sendCmd (const char * cmd)
     ::strncpy(bufferTx + cmdLen, CMD_END, 2);
     cmdLen += 2;
     
-    espResponseCode = false;
     usart.startInterrupt(usartPrio);
     transmitAndReceive(cmdLen);
     usart.stopInterrupt();
@@ -171,43 +164,26 @@ bool Esp11::sendCmd (const char * cmd)
     {
         sendLed->putBit(false);
     }
-    return espResponseCode;
+    return commState == CommState::SUCC;
 }
 
-void Esp11::setEcho (bool val)
+bool Esp11::applyMode ()
 {
-    if (val)
+    if (mode < 0)
     {
-        sendCmd(CMD_ECHO_ON);
+        return false;
     }
-    else
-    {
-        sendCmd(CMD_ECHO_OFF);
-    }
-}
-
-int Esp11::getMode ()
-{
-    if (sendCmd(CMD_GETMODE))
-    {
-        const char * answer = ::strstr(bufferRx, RESP_GETMODE);
-        if (answer != 0)
-        {
-            return ::atoi(answer + ::strlen(RESP_GETMODE));
-        }
-    }
-    return -1;
-}
-
-bool Esp11::setMode (int m)
-{
     ::strcpy(cmdBuffer, CMD_SETMODE);
-    ::__itoa(m, cmdBuffer + ::strlen(CMD_SETMODE), 10);
+    ::__itoa(mode, cmdBuffer + ::strlen(CMD_SETMODE), 10);
     return sendCmd(cmdBuffer);
 }
 
-bool Esp11::setIpAddress (const char * ip, const char * gatway, const char * mask)
+bool Esp11::applyIpAddress ()
 {
+    if (ip == NULL || gatway == NULL || mask == NULL)
+    {
+        return false;
+    }
     ::strcpy(cmdBuffer, CMD_SETIP);
     ::strcat(cmdBuffer, "\"");
     ::strcat(cmdBuffer, ip);
@@ -219,30 +195,25 @@ bool Esp11::setIpAddress (const char * ip, const char * gatway, const char * mas
     return sendCmd(cmdBuffer);
 }
 
-const char * Esp11::getIpAddress ()
+bool Esp11::searchWlan ()
 {
-    sendCmd(CMD_GETIP);
-    return bufferRx;
-}
-
-bool Esp11::isWlanAvailable (const char * ssid)
-{
+    if (ssid == NULL)
+    {
+        return false;
+    }
     ::strcpy(cmdBuffer, CMD_GETNET);
     ::strcat(cmdBuffer, "\"");
     ::strcat(cmdBuffer, ssid);
     ::strcat(cmdBuffer, "\"");
-    if (sendCmd(cmdBuffer))
-    {
-        if (::strstr(bufferRx, RESP_GETNET) != NULL && ::strstr(bufferRx, ssid) != NULL)
-        {
-            return true;
-        }
-    }
-    return false;
+    return sendCmd(cmdBuffer);
 }
 
-bool Esp11::connectToWlan (const char * ssid, const char * passwd)
+bool Esp11::connectToWlan ()
 {
+    if (ssid == NULL || passwd == NULL)
+    {
+        return false;
+    }
     ::strcpy(cmdBuffer, CMD_CONNECT_WLAN);
     ::strcat(cmdBuffer, "\"");
     ::strcat(cmdBuffer, ssid);
@@ -252,54 +223,109 @@ bool Esp11::connectToWlan (const char * ssid, const char * passwd)
     return sendCmd(cmdBuffer);
 }
 
-bool Esp11::ping (const char * ip)
+bool Esp11::ping ()
 {
+    if (server == NULL)
+    {
+        return false;
+    }
     ::strcpy(cmdBuffer, CMD_PING);
     ::strcat(cmdBuffer, "\"");
-    ::strcat(cmdBuffer, ip);
+    ::strcat(cmdBuffer, server);
     ::strcat(cmdBuffer, "\"");
     return sendCmd(cmdBuffer);
 }
 
-bool Esp11::createServer (const char * port)
+bool Esp11::connectToServer ()
 {
-    ::strcpy(cmdBuffer, CMD_TCPSERVER);
+    if (server == NULL || port == NULL)
+    {
+        return false;
+    }
+    ::strcpy(cmdBuffer, CMD_CONNECT_SERVER);
+    ::strcat(cmdBuffer, "\"TCP\",\"");
+    ::strcat(cmdBuffer, server);
+    ::strcat(cmdBuffer, "\",");
     ::strcat(cmdBuffer, port);
-    
-    if (sendCmd(CMD_MULTCON))
-    {
-        return sendCmd(cmdBuffer);
-    }
-    
-    return false;
+    return sendCmd(cmdBuffer);
 }
 
-bool Esp11::connectToServer (const char * ip, const char * port)
+bool Esp11::sendMessageSize ()
 {
-    if (sendCmd(CMD_SET_NORMAL_MODE) && sendCmd(CMD_SET_SINGLE_CONNECTION))
+    if (message == NULL)
     {
-        ::strcpy(cmdBuffer, CMD_CONNECT_SERVER);
-        ::strcat(cmdBuffer, "\"TCP\",\"");
-        ::strcat(cmdBuffer, ip);
-        ::strcat(cmdBuffer, "\",");
-        ::strcat(cmdBuffer, port);
-        if (sendCmd(cmdBuffer))
-        {
-            return (::strstr(bufferRx, CMD_CONNECT_SERVER_RESPONCE) != NULL);
-        }
+        return false;
     }
-    return false;
-}
-
-bool Esp11::sendString (const char * string)
-{
-    size_t len = ::strlen(string) + 2;
+    size_t len = ::strlen(message) + 2;
     ::strcpy(cmdBuffer, CMD_SEND);
     ::__itoa(len, cmdBuffer + ::strlen(CMD_SEND), 10);
     ::strcat(cmdBuffer, CMD_END);
-    if (sendCmd(cmdBuffer))
+    return sendCmd(cmdBuffer);
+}
+
+bool Esp11::sendMessage ()
+{
+    if (message == NULL)
     {
-        return sendCmd(string);
+        return false;
+    }
+    return sendCmd(message);
+}
+
+bool Esp11::sendAsyncCmd (Esp11::AsyncCmd cmd)
+{
+    switch (cmd)
+    {
+    case AsyncCmd::POWER_ON:
+        return init();
+    case AsyncCmd::ECHO_OFF:
+        return sendCmd(CMD_ECHO_OFF);
+    case AsyncCmd::ENSURE_READY:
+        return sendCmd(CMD_AT);
+    case AsyncCmd::SET_MODE:
+        return applyMode();
+    case AsyncCmd::ENSURE_MODE:
+        if (sendCmd(CMD_GETMODE))
+        {
+            const char * answer = ::strstr(bufferRx, RESP_GETMODE);
+            return answer != 0 && ::atoi(answer + ::strlen(RESP_GETMODE)) == mode;
+        }
+        return false;
+    case AsyncCmd::SET_ADDR:
+        return applyIpAddress();
+    case AsyncCmd::ENSURE_WLAN:
+        if (searchWlan())
+        {
+            return (::strstr(bufferRx, RESP_GETNET) != NULL && ::strstr(bufferRx, ssid) != NULL);
+        }
+        return false;
+    case AsyncCmd::CONNECT_WLAN:
+        return connectToWlan();
+    case AsyncCmd::PING_SERVER:
+        return ping();
+    case AsyncCmd::SET_CON_MODE:
+		return sendCmd(CMD_SET_NORMAL_MODE);
+    case AsyncCmd::SET_SINDLE_CON:
+		return sendCmd(CMD_SET_SINGLE_CONNECTION);
+    case AsyncCmd::CONNECT_SERVER:
+        if (connectToServer())
+        {
+      		return (::strstr(bufferRx, CMD_CONNECT_SERVER_RESPONCE) != NULL);
+        }
+        return false;
+    case AsyncCmd::SEND_MSG_SIZE:
+    	return sendMessageSize();
+    case AsyncCmd::SEND_MESSAGE:
+        return sendMessage();
+    case AsyncCmd::DISCONNECT:
+    case AsyncCmd::RECONNECT:
+        return sendCmd(CMD_CLOSE_CONNECT);
+    case AsyncCmd::POWER_OFF:
+        return powerOff();
+    case AsyncCmd::WAITING:
+    case AsyncCmd::OFF:
+        // nothing to do
+        return true;
     }
     return false;
 }

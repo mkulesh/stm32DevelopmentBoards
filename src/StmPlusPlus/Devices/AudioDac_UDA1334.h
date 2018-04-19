@@ -35,13 +35,16 @@ public:
     static const uint32_t BLOCK_SIZE = 2048;
     static const uint32_t BLOCK_SIZE2 = BLOCK_SIZE / 2;
     static const uint32_t MSB_OFFSET = 0xFFFF / 2 + 1;
+    static const uint32_t START_DELAY = 100;
 
     enum class SourceType
     {
         STREAM = 0, TEST_LIN = 1, TEST_SIN = 2
     };
 
-    AudioDac_UDA1334 (I2S & _i2s, IOPort::PortName powerPort, uint32_t powerPin,
+    AudioDac_UDA1334 (I2S & _i2s,
+                      IOPort::PortName powerPort, uint32_t powerPin,
+                      IOPort::PortName mutePort, uint32_t mutePin,
                       IOPort::PortName smplFreqPort, uint32_t smplFreqPin);
 
     bool start (SourceType s, uint32_t standard, uint32_t audioFreq, uint32_t dataFormat);
@@ -87,7 +90,7 @@ public:
 private:
     
     I2S & i2s;
-    IOPin power, smplFreq;
+    IOPin power, mute, smplFreq;
 
     // Source
     SourceType sourceType;

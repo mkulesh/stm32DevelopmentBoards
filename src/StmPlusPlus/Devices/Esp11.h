@@ -36,6 +36,40 @@ class Esp11
 {
 public:
     
+    enum class AsyncCmd
+    {
+        POWER_ON       = 0,
+        ECHO_OFF       = 1,
+        ENSURE_READY   = 2,
+        SET_MODE       = 3,
+        ENSURE_MODE    = 4,
+        SET_ADDR       = 5,
+        ENSURE_WLAN    = 6,
+        CONNECT_WLAN   = 7,
+        PING_SERVER    = 8,
+        SET_CON_MODE   = 9,
+        SET_SINDLE_CON = 10,
+        CONNECT_SERVER = 11,
+        SEND_MSG_SIZE  = 12,
+        SEND_MESSAGE   = 13,
+        RECONNECT      = 14,
+        DISCONNECT     = 15,
+        POWER_OFF      = 16,
+        WAITING        = 17,
+        OFF            = 18
+    };
+
+    enum class CommState
+    {
+        NONE    = 0,
+        TX      = 1,
+        TX_CMPL = 2,
+        RX      = 3,
+        RX_CMPL = 4,
+        SUCC    = 5,
+        ERROR   = 6
+    };
+
     static const uint32_t ESP_BAUDRATE = 115200;
     static const uint32_t ESP_TIMEOUT = 10000;
     static const uint32_t BUFFER_SIZE = 1024;
@@ -73,7 +107,8 @@ private:
     TimerBase timer;
     IOPin * sendLed;
 
-    __IO size_t currChar;__IO bool espResponseCode;
+    __IO CommState commState;
+    __IO size_t currChar;
 
     char bufferRx[BUFFER_SIZE];
     char bufferTx[BUFFER_SIZE];
@@ -85,85 +120,145 @@ public:
            InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin,
            TimerBase::TimerName timerName);
 
-    inline void processRxTxCpltCallback ()
+    inline void processRxCpltCallback ()
     {
-        usart.processRxTxCpltCallback();
+        commState = CommState::RX_CMPL;
+    }
+
+    inline void processTxCpltCallback ()
+    {
+        commState = CommState::TX_CMPL;
     }
     
+    inline void processErrorCallback ()
+    {
+        commState = CommState::ERROR;
+    }
+
     inline void processInterrupt ()
     {
         usart.processInterrupt();
-        if (currChar != __UINT32_MAX__)
+        if (commState == CommState::TX_CMPL)
         {
-            if (currChar >= 2 && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'K'
-                && bufferRx[currChar] == '\r')
+            commState = CommState::RX;
+            currChar = 0;
+            usart.startMode(UART_MODE_RX);
+            usart.receiveIt(bufferRx, BUFFER_SIZE);
+        }
+        else if (commState == CommState::RX)
+        {
+            if (bufferRx[currChar] == '\r')
             {
-                espResponseCode = true;
-                usart.stopInterrupt();
-                usart.processRxTxCpltCallback();
-            }
-            if (currChar >= 5 && bufferRx[currChar - 5] == 'E' && bufferRx[currChar - 4] == 'R'
-                && bufferRx[currChar - 3] == 'R' && bufferRx[currChar - 2] == 'O'
-                && bufferRx[currChar - 1] == 'R' && bufferRx[currChar] == '\r')
-            {
-                espResponseCode = false;
-                usart.stopInterrupt();
-                usart.processRxTxCpltCallback();
-            }
-            if (currChar >= 4 && bufferRx[currChar - 2] == 'F' && bufferRx[currChar - 1] == 'A'
-                && bufferRx[currChar - 2] == 'I' && bufferRx[currChar - 1] == 'L'
-                && bufferRx[currChar] == '\r')
-            {
-                espResponseCode = true;
-                usart.stopInterrupt();
-                usart.processRxTxCpltCallback();
+                if (currChar >= 2 && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'K')
+                {
+                    commState = CommState::SUCC;
+                    usart.stopInterrupt();
+                }
+                if (currChar >= 5 && bufferRx[currChar - 5] == 'E' && bufferRx[currChar - 4] == 'R'
+                    && bufferRx[currChar - 3] == 'R' && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'R')
+                {
+                    commState = CommState::ERROR;
+                    usart.stopInterrupt();
+                }
+                if (currChar >= 4 && bufferRx[currChar - 2] == 'F' && bufferRx[currChar - 1] == 'A'
+                    && bufferRx[currChar - 2] == 'I' && bufferRx[currChar - 1] == 'L')
+                {
+                    commState = CommState::SUCC;
+                    usart.stopInterrupt();
+                }
             }
             ++currChar;
         }
     }
     
-    inline bool isReady ()
+    inline void setMode (int mode)
     {
-        return sendCmd(CMD_AT);
+        this->mode = mode;
     }
-    
+
+    void setIp (const char* ip)
+    {
+        this->ip = ip;
+    }
+
+    void setMask (const char* mask)
+    {
+        this->mask = mask;
+    }
+
+    void setGatway (const char* gatway)
+    {
+        this->gatway = gatway;
+    }
+
+    void setSsid (const char* ssid)
+    {
+        this->ssid = ssid;
+    }
+
+    void setPasswd (const char* passwd)
+    {
+        this->passwd = passwd;
+    }
+
+    void setServer (const char* server)
+    {
+        this->server = server;
+    }
+
+    void setPort (const char* port)
+    {
+        this->port = port;
+    }
+
+    void setMessage (const char* message)
+    {
+        this->message = message;
+    }
+
     inline const char * getBuffer () const
     {
         return bufferRx;
     }
-    
-    inline bool closeConnection ()
-    {
-        return sendCmd(CMD_CLOSE_CONNECT);
-    }
-    
-    inline void powerOff ()
-    {
-        pinPower.putBit(false);
-        timer.stopCounter();
-    }
-    
+
     inline void assignSendLed (IOPin * _sendLed)
     {
         sendLed = _sendLed;
     }
     
-    bool init ();
-    bool waitForResponce (const char * responce);
-    bool transmitAndReceive (size_t cmdLen);
-    bool sendCmd (const char * cmd);
+    bool sendAsyncCmd (AsyncCmd cmd);
 
-    void setEcho (bool val);
-    int getMode ();
-    bool setMode (int m);
-    bool setIpAddress (const char * ip, const char * gatway, const char * mask);
-    const char * getIpAddress ();
-    bool isWlanAvailable (const char * ssid);
-    bool connectToWlan (const char * ssid, const char * passwd);
-    bool ping (const char * ip);
-    bool createServer (const char * port);
-    bool connectToServer (const char * ip, const char * port);
-    bool sendString (const char * string);
+private:
+
+    int mode;
+    const char * ip;
+    const char * gatway;
+    const char * mask;
+    const char * ssid;
+    const char * passwd;
+    const char * server;
+    const char * port;
+    const char * message;
+
+    bool waitForResponce (const char * responce);
+    void transmitAndReceive (size_t cmdLen);
+    bool sendCmd (const char * cmd);
+    bool init ();
+    bool applyMode ();
+    bool applyIpAddress ();
+    bool searchWlan ();
+    bool connectToWlan ();
+    bool ping ();
+    bool connectToServer ();
+    bool sendMessageSize ();
+    bool sendMessage ();
+
+    inline bool powerOff ()
+    {
+        pinPower.putBit(false);
+        timer.stopCounter();
+        return true;
+    }
 };
 
 } // end of namespace Devices

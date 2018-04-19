@@ -758,14 +758,3 @@ void I2S::stop ()
 }
 
 
-void I2S::processI2SInterrupt ()
-{
-    HAL_I2S_IRQHandler(&i2s);
-}
-
-
-void I2S::processDmaTxInterrupt ()
-{
-    HAL_DMA_IRQHandler(&i2sDmaTx);
-}
-
