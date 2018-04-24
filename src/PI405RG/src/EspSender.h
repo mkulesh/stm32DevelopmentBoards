@@ -82,6 +82,7 @@ private:
     }
 
     void stateReport (bool result, const char * description);
+    const AsyncState * findState (Devices::Esp11::AsyncCmd st);
 };
 
 #endif

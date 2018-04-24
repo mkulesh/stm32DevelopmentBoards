@@ -36,6 +36,7 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         sendLed(NULL),
         commState(CommState::NONE),
         currChar(0),
+        operationEnd(__UINT32_MAX__),
         mode(-1),
         ip(NULL),
         gatway(NULL),
@@ -51,7 +52,6 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
 
 bool Esp11::init ()
 {
-    commState = CommState::NONE;
     timer.startCounterInMillis();
     HAL_StatusTypeDef status = usart.start(UART_MODE_RX, ESP_BAUDRATE, UART_WORDLENGTH_8B,
     					   UART_STOPBITS_1, UART_PARITY_NONE);
@@ -67,7 +67,7 @@ bool Esp11::init ()
     {
         powerOff();
     }
-    usart.stop();
+    usart.startInterrupt(usartPrio);
     return isReady;
 }
 
@@ -101,52 +101,14 @@ bool Esp11::waitForResponce (const char * responce)
     return retValue;
 }
 
-void Esp11::transmitAndReceive (size_t cmdLen)
-{
-    usart.enableClock();
-    
-    HAL_StatusTypeDef status = usart.startMode(UART_MODE_TX);
-    if (status != HAL_OK)
-    {
-        USART_DEBUG("Cannot start ESP USART/TX: " << status);
-        return;
-    }
-    
-    commState = CommState::TX;
-    currChar = 0;
-    status = usart.transmitIt(bufferTx, cmdLen);
-    if (status != HAL_OK)
-    {
-        USART_DEBUG("Cannot transmit ESP request message: " << status);
-        return;
-    }
-
-    uint32_t operationEnd = timer.getValue() + ESP_TIMEOUT;
-    while (commState < CommState::RX_CMPL)
-    {
-        if (timer.getValue() > operationEnd)
-        {
-            commState = CommState::ERROR;
-            USART_DEBUG("Cannot receive ESP response message: ESP_TIMEOUT");
-            return;
-        }
-    }
-}
-
 bool Esp11::sendCmd (const char * cmd)
 {
-    commState = CommState::NONE;
     size_t cmdLen = ::strlen(cmd);
     if (cmdLen == 0)
     {
         return false;
     }
     
-    if (sendLed != NULL)
-    {
-        sendLed->putBit(true);
-    }
-    timer.reset();
     USART_DEBUG("[" << timer.getValue() << "] -> " << cmd);
     
     ::memset(bufferRx, 0, BUFFER_SIZE);
@@ -154,17 +116,22 @@ bool Esp11::sendCmd (const char * cmd)
     ::strncpy(bufferTx + cmdLen, CMD_END, 2);
     cmdLen += 2;
     
-    usart.startInterrupt(usartPrio);
-    transmitAndReceive(cmdLen);
-    usart.stopInterrupt();
-    usart.stop();
-    
-    USART_DEBUG("[" << timer.getValue() << "] <- " << bufferRx);
-    if (sendLed != NULL)
+    HAL_StatusTypeDef status = usart.startMode(UART_MODE_TX);
+    if (status != HAL_OK)
     {
-        sendLed->putBit(false);
+        USART_DEBUG("Cannot start ESP USART/TX: " << status);
+        return false;
     }
-    return commState == CommState::SUCC;
+
+    currChar = 0;
+    status = usart.transmitIt(bufferTx, cmdLen);
+    if (status != HAL_OK)
+    {
+        USART_DEBUG("Cannot transmit ESP request message: " << status);
+        return false;
+    }
+
+    return true;
 }
 
 bool Esp11::applyMode ()
@@ -272,61 +239,146 @@ bool Esp11::sendMessage ()
     return sendCmd(message);
 }
 
-bool Esp11::sendAsyncCmd (Esp11::AsyncCmd cmd)
+bool Esp11::transmit (Esp11::AsyncCmd cmd)
 {
+    if (isTransmissionStarted())
+    {
+        return false;
+    }
+
+    if (sendLed != NULL)
+    {
+        sendLed->putBit(true);
+    }
+
+    commState = CommState::TX;
+    timer.reset();
+    operationEnd = timer.getValue() + ESP_TIMEOUT;
+
+    bool isReady = true;
     switch (cmd)
     {
     case AsyncCmd::POWER_ON:
-        return init();
+        isReady = init();
+        commState = CommState::SUCC;
+        break;
     case AsyncCmd::ECHO_OFF:
-        return sendCmd(CMD_ECHO_OFF);
+        isReady = sendCmd(CMD_ECHO_OFF);
+        break;
     case AsyncCmd::ENSURE_READY:
-        return sendCmd(CMD_AT);
+        isReady = sendCmd(CMD_AT);
+        break;
     case AsyncCmd::SET_MODE:
-        return applyMode();
+        isReady = applyMode();
+        break;
     case AsyncCmd::ENSURE_MODE:
-        if (sendCmd(CMD_GETMODE))
-        {
-            const char * answer = ::strstr(bufferRx, RESP_GETMODE);
-            return answer != 0 && ::atoi(answer + ::strlen(RESP_GETMODE)) == mode;
-        }
-        return false;
+        isReady = sendCmd(CMD_GETMODE);
+        break;
     case AsyncCmd::SET_ADDR:
-        return applyIpAddress();
+        isReady = applyIpAddress();
+        break;
     case AsyncCmd::ENSURE_WLAN:
-        if (searchWlan())
-        {
-            return (::strstr(bufferRx, RESP_GETNET) != NULL && ::strstr(bufferRx, ssid) != NULL);
-        }
-        return false;
+        isReady = searchWlan();
+        break;
     case AsyncCmd::CONNECT_WLAN:
-        return connectToWlan();
+        isReady = connectToWlan();
+        break;
     case AsyncCmd::PING_SERVER:
-        return ping();
+        isReady = ping();
+        break;
     case AsyncCmd::SET_CON_MODE:
-		return sendCmd(CMD_SET_NORMAL_MODE);
+        isReady = sendCmd(CMD_SET_NORMAL_MODE);
+        break;
     case AsyncCmd::SET_SINDLE_CON:
-		return sendCmd(CMD_SET_SINGLE_CONNECTION);
+        isReady = sendCmd(CMD_SET_SINGLE_CONNECTION);
+        break;
     case AsyncCmd::CONNECT_SERVER:
-        if (connectToServer())
-        {
-      		return (::strstr(bufferRx, CMD_CONNECT_SERVER_RESPONCE) != NULL);
-        }
-        return false;
+        isReady = connectToServer();
+        break;
     case AsyncCmd::SEND_MSG_SIZE:
-    	return sendMessageSize();
+        isReady = sendMessageSize();
+        break;
     case AsyncCmd::SEND_MESSAGE:
-        return sendMessage();
+        isReady = sendMessage();
+        break;
     case AsyncCmd::DISCONNECT:
+        isReady = sendCmd(CMD_CLOSE_CONNECT);
+        break;
     case AsyncCmd::RECONNECT:
-        return sendCmd(CMD_CLOSE_CONNECT);
+        isReady = sendCmd(CMD_CLOSE_CONNECT);
+        break;
     case AsyncCmd::POWER_OFF:
-        return powerOff();
-    case AsyncCmd::WAITING:
-    case AsyncCmd::OFF:
+        powerOff();
+        commState = CommState::SUCC;
+        break;
+    default:
         // nothing to do
-        return true;
+        commState = CommState::SUCC;
+        break;
     }
-    return false;
+
+    if (!isReady)
+    {
+        commState = CommState::ERROR;
+    }
+    return isReady;
+}
+
+bool Esp11::getResponce (AsyncCmd cmd)
+{
+    if (!isResponceAvailable())
+    {
+        return false;
+    }
+
+    bool retValue = false;
+    if (commState == CommState::SUCC)
+    {
+        const char * responce = NULL;
+        switch (cmd)
+        {
+        case AsyncCmd::ENSURE_MODE:
+            responce = ::strstr(bufferRx, RESP_GETMODE);
+            retValue = responce != 0 && ::atoi(responce + ::strlen(RESP_GETMODE)) == mode;
+            break;
+
+        case AsyncCmd::ENSURE_WLAN:
+            retValue = (::strstr(bufferRx, RESP_GETNET) != NULL && ::strstr(bufferRx, ssid) != NULL);
+            break;
+
+        case AsyncCmd::CONNECT_SERVER:
+            retValue = (::strstr(bufferRx, CMD_CONNECT_SERVER_RESPONCE) != NULL);
+            break;
+
+        default:
+            // nothing to do
+            retValue = true;
+        }
+    }
+
+    commState = CommState::NONE;
+
+    if (sendLed != NULL)
+    {
+        sendLed->putBit(false);
+    }
+
+    USART_DEBUG("[" << timer.getValue() << "] <- " << bufferRx);
+
+    return retValue;
+}
+
+void Esp11::periodic ()
+{
+    if (isResponceAvailable())
+    {
+        return;
+    }
+
+    if (timer.getValue() > operationEnd)
+    {
+        commState = CommState::ERROR;
+        USART_DEBUG("Cannot receive ESP response message: ESP_TIMEOUT");
+    }
 }
 

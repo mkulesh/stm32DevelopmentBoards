@@ -65,9 +65,8 @@ public:
         TX      = 1,
         TX_CMPL = 2,
         RX      = 3,
-        RX_CMPL = 4,
-        SUCC    = 5,
-        ERROR   = 6
+        SUCC    = 4,
+        ERROR   = 5
     };
 
     static const uint32_t ESP_BAUDRATE = 115200;
@@ -85,7 +84,7 @@ public:
     const char * CMD_GETIP = "AT+CIFSR";
     const char * CMD_GETNET = "AT+CWLAP=";
     const char * RESP_GETNET = "+CWLAP:";
-    const char * CMD_CONNECT_WLAN = "AT+CWJAP_DEF=";
+    const char * CMD_CONNECT_WLAN = "AT+CWJAP_CUR=";
     const char * CMD_PING = "AT+PING=";
     const char * CMD_MULTCON = "AT+CIPMUX=1";
     const char * CMD_TCPSERVER = "AT+CIPSERVER=1,";
@@ -113,6 +112,7 @@ private:
     char bufferRx[BUFFER_SIZE];
     char bufferTx[BUFFER_SIZE];
     char cmdBuffer[256];
+    uint32_t operationEnd;
 
 public:
     
@@ -122,7 +122,7 @@ public:
 
     inline void processRxCpltCallback ()
     {
-        commState = CommState::RX_CMPL;
+        commState = CommState::ERROR;
     }
 
     inline void processTxCpltCallback ()
@@ -147,24 +147,21 @@ public:
         }
         else if (commState == CommState::RX)
         {
-            if (bufferRx[currChar] == '\r')
+            if (currChar < BUFFER_SIZE && bufferRx[currChar] == '\r')
             {
                 if (currChar >= 2 && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'K')
                 {
                     commState = CommState::SUCC;
-                    usart.stopInterrupt();
                 }
                 if (currChar >= 5 && bufferRx[currChar - 5] == 'E' && bufferRx[currChar - 4] == 'R'
                     && bufferRx[currChar - 3] == 'R' && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'R')
                 {
                     commState = CommState::ERROR;
-                    usart.stopInterrupt();
                 }
                 if (currChar >= 4 && bufferRx[currChar - 2] == 'F' && bufferRx[currChar - 1] == 'A'
                     && bufferRx[currChar - 2] == 'I' && bufferRx[currChar - 1] == 'L')
                 {
                     commState = CommState::SUCC;
-                    usart.stopInterrupt();
                 }
             }
             ++currChar;
@@ -226,7 +223,19 @@ public:
         sendLed = _sendLed;
     }
     
-    bool sendAsyncCmd (AsyncCmd cmd);
+    inline bool isResponceAvailable ()
+    {
+        return commState == CommState::SUCC || commState == CommState::ERROR;
+    }
+
+    inline bool isTransmissionStarted ()
+    {
+        return commState != CommState::NONE;
+    }
+
+    bool transmit (AsyncCmd cmd);
+    bool getResponce (AsyncCmd cmd);
+    void periodic ();
 
 private:
 
@@ -241,7 +250,6 @@ private:
     const char * message;
 
     bool waitForResponce (const char * responce);
-    void transmitAndReceive (size_t cmdLen);
     bool sendCmd (const char * cmd);
     bool init ();
     bool applyMode ();
@@ -253,11 +261,12 @@ private:
     bool sendMessageSize ();
     bool sendMessage ();
 
-    inline bool powerOff ()
+    inline void powerOff ()
     {
+        usart.stopInterrupt();
+        usart.stop();
         pinPower.putBit(false);
         timer.stopCounter();
-        return true;
     }
 };
 

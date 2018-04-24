@@ -94,7 +94,6 @@ void EspSender::periodic (time_t seconds)
         if (message == NULL && currentTime > turnOffTime)
         {
             espState = Esp11::AsyncCmd::DISCONNECT;
-            delayNextOperation(config.getRepeatDelay());
         }
         else
         {
@@ -102,60 +101,77 @@ void EspSender::periodic (time_t seconds)
         }
     }
     
-    errorLed.putBit(false);
-    const AsyncState * s = NULL;
-    for (auto & ss : asyncStates)
+    if (!esp.isTransmissionStarted())
     {
-        if (ss.cmd == espState)
+        errorLed.putBit(false);
+        const AsyncState * s = findState(espState);
+        if (s == NULL)
         {
-            s = &ss;
-            break;
+            USART_DEBUG("ESP state: state corrupted");
+            return;
+        }
+
+        if (s->cmd == Esp11::AsyncCmd::POWER_ON)
+        {
+            esp.setMode(1);
+            esp.setIp(config.getThisIp());
+            esp.setGatway(config.getGateIp());
+            esp.setMask(config.getIpMask());
+            esp.setSsid(config.getWlanName());
+            esp.setPasswd(config.getWlanPass());
+            esp.setServer(config.getServerIp());
+            esp.setPort(config.getServerPort());
+            turnOffTime = __LONG_MAX__;
+        }
+        if (s->cmd == Esp11::AsyncCmd::SEND_MSG_SIZE)
+        {
+            if (message == NULL)
+            {
+                return;
+            }
+            else
+            {
+                esp.setMessage(message);
+            }
+        }
+
+        if (!esp.transmit(s->cmd))
+        {
+            USART_DEBUG("ESP state: " << s->description << " -> failed to start transmission");
         }
     }
-    if (s == NULL)
+    else if (esp.isResponceAvailable())
     {
-        return;
-    }
-
-    if (s->cmd == Esp11::AsyncCmd::POWER_ON)
-    {
-        esp.setMode(1);
-        esp.setIp(config.getThisIp());
-        esp.setGatway(config.getGateIp());
-        esp.setMask(config.getIpMask());
-        esp.setSsid(config.getWlanName());
-        esp.setPasswd(config.getWlanPass());
-        esp.setServer(config.getServerIp());
-        esp.setPort(config.getServerPort());
-        turnOffTime = __LONG_MAX__;
-    }
-    if (s->cmd == Esp11::AsyncCmd::SEND_MSG_SIZE)
-    {
-        if (message == NULL)
+        const AsyncState * s = findState(espState);
+        if (s == NULL)
         {
+            USART_DEBUG("ESP state: state corrupted");
             return;
+        }
+        if (esp.getResponce(s->cmd))
+        {
+            if (s->cmd == Esp11::AsyncCmd::SEND_MESSAGE)
+            {
+                message = NULL;
+                turnOffTime = currentTime + config.getTurnOffDelay();
+            }
+            espState = s->okNextCmd;
+            stateReport(true, s->description);
         }
         else
         {
-            esp.setMessage(message);
+            espState = s->errorNextCmd;
+            delayNextOperation(config.getRepeatDelay());
+            stateReport(false, s->description);
         }
-    }
-
-    if (esp.sendAsyncCmd(s->cmd))
-    {
-        if (s->cmd == Esp11::AsyncCmd::SEND_MESSAGE)
+        if (espState == Esp11::AsyncCmd::POWER_OFF)
         {
-            message = NULL;
-            turnOffTime = currentTime + config.getTurnOffDelay();
+            delayNextOperation(config.getRepeatDelay());
         }
-        espState = s->okNextCmd;
-        stateReport(true, s->description);
     }
     else
     {
-        espState = s->errorNextCmd;
-        delayNextOperation(config.getRepeatDelay());
-        stateReport(false, s->description);
+        esp.periodic();
     }
 }
 
@@ -171,4 +187,16 @@ void EspSender::stateReport (bool result, const char * description)
         USART_DEBUG("ESP error: " << description << " -> ERROR");
         errorLed.putBit(true);
     }
+}
+
+const EspSender::AsyncState * EspSender::findState (Devices::Esp11::AsyncCmd st)
+{
+    for (auto & ss : asyncStates)
+    {
+        if (ss.cmd == st)
+        {
+            return &ss;
+        }
+    }
+    return NULL;
 }
