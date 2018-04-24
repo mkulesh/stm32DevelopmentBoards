@@ -73,47 +73,6 @@ public:
     static const uint32_t ESP_TIMEOUT = 10000;
     static const uint32_t BUFFER_SIZE = 1024;
 
-    const char * CMD_AT = "AT";
-    const char * CMD_VERSION = "AT+GMR";
-    const char * CMD_ECHO_OFF = "ATE0";
-    const char * CMD_ECHO_ON = "ATE1";
-    const char * CMD_GETMODE = "AT+CWMODE?";
-    const char * CMD_SETMODE = "AT+CWMODE=";
-    const char * RESP_GETMODE = "+CWMODE:";
-    const char * CMD_SETIP = "AT+CIPSTA_CUR=";
-    const char * CMD_GETIP = "AT+CIFSR";
-    const char * CMD_GETNET = "AT+CWLAP=";
-    const char * RESP_GETNET = "+CWLAP:";
-    const char * CMD_CONNECT_WLAN = "AT+CWJAP_CUR=";
-    const char * CMD_PING = "AT+PING=";
-    const char * CMD_MULTCON = "AT+CIPMUX=1";
-    const char * CMD_TCPSERVER = "AT+CIPSERVER=1,";
-    const char * CMD_SET_NORMAL_MODE = "AT+CIPMODE=0";
-    const char * CMD_SET_SINGLE_CONNECTION = "AT+CIPMUX=0";
-    const char * CMD_CONNECT_SERVER = "AT+CIPSTART=";
-    const char * CMD_CONNECT_SERVER_RESPONCE = "CONNECT";
-    const char * CMD_SEND = "AT+CIPSEND=";
-    const char * CMD_CLOSE_CONNECT = "AT+CIPCLOSE";
-
-private:
-    
-    const char * CMD_END = "\r\n";
-    const char * RESP_READY = "ready\r\n";
-
-    Usart usart;
-    InterruptPriority & usartPrio;
-    IOPin pinPower;
-    TimerBase timer;
-    IOPin * sendLed;
-
-    __IO CommState commState;
-    __IO size_t currChar;
-
-    char bufferRx[BUFFER_SIZE];
-    char bufferTx[BUFFER_SIZE];
-    char cmdBuffer[256];
-    uint32_t operationEnd;
-
 public:
     
     Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
@@ -145,9 +104,9 @@ public:
             usart.startMode(UART_MODE_RX);
             usart.receiveIt(bufferRx, BUFFER_SIZE);
         }
-        else if (commState == CommState::RX)
+        else if (commState == CommState::RX && currChar < BUFFER_SIZE)
         {
-            if (currChar < BUFFER_SIZE && bufferRx[currChar] == '\r')
+            if (bufferRx[currChar] == '\r')
             {
                 if (currChar >= 2 && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'K')
                 {
@@ -233,11 +192,62 @@ public:
         return commState != CommState::NONE;
     }
 
+    inline size_t getInputMessageSize () const
+    {
+        return inputMessageSize;
+    }
+
+    inline bool isListening ()
+    {
+        return listening;
+    }
+
     bool transmit (AsyncCmd cmd);
     bool getResponce (AsyncCmd cmd);
     void periodic ();
+    void startListening ();
+    void stopListening ();
+    void getInputMessage (char * buffer, size_t len);
 
 private:
+
+    const char * CMD_AT = "AT";
+    const char * CMD_VERSION = "AT+GMR";
+    const char * CMD_ECHO_OFF = "ATE0";
+    const char * CMD_ECHO_ON = "ATE1";
+    const char * CMD_GETMODE = "AT+CWMODE?";
+    const char * CMD_SETMODE = "AT+CWMODE=";
+    const char * RESP_GETMODE = "+CWMODE:";
+    const char * CMD_SETIP = "AT+CIPSTA_CUR=";
+    const char * CMD_GETIP = "AT+CIFSR";
+    const char * CMD_GETNET = "AT+CWLAP=";
+    const char * RESP_GETNET = "+CWLAP:";
+    const char * CMD_CONNECT_WLAN = "AT+CWJAP_CUR=";
+    const char * CMD_PING = "AT+PING=";
+    const char * CMD_MULTCON = "AT+CIPMUX=1";
+    const char * CMD_TCPSERVER = "AT+CIPSERVER=1,";
+    const char * CMD_SET_NORMAL_MODE = "AT+CIPMODE=0";
+    const char * CMD_SET_SINGLE_CONNECTION = "AT+CIPMUX=0";
+    const char * CMD_CONNECT_SERVER = "AT+CIPSTART=";
+    const char * CMD_CONNECT_SERVER_RESPONCE = "CONNECT";
+    const char * CMD_SEND = "AT+CIPSEND=";
+    const char * CMD_CLOSE_CONNECT = "AT+CIPCLOSE";
+    const char * CMD_INPUT_MESSAGE = "+IPD,";
+    const char * CMD_END = "\r\n";
+    const char * RESP_READY = "ready\r\n";
+
+    Usart usart;
+    InterruptPriority & usartPrio;
+    IOPin pinPower;
+    TimerBase timer;
+    IOPin * sendLed;
+
+    __IO CommState commState;
+    __IO size_t currChar;
+
+    char bufferRx[BUFFER_SIZE];
+    char bufferTx[BUFFER_SIZE];
+    char cmdBuffer[256];
 
     int mode;
     const char * ip;
@@ -248,6 +258,10 @@ private:
     const char * server;
     const char * port;
     const char * message;
+    bool listening;
+    uint32_t operationEnd;
+    const char * inputMessage;
+    size_t inputMessageSize;
 
     bool waitForResponce (const char * responce);
     bool sendCmd (const char * cmd);
@@ -260,6 +274,7 @@ private:
     bool connectToServer ();
     bool sendMessageSize ();
     bool sendMessage ();
+    void processInputMessage ();
 
     inline void powerOff ()
     {
@@ -267,6 +282,12 @@ private:
         usart.stop();
         pinPower.putBit(false);
         timer.stopCounter();
+    }
+
+    inline void setInputMessage (const char * msg, size_t len)
+    {
+        inputMessage = msg;
+        inputMessageSize = len;
     }
 };
 

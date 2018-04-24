@@ -72,6 +72,7 @@ void EspSender::sendMessage (const char * string)
     }
     else if (espState == Esp11::AsyncCmd::WAITING)
     {
+        esp.stopListening();
         espState = Esp11::AsyncCmd::SEND_MSG_SIZE;
     }
 }
@@ -93,12 +94,20 @@ void EspSender::periodic (time_t seconds)
     {
         if (message == NULL && currentTime > turnOffTime)
         {
+            esp.stopListening();
             espState = Esp11::AsyncCmd::DISCONNECT;
         }
-        else
+        else if (esp.isListening())
         {
-            return;
+            esp.periodic();
+            if (esp.getInputMessageSize() > 0)
+            {
+                esp.getInputMessage(inputMessage, Devices::Esp11::BUFFER_SIZE);
+                USART_DEBUG("<< " << inputMessage);
+                turnOffTime = currentTime + config.getTurnOffDelay();
+            }
         }
+        return;
     }
     
     if (!esp.isTransmissionStarted())
@@ -150,13 +159,14 @@ void EspSender::periodic (time_t seconds)
         }
         if (esp.getResponce(s->cmd))
         {
+            espState = s->okNextCmd;
+            stateReport(true, s->description);
             if (s->cmd == Esp11::AsyncCmd::SEND_MESSAGE)
             {
                 message = NULL;
                 turnOffTime = currentTime + config.getTurnOffDelay();
+                esp.startListening();
             }
-            espState = s->okNextCmd;
-            stateReport(true, s->description);
         }
         else
         {

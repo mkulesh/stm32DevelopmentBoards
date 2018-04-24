@@ -75,6 +75,7 @@ private:
     const char * message;
     time_t currentTime, nextOperationTime, turnOffTime;
     std::array<AsyncState, STATE_NUMBER> asyncStates;
+    char inputMessage[Devices::Esp11::BUFFER_SIZE];
 
     inline void delayNextOperation (uint64_t delay)
     {
