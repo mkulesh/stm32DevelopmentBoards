@@ -29,14 +29,14 @@ class EspSender
 {
 public:
     
-    EspSender (const Config & _cfg, Devices::Esp11 & _esp, IOPin & _errorLed);
+    EspSender (Devices::Esp11 & _esp, IOPin & _errorLed);
 
-    inline bool isMessagePending () const
+    inline bool isOutputMessageSent () const
     {
-        return message != NULL;
+        return outputMessage == NULL;
     }
 
-    void sendMessage (const char * string);
+    void sendMessage (const Config & config, const char* protocol, const char* server, const char* port, const char * msg, size_t messageSize = 0);
     void periodic (time_t seconds);
 
 private:
@@ -68,14 +68,12 @@ private:
         }
     };
     
-    const Config & config;
     Devices::Esp11 & esp;
     IOPin & errorLed;
     Devices::Esp11::AsyncCmd espState;
-    const char * message;
-    time_t currentTime, nextOperationTime, turnOffTime;
+    const char * outputMessage;
+    time_t currentTime, repeatDelay, nextOperationTime, turnOffDelay, turnOffTime;
     std::array<AsyncState, STATE_NUMBER> asyncStates;
-    char inputMessage[Devices::Esp11::BUFFER_SIZE];
 
     inline void delayNextOperation (uint64_t delay)
     {

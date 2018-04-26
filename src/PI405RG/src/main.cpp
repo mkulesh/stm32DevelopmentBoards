@@ -75,6 +75,28 @@ private:
     WavStreamer streamer;
     IOPin playButton;
 
+    // NTP
+    static const size_t NTP_PACKET_SIZE = 48;  // NTP time is in the first 48 bytes of message
+    struct NtpPacket {
+            uint8_t flags;
+            uint8_t stratum;
+            uint8_t poll;
+            uint8_t precision;
+            uint32_t root_delay;
+            uint32_t root_dispersion;
+            uint8_t referenceID[4];
+            uint32_t ref_ts_sec;
+            uint32_t ref_ts_frac;
+            uint32_t origin_ts_sec;
+            uint32_t origin_ts_frac;
+            uint32_t recv_ts_sec;
+            uint32_t recv_ts_frac;
+            uint32_t trans_ts_sec;
+            uint32_t trans_ts_frac;
+    } __attribute__((__packed__));
+
+    struct NtpPacket ntpPacket;
+
 public:
     
     MyApplication () :
@@ -118,7 +140,7 @@ public:
 
             //ESP
             esp(Usart::USART_2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, irqPrioEsp, IOPort::A, GPIO_PIN_1, Timer::TIM_6),
-            espSender(config, esp, ledRed),
+            espSender(esp, ledRed),
 
             // Input pins
             pins { { IOPin(IOPort::A, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
@@ -201,6 +223,7 @@ public:
         streamer.setVolume(0.5);
 
         bool reportState = false;
+        espSender.sendMessage(config, "UDP", "192.168.1.1", "123", getNTPrequst(), NTP_PACKET_SIZE);
         while (true)
         {
             updateSdCardState();
@@ -226,19 +249,25 @@ public:
                 ledBlue.putBit(true);
                 reportState = true;
             }
-            if (reportState && !espSender.isMessagePending())
+            if (reportState && espSender.isOutputMessageSent())
             {
-                espSender.sendMessage(fillMessage());
+                espSender.sendMessage(config, "TCP", config.getServerIp(), config.getServerPort(), fillMessage());
                 reportState = false;
             }
             espSender.periodic(rtc.getTimeSec());
-            if (!reportState && !espSender.isMessagePending())
+            if (!reportState && espSender.isOutputMessageSent())
             {
                 ledBlue.putBit(false);
             }
             if (hardBitEvent.isOccured())
             {
                 ledGreen.putBit(hardBitEvent.occurance() == 1);
+            }
+            if (esp.isListening() && esp.getInputMessageSize() > 0)
+            {
+                USART_DEBUG("Received " << esp.getInputMessageSize() << " bytes");
+                esp.getInputMessage(messageBuffer, esp.getInputMessageSize());
+                decodeNtpMessage();
             }
         }
     }
@@ -259,7 +288,7 @@ public:
     
     virtual void onRtcWakeUp ()
     {
-        if (!espSender.isMessagePending() && rtc.getTimeSec() % 2 == 0)
+        if (espSender.isOutputMessageSent() && rtc.getTimeSec() % 2 == 0)
         {
             hardBitEvent.resetTime();
         }
@@ -320,6 +349,45 @@ public:
     virtual void onFinishSteaming ()
     {
         pinSdPower.setHigh();
+    }
+
+    // NTP
+    #define UNIX_OFFSET             2208988800L
+    #define ENDIAN_SWAP32(data)     ((data >> 24) | /* right shift 3 bytes */ \
+                                    ((data & 0x00ff0000) >> 8) | /* right shift 1 byte */ \
+                                    ((data & 0x0000ff00) << 8) | /* left shift 1 byte */ \
+                                    ((data & 0x000000ff) << 24)) /* left shift 3 bytes */
+
+    const char * getNTPrequst ()
+    {
+        ::memset(&ntpPacket, 0, NTP_PACKET_SIZE);
+        ntpPacket.flags = 0xe3;
+        return (const char *) &ntpPacket;
+    }
+
+    time_t decodeNtpMessage ()
+    {
+        ::memcpy(&ntpPacket, messageBuffer, NTP_PACKET_SIZE);
+        ntpPacket.root_delay = ENDIAN_SWAP32(ntpPacket.root_delay);
+        ntpPacket.root_dispersion = ENDIAN_SWAP32(ntpPacket.root_dispersion);
+        ntpPacket.ref_ts_sec = ENDIAN_SWAP32(ntpPacket.ref_ts_sec);
+        ntpPacket.ref_ts_frac = ENDIAN_SWAP32(ntpPacket.ref_ts_frac);
+        ntpPacket.origin_ts_sec = ENDIAN_SWAP32(ntpPacket.origin_ts_sec);
+        ntpPacket.origin_ts_frac = ENDIAN_SWAP32(ntpPacket.origin_ts_frac);
+        ntpPacket.recv_ts_sec = ENDIAN_SWAP32(ntpPacket.recv_ts_sec);
+        ntpPacket.recv_ts_frac = ENDIAN_SWAP32(ntpPacket.recv_ts_frac);
+        ntpPacket.trans_ts_sec = ENDIAN_SWAP32(ntpPacket.trans_ts_sec);
+        ntpPacket.trans_ts_frac = ENDIAN_SWAP32(ntpPacket.trans_ts_frac);
+
+        unsigned int recv_secs = ntpPacket.recv_ts_sec - UNIX_OFFSET; /* convert to unix time */
+        time_t total_secs = recv_secs;
+        USART_DEBUG("Unix time: " << (unsigned int)total_secs);
+        struct tm * now = ::gmtime(&total_secs);
+
+        char logStr[48];
+        sprintf(logStr, "%02d/%02d/%d %02d:%02d:%02d", now->tm_mday, now->tm_mon+1, now->tm_year+1900, now->tm_hour, now->tm_min, now->tm_sec);
+        USART_DEBUG("Now: " << logStr);
+        return total_secs;
     }
 
 };

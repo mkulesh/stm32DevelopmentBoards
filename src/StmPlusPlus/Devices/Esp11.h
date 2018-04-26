@@ -157,6 +157,11 @@ public:
         this->passwd = passwd;
     }
 
+    void setProtocol (const char* protocol)
+    {
+        this->protocol = protocol;
+    }
+
     void setServer (const char* server)
     {
         this->server = server;
@@ -170,6 +175,11 @@ public:
     void setMessage (const char* message)
     {
         this->message = message;
+    }
+
+    void setMessageSize (size_t messageSize)
+    {
+        this->messageSize = messageSize;
     }
 
     inline const char * getBuffer () const
@@ -255,16 +265,18 @@ private:
     const char * mask;
     const char * ssid;
     const char * passwd;
+    const char * protocol;
     const char * server;
     const char * port;
     const char * message;
+    size_t messageSize;
     bool listening;
     uint32_t operationEnd;
     const char * inputMessage;
     size_t inputMessageSize;
 
     bool waitForResponce (const char * responce);
-    bool sendCmd (const char * cmd);
+    bool sendCmd (const char * cmd, size_t cmdLen = 0, bool addCmdEnd = true);
     bool init ();
     bool applyMode ();
     bool applyIpAddress ();

@@ -42,9 +42,11 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         mask(NULL),
         ssid(NULL),
         passwd(NULL),
+        protocol(NULL),
         server(NULL),
         port(NULL),
         message(NULL),
+        messageSize(0),
         listening(false),
         operationEnd(__UINT32_MAX__),
         inputMessage(NULL),
@@ -104,21 +106,27 @@ bool Esp11::waitForResponce (const char * responce)
     return retValue;
 }
 
-bool Esp11::sendCmd (const char * cmd)
+bool Esp11::sendCmd (const char * cmd, size_t cmdLen, bool addCmdEnd)
 {
-    size_t cmdLen = ::strlen(cmd);
     if (cmdLen == 0)
     {
-        return false;
+        cmdLen = ::strlen(cmd);
+        if (cmdLen == 0)
+        {
+            return false;
+        }
     }
     
     USART_DEBUG("[" << timer.getValue() << "] -> " << cmd);
     
     ::memset(bufferRx, 0, BUFFER_SIZE);
-    ::strncpy(bufferTx, cmd, cmdLen);
-    ::strncpy(bufferTx + cmdLen, CMD_END, 2);
-    cmdLen += 2;
-    
+    ::memcpy(bufferTx, cmd, cmdLen);
+    if (addCmdEnd)
+    {
+        ::memcpy(bufferTx + cmdLen, CMD_END, 2);
+        cmdLen += 2;
+    }
+
     HAL_StatusTypeDef status = usart.startMode(UART_MODE_TX);
     if (status != HAL_OK)
     {
@@ -208,12 +216,14 @@ bool Esp11::ping ()
 
 bool Esp11::connectToServer ()
 {
-    if (server == NULL || port == NULL)
+    if (protocol == NULL || server == NULL || port == NULL)
     {
         return false;
     }
     ::strcpy(cmdBuffer, CMD_CONNECT_SERVER);
-    ::strcat(cmdBuffer, "\"TCP\",\"");
+    ::strcat(cmdBuffer, "\"");
+    ::strcat(cmdBuffer, protocol);
+    ::strcat(cmdBuffer, "\",\"");
     ::strcat(cmdBuffer, server);
     ::strcat(cmdBuffer, "\",");
     ::strcat(cmdBuffer, port);
@@ -222,11 +232,11 @@ bool Esp11::connectToServer ()
 
 bool Esp11::sendMessageSize ()
 {
-    if (message == NULL)
+    if (message == NULL || messageSize == 0)
     {
         return false;
     }
-    size_t len = ::strlen(message) + 2;
+    size_t len = messageSize;
     ::strcpy(cmdBuffer, CMD_SEND);
     ::__itoa(len, cmdBuffer + ::strlen(CMD_SEND), 10);
     return sendCmd(cmdBuffer);
@@ -238,7 +248,7 @@ bool Esp11::sendMessage ()
     {
         return false;
     }
-    return sendCmd(message);
+    return sendCmd(message, messageSize, false);
 }
 
 bool Esp11::transmit (Esp11::AsyncCmd cmd)
@@ -391,10 +401,8 @@ void Esp11::periodic ()
 
 void Esp11::startListening ()
 {
-    USART_DEBUG("start listening");
     listening = true;
     setInputMessage(NULL, 0);
-    ::memset(bufferRx, 0, BUFFER_SIZE);
     commState = CommState::RX;
     currChar = 0;
     usart.startMode(UART_MODE_RX);
@@ -421,14 +429,12 @@ void Esp11::processInputMessage ()
             size_t lenSize = endLen - startLen;
             if (endLen != NULL && lenSize > 0 && lenSize < 256)
             {
-                ::strncpy(cmdBuffer, startLen, lenSize);
+                ::memcpy(cmdBuffer, startLen, lenSize);
                 cmdBuffer[lenSize] = 0;
-                const char * msg = endLen + 1;
-                size_t len1 = ::strlen(msg);
-                size_t len2 = ::atoi(cmdBuffer);
-                if (len1 == len2)
+                size_t msgSize = ::atoi(cmdBuffer);
+                if (currChar >= messagePrefixLen + lenSize + 1 + msgSize)
                 {
-                    setInputMessage(msg, len1);
+                    setInputMessage(endLen + 1, msgSize);
                 }
             }
         }
@@ -439,7 +445,7 @@ void Esp11::getInputMessage (char * buffer, size_t len)
 {
     if (inputMessage != NULL)
     {
-        ::strncpy(buffer, inputMessage, len);
+        ::memcpy(buffer, inputMessage, len);
     }
     startListening();
 }

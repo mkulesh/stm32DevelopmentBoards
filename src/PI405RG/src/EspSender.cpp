@@ -18,6 +18,7 @@
  ******************************************************************************/
 
 #include <EspSender.h>
+#include <ctime>
 
 using namespace StmPlusPlus;
 using namespace Devices;
@@ -28,14 +29,15 @@ using namespace Devices;
  * Class EspSender
  ************************************************************************/
 
-EspSender::EspSender (const Config & _cfg, Devices::Esp11 & _esp, IOPin & _errorLed) :
-        config(_cfg),
+EspSender::EspSender (Devices::Esp11 & _esp, IOPin & _errorLed) :
         esp(_esp),
         errorLed(_errorLed),
         espState(Esp11::AsyncCmd::OFF),
-        message(NULL),
+        outputMessage(NULL),
         currentTime(0),
+        repeatDelay(0),
         nextOperationTime(0),
+        turnOffDelay(0),
         turnOffTime(__LONG_MAX__),
         asyncStates { {
             AsyncState(Esp11::AsyncCmd::POWER_ON,       Esp11::AsyncCmd::ECHO_OFF,       "power on"),
@@ -62,10 +64,27 @@ EspSender::EspSender (const Config & _cfg, Devices::Esp11 & _esp, IOPin & _error
     // empty
 }
 
-void EspSender::sendMessage (const char * string)
+void EspSender::sendMessage (const Config & config, const char* protocol, const char * server, const char * port, const char * msg, size_t messageSize)
 {
-    USART_DEBUG("Sending state message to " << config.getWlanName() << ": " << string);
-    message = string;
+    esp.setMode(1);
+    esp.setIp(config.getThisIp());
+    esp.setGatway(config.getGateIp());
+    esp.setMask(config.getIpMask());
+    esp.setSsid(config.getWlanName());
+    esp.setPasswd(config.getWlanPass());
+    esp.setProtocol(protocol);
+    esp.setServer(server);
+    esp.setPort(port);
+    turnOffDelay = config.getTurnOffDelay();
+    repeatDelay = config.getRepeatDelay();
+    outputMessage = msg;
+    esp.setMessage(outputMessage);
+    if (messageSize == 0)
+    {
+        messageSize = ::strlen(outputMessage);
+    }
+    esp.setMessageSize(messageSize);
+    USART_DEBUG("Sending message to " << server << "/" << port << "[" << messageSize << "]: " << msg);
     if (espState == Esp11::AsyncCmd::OFF)
     {
         espState = Esp11::AsyncCmd::POWER_ON;
@@ -92,7 +111,7 @@ void EspSender::periodic (time_t seconds)
 
     if (espState == Esp11::AsyncCmd::WAITING)
     {
-        if (message == NULL && currentTime > turnOffTime)
+        if (outputMessage == NULL && currentTime > turnOffTime)
         {
             esp.stopListening();
             espState = Esp11::AsyncCmd::DISCONNECT;
@@ -102,9 +121,7 @@ void EspSender::periodic (time_t seconds)
             esp.periodic();
             if (esp.getInputMessageSize() > 0)
             {
-                esp.getInputMessage(inputMessage, Devices::Esp11::BUFFER_SIZE);
-                USART_DEBUG("<< " << inputMessage);
-                turnOffTime = currentTime + config.getTurnOffDelay();
+                turnOffTime = currentTime + turnOffDelay;
             }
         }
         return;
@@ -122,25 +139,13 @@ void EspSender::periodic (time_t seconds)
 
         if (s->cmd == Esp11::AsyncCmd::POWER_ON)
         {
-            esp.setMode(1);
-            esp.setIp(config.getThisIp());
-            esp.setGatway(config.getGateIp());
-            esp.setMask(config.getIpMask());
-            esp.setSsid(config.getWlanName());
-            esp.setPasswd(config.getWlanPass());
-            esp.setServer(config.getServerIp());
-            esp.setPort(config.getServerPort());
             turnOffTime = __LONG_MAX__;
         }
         if (s->cmd == Esp11::AsyncCmd::SEND_MSG_SIZE)
         {
-            if (message == NULL)
+            if (outputMessage == NULL)
             {
                 return;
-            }
-            else
-            {
-                esp.setMessage(message);
             }
         }
 
@@ -163,20 +168,20 @@ void EspSender::periodic (time_t seconds)
             stateReport(true, s->description);
             if (s->cmd == Esp11::AsyncCmd::SEND_MESSAGE)
             {
-                message = NULL;
-                turnOffTime = currentTime + config.getTurnOffDelay();
+                outputMessage = NULL;
+                turnOffTime = currentTime + turnOffDelay;
                 esp.startListening();
             }
         }
         else
         {
             espState = s->errorNextCmd;
-            delayNextOperation(config.getRepeatDelay());
+            delayNextOperation(repeatDelay);
             stateReport(false, s->description);
         }
         if (espState == Esp11::AsyncCmd::POWER_OFF)
         {
-            delayNextOperation(config.getRepeatDelay());
+            delayNextOperation(repeatDelay);
         }
     }
     else
