@@ -35,7 +35,7 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         timer(timerName),
         sendLed(NULL),
         commState(CommState::NONE),
-        currChar(0),
+        rxIndex(0),
         mode(-1),
         ip(NULL),
         gatway(NULL),
@@ -65,7 +65,7 @@ bool Esp11::init ()
         USART_DEBUG("Cannot start ESP USART/RX: " << status);
         return false;
     }
-    ::memset(bufferRx, 0, BUFFER_SIZE);
+    ::memset(rxBuffer, 0, BUFFER_SIZE);
     pinPower.putBit(true);
     bool isReady = waitForResponce(RESP_READY);
     if (!isReady)
@@ -119,11 +119,11 @@ bool Esp11::sendCmd (const char * cmd, size_t cmdLen, bool addCmdEnd)
     
     USART_DEBUG("[" << timer.getValue() << "] -> " << cmd);
     
-    ::memset(bufferRx, 0, BUFFER_SIZE);
-    ::memcpy(bufferTx, cmd, cmdLen);
+    ::memset(rxBuffer, 0, BUFFER_SIZE);
+    ::memcpy(txBuffer, cmd, cmdLen);
     if (addCmdEnd)
     {
-        ::memcpy(bufferTx + cmdLen, CMD_END, 2);
+        ::memcpy(txBuffer + cmdLen, CMD_END, 2);
         cmdLen += 2;
     }
 
@@ -134,8 +134,8 @@ bool Esp11::sendCmd (const char * cmd, size_t cmdLen, bool addCmdEnd)
         return false;
     }
 
-    currChar = 0;
-    status = usart.transmitIt(bufferTx, cmdLen);
+    rxIndex = 0;
+    status = usart.transmitIt(txBuffer, cmdLen);
     if (status != HAL_OK)
     {
         USART_DEBUG("Cannot transmit ESP request message: " << status);
@@ -350,16 +350,16 @@ bool Esp11::getResponce (AsyncCmd cmd)
         switch (cmd)
         {
         case AsyncCmd::ENSURE_MODE:
-            responce = ::strstr(bufferRx, RESP_GETMODE);
+            responce = ::strstr(rxBuffer, RESP_GETMODE);
             retValue = responce != 0 && ::atoi(responce + ::strlen(RESP_GETMODE)) == mode;
             break;
 
         case AsyncCmd::ENSURE_WLAN:
-            retValue = (::strstr(bufferRx, RESP_GETNET) != NULL && ::strstr(bufferRx, ssid) != NULL);
+            retValue = (::strstr(rxBuffer, RESP_GETNET) != NULL && ::strstr(rxBuffer, ssid) != NULL);
             break;
 
         case AsyncCmd::CONNECT_SERVER:
-            retValue = (::strstr(bufferRx, CMD_CONNECT_SERVER_RESPONCE) != NULL);
+            retValue = (::strstr(rxBuffer, CMD_CONNECT_SERVER_RESPONCE) != NULL);
             break;
 
         default:
@@ -382,7 +382,7 @@ bool Esp11::getResponce (AsyncCmd cmd)
 
 void Esp11::periodic ()
 {
-    if (listening && currChar > 0)
+    if (listening && rxIndex > 0)
     {
         processInputMessage();
     }
@@ -404,9 +404,9 @@ void Esp11::startListening ()
     listening = true;
     setInputMessage(NULL, 0);
     commState = CommState::RX;
-    currChar = 0;
+    rxIndex = 0;
     usart.startMode(UART_MODE_RX);
-    usart.receiveIt(bufferRx, BUFFER_SIZE);
+    usart.receiveIt(rxBuffer, BUFFER_SIZE);
 }
 
 void Esp11::stopListening ()
@@ -419,9 +419,9 @@ void Esp11::stopListening ()
 void Esp11::processInputMessage ()
 {
     size_t messagePrefixLen = ::strlen(CMD_INPUT_MESSAGE);
-    if (currChar > messagePrefixLen)
+    if (rxIndex > messagePrefixLen)
     {
-        const char * startIpd = ::strstr(bufferRx, CMD_INPUT_MESSAGE);
+        const char * startIpd = ::strstr(rxBuffer, CMD_INPUT_MESSAGE);
         if (startIpd != NULL)
         {
             const char * startLen = startIpd + messagePrefixLen;
@@ -432,7 +432,7 @@ void Esp11::processInputMessage ()
                 ::memcpy(cmdBuffer, startLen, lenSize);
                 cmdBuffer[lenSize] = 0;
                 size_t msgSize = ::atoi(cmdBuffer);
-                if (currChar >= messagePrefixLen + lenSize + 1 + msgSize)
+                if (rxIndex >= messagePrefixLen + lenSize + 1 + msgSize)
                 {
                     setInputMessage(endLen + 1, msgSize);
                 }

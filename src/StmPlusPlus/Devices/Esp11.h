@@ -100,30 +100,30 @@ public:
         if (commState == CommState::TX_CMPL)
         {
             commState = CommState::RX;
-            currChar = 0;
+            rxIndex = 0;
             usart.startMode(UART_MODE_RX);
-            usart.receiveIt(bufferRx, BUFFER_SIZE);
+            usart.receiveIt(rxBuffer, BUFFER_SIZE);
         }
-        else if (commState == CommState::RX && currChar < BUFFER_SIZE)
+        else if (commState == CommState::RX && rxIndex < BUFFER_SIZE)
         {
-            if (bufferRx[currChar] == '\r')
+            if (rxBuffer[rxIndex] == '\r')
             {
-                if (currChar >= 2 && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'K')
+                if (rxIndex >= 2 && rxBuffer[rxIndex - 2] == 'O' && rxBuffer[rxIndex - 1] == 'K')
                 {
                     commState = CommState::SUCC;
                 }
-                if (currChar >= 5 && bufferRx[currChar - 5] == 'E' && bufferRx[currChar - 4] == 'R'
-                    && bufferRx[currChar - 3] == 'R' && bufferRx[currChar - 2] == 'O' && bufferRx[currChar - 1] == 'R')
+                if (rxIndex >= 5 && rxBuffer[rxIndex - 5] == 'E' && rxBuffer[rxIndex - 4] == 'R'
+                    && rxBuffer[rxIndex - 3] == 'R' && rxBuffer[rxIndex - 2] == 'O' && rxBuffer[rxIndex - 1] == 'R')
                 {
                     commState = CommState::ERROR;
                 }
-                if (currChar >= 4 && bufferRx[currChar - 2] == 'F' && bufferRx[currChar - 1] == 'A'
-                    && bufferRx[currChar - 2] == 'I' && bufferRx[currChar - 1] == 'L')
+                if (rxIndex >= 4 && rxBuffer[rxIndex - 2] == 'F' && rxBuffer[rxIndex - 1] == 'A'
+                    && rxBuffer[rxIndex - 2] == 'I' && rxBuffer[rxIndex - 1] == 'L')
                 {
                     commState = CommState::SUCC;
                 }
             }
-            ++currChar;
+            ++rxIndex;
         }
     }
     
@@ -180,11 +180,6 @@ public:
     void setMessageSize (size_t messageSize)
     {
         this->messageSize = messageSize;
-    }
-
-    inline const char * getBuffer () const
-    {
-        return bufferRx;
     }
 
     inline void assignSendLed (IOPin * _sendLed)
@@ -253,11 +248,11 @@ private:
     IOPin * sendLed;
 
     __IO CommState commState;
-    __IO size_t currChar;
+    __IO size_t rxIndex;
 
-    char bufferRx[BUFFER_SIZE];
-    char bufferTx[BUFFER_SIZE];
     char cmdBuffer[256];
+    char txBuffer[BUFFER_SIZE];
+    char rxBuffer[BUFFER_SIZE];
 
     int mode;
     const char * ip;
