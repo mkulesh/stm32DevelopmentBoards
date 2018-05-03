@@ -10,7 +10,7 @@ The first board is a two-layers STM32F4 board, which have a form-factor of Raspb
 
 ![Case view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-perspective.jpg)
 
-If you like to test this board, you can order it [on DirtyPCBs.com](http://dev.dirtypcbs.com/store/designer/details/9348/5825/stm32-pi-board-v-1-1)
+If you like to test this board, you can order it [on DirtyPCBs.com](http://dirtypcbs.com/store/designer/details/9348/6009/stm32-pi-board-v1-2-zip)
 
 ### Specification
 * It is based on high-performance ARM®Cortex®-M4 32-bit RISC micro-controller [STM32F405RG](http://www.st.com/en/microcontrollers/stm32f405rg.html)
@@ -49,7 +49,7 @@ The adapter between 20-pin JTAG and this custom connector is also included in th
 
 ![Development boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/development_boards_layout.png)
 
-You can order these boards [on DirtyPCBs.com](http://dev.dirtypcbs.com/store/designer/details/9348/5771/stm32-development-boards)
+You can order these boards [on DirtyPCBs.com](http://dirtypcbs.com/store/designer/details/9348/5771/stm32-development-boards)
 
 ## LQFP-Breadboard Adapters:
 
@@ -57,7 +57,7 @@ These boards are just one-side breadboard adapters for LQFP32/48/64 IC's:
 
 ![Adapter boards layout](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/adapter_boards_layout.png)
 
-You can order these boards [on DirtyPCBs.com](http://dev.dirtypcbs.com/store/designer/details/9348/5770/lqfp-adapters-zip)
+You can order these boards [on DirtyPCBs.com](http://dirtypcbs.com/store/designer/details/9348/5770/lqfp-adapters-zip)
 
 ## Repository Content:
 
