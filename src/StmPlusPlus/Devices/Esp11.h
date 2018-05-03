@@ -106,23 +106,45 @@ public:
         }
         else if (commState == CommState::RX && rxIndex < BUFFER_SIZE)
         {
-            if (rxBuffer[rxIndex] == '\r')
+            if (rxIndex >= 1
+                && rxBuffer[rxIndex-1] == '\r'
+                && rxBuffer[rxIndex] == '\n')
             {
-                if (rxIndex >= 2 && rxBuffer[rxIndex - 2] == 'O' && rxBuffer[rxIndex - 1] == 'K')
+                if (shortOkResponse && rxIndex >= 3
+                    && rxBuffer[rxIndex - 3] == 'O'
+                    && rxBuffer[rxIndex - 2] == 'K')
                 {
                     commState = CommState::SUCC;
                 }
-                if (rxIndex >= 5 && rxBuffer[rxIndex - 5] == 'E' && rxBuffer[rxIndex - 4] == 'R'
-                    && rxBuffer[rxIndex - 3] == 'R' && rxBuffer[rxIndex - 2] == 'O' && rxBuffer[rxIndex - 1] == 'R')
+                else if (rxIndex >= 8
+                        && rxBuffer[rxIndex - 8] == 'S'
+                        && rxBuffer[rxIndex - 7] == 'E'
+                        && rxBuffer[rxIndex - 6] == 'N'
+                        && rxBuffer[rxIndex - 5] == 'D'
+                        && rxBuffer[rxIndex - 4] == ' '
+                        && rxBuffer[rxIndex - 3] == 'O'
+                        && rxBuffer[rxIndex - 2] == 'K')
+                {
+                    commState = CommState::SUCC;
+                }
+                else if (rxIndex >= 6
+                        && rxBuffer[rxIndex - 6] == 'E'
+                        && rxBuffer[rxIndex - 5] == 'R'
+                        && rxBuffer[rxIndex - 4] == 'R'
+                        && rxBuffer[rxIndex - 3] == 'O'
+                        && rxBuffer[rxIndex - 2] == 'R')
                 {
                     commState = CommState::ERROR;
                 }
-                if (rxIndex >= 4 && rxBuffer[rxIndex - 2] == 'F' && rxBuffer[rxIndex - 1] == 'A'
-                    && rxBuffer[rxIndex - 2] == 'I' && rxBuffer[rxIndex - 1] == 'L')
-                {
-                    commState = CommState::SUCC;
-                }
             }
+            ++rxIndex;
+            if (commState == CommState::SUCC)
+            {
+                startListening();
+            }
+        }
+        else if (listening && rxIndex < BUFFER_SIZE)
+        {
             ++rxIndex;
         }
     }
@@ -210,8 +232,6 @@ public:
     bool transmit (AsyncCmd cmd);
     bool getResponce (AsyncCmd cmd);
     void periodic ();
-    void startListening ();
-    void stopListening ();
     void getInputMessage (char * buffer, size_t len);
 
 private:
@@ -249,10 +269,8 @@ private:
 
     __IO CommState commState;
     __IO size_t rxIndex;
-
-    char cmdBuffer[256];
-    char txBuffer[BUFFER_SIZE];
-    char rxBuffer[BUFFER_SIZE];
+    __IO bool listening;
+    __IO bool shortOkResponse;
 
     int mode;
     const char * ip;
@@ -265,10 +283,14 @@ private:
     const char * port;
     const char * message;
     size_t messageSize;
-    bool listening;
     uint32_t operationEnd;
     const char * inputMessage;
     size_t inputMessageSize;
+
+    char cmdBuffer[256];
+    char txBuffer[BUFFER_SIZE];
+    char rxBuffer[BUFFER_SIZE];
+    char msgBuffer[BUFFER_SIZE];
 
     bool waitForResponce (const char * responce);
     bool sendCmd (const char * cmd, size_t cmdLen = 0, bool addCmdEnd = true);
@@ -282,6 +304,8 @@ private:
     bool sendMessageSize ();
     bool sendMessage ();
     void processInputMessage ();
+    void startListening ();
+    void stopListening ();
 
     inline void powerOff ()
     {

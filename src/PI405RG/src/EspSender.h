@@ -41,7 +41,7 @@ public:
 
 private:
 
-    static const size_t STATE_NUMBER = 19;
+    static const size_t STATE_NUMBER = 17;
 
     class AsyncState
     {

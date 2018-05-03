@@ -36,6 +36,7 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         sendLed(NULL),
         commState(CommState::NONE),
         rxIndex(0),
+        listening(false),
         mode(-1),
         ip(NULL),
         gatway(NULL),
@@ -47,7 +48,6 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         port(NULL),
         message(NULL),
         messageSize(0),
-        listening(false),
         operationEnd(__UINT32_MAX__),
         inputMessage(NULL),
         inputMessageSize(0)
@@ -118,7 +118,9 @@ bool Esp11::sendCmd (const char * cmd, size_t cmdLen, bool addCmdEnd)
     }
     
     USART_DEBUG("[" << timer.getValue() << "] -> " << cmd);
+    stopListening();
     
+    ::memset(msgBuffer, 0, BUFFER_SIZE);
     ::memset(rxBuffer, 0, BUFFER_SIZE);
     ::memcpy(txBuffer, cmd, cmdLen);
     if (addCmdEnd)
@@ -134,7 +136,6 @@ bool Esp11::sendCmd (const char * cmd, size_t cmdLen, bool addCmdEnd)
         return false;
     }
 
-    rxIndex = 0;
     status = usart.transmitIt(txBuffer, cmdLen);
     if (status != HAL_OK)
     {
@@ -227,6 +228,7 @@ bool Esp11::connectToServer ()
     ::strcat(cmdBuffer, server);
     ::strcat(cmdBuffer, "\",");
     ::strcat(cmdBuffer, port);
+    ::strcat(cmdBuffer, ",5888,0");
     return sendCmd(cmdBuffer);
 }
 
@@ -248,6 +250,7 @@ bool Esp11::sendMessage ()
     {
         return false;
     }
+    shortOkResponse = false;
     return sendCmd(message, messageSize, false);
 }
 
@@ -266,6 +269,7 @@ bool Esp11::transmit (Esp11::AsyncCmd cmd)
     commState = CommState::TX;
     timer.reset();
     operationEnd = timer.getValue() + ESP_TIMEOUT;
+    shortOkResponse = true;
 
     bool isReady = true;
     switch (cmd)
@@ -369,13 +373,12 @@ bool Esp11::getResponce (AsyncCmd cmd)
     }
 
     commState = CommState::NONE;
+    operationEnd = __UINT32_MAX__;
 
     if (sendLed != NULL)
     {
         sendLed->putBit(false);
     }
-
-    //USART_DEBUG("[" << timer.getValue() << "] <- " << bufferRx);
 
     return retValue;
 }
@@ -392,7 +395,7 @@ void Esp11::periodic ()
         return;
     }
 
-    if (!listening && timer.getValue() > operationEnd)
+    if (timer.getValue() > operationEnd)
     {
         commState = CommState::ERROR;
         USART_DEBUG("Cannot receive ESP response message: ESP_TIMEOUT");
@@ -403,25 +406,26 @@ void Esp11::startListening ()
 {
     listening = true;
     setInputMessage(NULL, 0);
-    commState = CommState::RX;
     rxIndex = 0;
     usart.startMode(UART_MODE_RX);
-    usart.receiveIt(rxBuffer, BUFFER_SIZE);
+    usart.receiveIt(msgBuffer, BUFFER_SIZE);
 }
 
 void Esp11::stopListening ()
 {
-    USART_DEBUG("stop listening");
-    listening = false;
-    commState = CommState::NONE;
+    if (listening)
+    {
+        listening = false;
+    }
 }
 
 void Esp11::processInputMessage ()
 {
+    size_t idx = rxIndex;
     size_t messagePrefixLen = ::strlen(CMD_INPUT_MESSAGE);
-    if (rxIndex > messagePrefixLen)
+    if (idx > messagePrefixLen)
     {
-        const char * startIpd = ::strstr(rxBuffer, CMD_INPUT_MESSAGE);
+        const char * startIpd = ::strstr(msgBuffer, CMD_INPUT_MESSAGE);
         if (startIpd != NULL)
         {
             const char * startLen = startIpd + messagePrefixLen;
@@ -432,7 +436,7 @@ void Esp11::processInputMessage ()
                 ::memcpy(cmdBuffer, startLen, lenSize);
                 cmdBuffer[lenSize] = 0;
                 size_t msgSize = ::atoi(cmdBuffer);
-                if (rxIndex >= messagePrefixLen + lenSize + 1 + msgSize)
+                if (idx >= messagePrefixLen + lenSize + 1 + msgSize)
                 {
                     setInputMessage(endLen + 1, msgSize);
                 }
@@ -443,7 +447,7 @@ void Esp11::processInputMessage ()
 
 void Esp11::getInputMessage (char * buffer, size_t len)
 {
-    if (inputMessage != NULL)
+    if (inputMessage != NULL && len > 0)
     {
         ::memcpy(buffer, inputMessage, len);
     }

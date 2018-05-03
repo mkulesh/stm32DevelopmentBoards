@@ -14,9 +14,9 @@ If you like to test this board, you can order it [on DirtyPCBs.com](http://dev.d
 
 ### Specification
 * It is based on high-performance ARM®Cortex®-M4 32-bit RISC micro-controller [STM32F405RG](http://www.st.com/en/microcontrollers/stm32f405rg.html)
-* HSE and LSE crystals
+* SMD HSE and LSE crystals
 * Micro SD Card Connector
-* Mini USB Type B Connector with USB EMI filtering and ESD protection. This connector is used for data transfer only
+* Mini USB Type B Connector with USB EMI filtering and ESD protection. This connector can be used for data transfer and powering
 * A separate +5V DC connector (1 mm X 3.2 mm) instead of Raspberry Pi audio jack
 * 6-pin SWD connector used to program the MCU
 * [ESP8266](https://en.wikipedia.org/wiki/ESP8266) WiFi Module ESP-11 instead of Raspberry Pi network connector
@@ -24,6 +24,9 @@ If you like to test this board, you can order it [on DirtyPCBs.com](http://dev.d
 * Breadboard-compatible 1x20-pin and 1x10-pin headers connected to free MCU pins
 * Reset button
 * One RGB LED
+* Low power audio DAC with PLL UDA1334ATS
+* 2x class-D mono audio power amplifier IS31AP2005 (2 x 2.95W) 
+* 4 pads for audio output instead of Raspberry Pi USB connector
 * SMD size for passive components is 0805
 
 ![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-labels.jpg)

@@ -220,10 +220,9 @@ public:
 
         streamer.stop();
         streamer.setHandler(this);
-        streamer.setVolume(0.5);
+        streamer.setVolume(1.0);
 
-        bool reportState = false;
-        espSender.sendMessage(config, "UDP", "192.168.1.1", "123", getNTPrequst(), NTP_PACKET_SIZE);
+        bool reportState = false, ntpReceived = false;
         while (true)
         {
             updateSdCardState();
@@ -249,25 +248,35 @@ public:
                 ledBlue.putBit(true);
                 reportState = true;
             }
-            if (reportState && espSender.isOutputMessageSent())
-            {
-                espSender.sendMessage(config, "TCP", config.getServerIp(), config.getServerPort(), fillMessage());
-                reportState = false;
-            }
+
             espSender.periodic(rtc.getTimeSec());
-            if (!reportState && espSender.isOutputMessageSent())
+            if (espSender.isOutputMessageSent())
             {
-                ledBlue.putBit(false);
+                if (reportState)
+                {
+                    espSender.sendMessage(config, "TCP", config.getServerIp(), config.getServerPort(), fillMessage());
+                    reportState = false;
+                }
+                if (!reportState)
+                {
+                    ledBlue.putBit(false);
+                }
             }
-            if (hardBitEvent.isOccured())
+
+            if (esp.getInputMessageSize() > 0)
             {
-                ledGreen.putBit(hardBitEvent.occurance() == 1);
-            }
-            if (esp.isListening() && esp.getInputMessageSize() > 0)
-            {
-                USART_DEBUG("Received " << esp.getInputMessageSize() << " bytes");
                 esp.getInputMessage(messageBuffer, esp.getInputMessageSize());
                 decodeNtpMessage();
+                ntpReceived = true;
+            }
+
+            if (hardBitEvent.isOccured())
+            {
+                if (!ntpReceived && espSender.isOutputMessageSent())
+                {
+                    espSender.sendMessage(config, "UDP", "192.168.1.1", "123", getNTPrequst(), NTP_PACKET_SIZE);
+                }
+                ledGreen.putBit(hardBitEvent.occurance() == 1);
             }
         }
     }
@@ -381,7 +390,6 @@ public:
 
         unsigned int recv_secs = ntpPacket.recv_ts_sec - UNIX_OFFSET; /* convert to unix time */
         time_t total_secs = recv_secs;
-        USART_DEBUG("Unix time: " << (unsigned int)total_secs);
         struct tm * now = ::gmtime(&total_secs);
 
         char logStr[48];
