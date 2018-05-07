@@ -77,15 +77,15 @@ bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s, uint32_t standard,
     }
     
     power.putBit(true);
-    smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
     mute.putBit(true);
+    smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
     currDataBuffer = dataPtr2;
     if (START_DELAY > 0)
     {
         HAL_Delay(START_DELAY);
     }
-    mute.putBit(false);
     onBlockTransmissionFinished();
+    mute.putBit(false);
     
     return true;
 }

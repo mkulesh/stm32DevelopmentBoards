@@ -35,7 +35,7 @@ public:
     static const uint32_t BLOCK_SIZE = 2048;
     static const uint32_t BLOCK_SIZE2 = BLOCK_SIZE / 2;
     static const uint32_t MSB_OFFSET = 0xFFFF / 2 + 1;
-    static const uint32_t START_DELAY = 100;
+    static const uint32_t START_DELAY = 50;
 
     enum class SourceType
     {

@@ -215,10 +215,7 @@ HAL_StatusTypeDef Timer::stop ()
 
 RealTimeClock::RealTimeClock ():
     handler(NULL),
-    syncMs1(0),
-    syncMs2(0),
-    errorMs(0),
-    timeMillisec(0),
+    upTimeMillisec(0),
     timeSec(0)
 {
     rtcParameters.Instance = RTC;
@@ -284,13 +281,7 @@ HAL_StatusTypeDef RealTimeClock::start (uint32_t counter, uint32_t prescaler, co
 
 void RealTimeClock::onMilliSecondInterrupt ()
 {
-    HAL_IncTick();
-    if (syncMs1 < 999)
-    {
-        ++timeMillisec;
-        ++syncMs1;
-    }
-    ++syncMs2;
+    ++upTimeMillisec;
 }
 
 
@@ -299,12 +290,7 @@ void RealTimeClock::onSecondInterrupt ()
     /* Get the pending status of the WAKEUPTIMER Interrupt */
     if(__HAL_RTC_WAKEUPTIMER_GET_FLAG(&rtcParameters, RTC_FLAG_WUTF) != RESET)
     {
-        ++syncMs2;
-        errorMs = syncMs2 - 1000;
         ++timeSec;
-        timeMillisec = (time_ms)timeSec * 1000L;
-        syncMs1 = syncMs2 = 0;
-
         if (handler != NULL)
         {
             handler->onRtcWakeUp();
@@ -329,6 +315,45 @@ void RealTimeClock::stop ()
     handler = NULL;
 }
 
+
+const char * RealTimeClock::getLocalTime()
+{
+    time_t total_secs = timeSec;
+    struct tm * now = ::gmtime(&total_secs);
+    sprintf(localTime, "%02d.%02d.%04d %02d:%02d:%02d", now->tm_mday, now->tm_mon+1, now->tm_year+1900, now->tm_hour, now->tm_min, now->tm_sec);
+    return &localTime[0];
+}
+
+
+void RealTimeClock::fillNtpRrequst (RealTimeClock::NtpPacket & ntpPacket)
+{
+    ::memset(&ntpPacket, 0, NTP_PACKET_SIZE);
+    ntpPacket.flags = 0xe3;
+}
+
+
+#define UNIX_OFFSET             2208988800L
+#define ENDIAN_SWAP32(data)     ((data >> 24) | /* right shift 3 bytes */ \
+                                ((data & 0x00ff0000) >> 8) | /* right shift 1 byte */ \
+                                ((data & 0x0000ff00) << 8) | /* left shift 1 byte */ \
+                                ((data & 0x000000ff) << 24)) /* left shift 3 bytes */
+
+void RealTimeClock::decodeNtpMessage (RealTimeClock::NtpPacket & ntpPacket)
+{
+    ntpPacket.root_delay = ENDIAN_SWAP32(ntpPacket.root_delay);
+    ntpPacket.root_dispersion = ENDIAN_SWAP32(ntpPacket.root_dispersion);
+    ntpPacket.ref_ts_sec = ENDIAN_SWAP32(ntpPacket.ref_ts_sec);
+    ntpPacket.ref_ts_frac = ENDIAN_SWAP32(ntpPacket.ref_ts_frac);
+    ntpPacket.origin_ts_sec = ENDIAN_SWAP32(ntpPacket.origin_ts_sec);
+    ntpPacket.origin_ts_frac = ENDIAN_SWAP32(ntpPacket.origin_ts_frac);
+    ntpPacket.recv_ts_sec = ENDIAN_SWAP32(ntpPacket.recv_ts_sec);
+    ntpPacket.recv_ts_frac = ENDIAN_SWAP32(ntpPacket.recv_ts_frac);
+    ntpPacket.trans_ts_sec = ENDIAN_SWAP32(ntpPacket.trans_ts_sec);
+    ntpPacket.trans_ts_frac = ENDIAN_SWAP32(ntpPacket.trans_ts_frac);
+    time_t total_secs = ntpPacket.recv_ts_sec - UNIX_OFFSET; /* convert to unix time */;
+    setTimeSec(total_secs);
+    USART_DEBUG("NTP time: " << getLocalTime());
+}
 
 /************************************************************************
  * Class Spi
@@ -492,7 +517,7 @@ PeriodicalEvent::PeriodicalEvent (const RealTimeClock & _rtc, time_ms _delay, lo
 
 void PeriodicalEvent::resetTime ()
 {
-    lastEventTime = rtc.getTimeMillisec();
+    lastEventTime = rtc.getUpTimeMillisec();
     occurred = 0;
 }
 
@@ -503,9 +528,9 @@ bool PeriodicalEvent::isOccured ()
     {
         return false;
     }
-    if (rtc.getTimeMillisec() >= lastEventTime + delay)
+    if (rtc.getUpTimeMillisec() >= lastEventTime + delay)
     {
-        lastEventTime = rtc.getTimeMillisec();
+        lastEventTime = rtc.getUpTimeMillisec();
         if (maxOccurrence > 0)
         {
             ++occurred;

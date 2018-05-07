@@ -58,6 +58,7 @@ typedef int64_t duration_ms;
 #define INFINITY_SEC __UINT32_MAX__
 #define INFINITY_TIME __UINT64_MAX__
 #define FIRST_CALENDAR_YEAR 1900
+#define MILLIS_IN_SEC 1000L
 
 
 /**
@@ -173,19 +174,34 @@ public:
         virtual void onRtcWakeUp () =0;
     };
 
+    // NTP Message
+    static const size_t NTP_PACKET_SIZE = 48;  // NTP time is in the first 48 bytes of message
+    struct NtpPacket {
+            uint8_t flags;
+            uint8_t stratum;
+            uint8_t poll;
+            uint8_t precision;
+            uint32_t root_delay;
+            uint32_t root_dispersion;
+            uint8_t referenceID[4];
+            uint32_t ref_ts_sec;
+            uint32_t ref_ts_frac;
+            uint32_t origin_ts_sec;
+            uint32_t origin_ts_frac;
+            uint32_t recv_ts_sec;
+            uint32_t recv_ts_frac;
+            uint32_t trans_ts_sec;
+            uint32_t trans_ts_frac;
+    } __attribute__((__packed__));
+
     /**
      * @brief Default constructor.
      */
     RealTimeClock ();
 
-    inline int32_t getErrorMs () const
+    inline time_ms getUpTimeMillisec () const
     {
-        return errorMs;
-    }
-
-    inline time_ms getTimeMillisec () const
-    {
-        return timeMillisec;
+        return upTimeMillisec;
     }
 
     inline time_t getTimeSec () const
@@ -196,7 +212,6 @@ public:
     void setTimeSec (time_t sec)
     {
         timeSec = sec;
-        timeMillisec = (duration_ms)sec * 1000L;
     }
 
     HAL_StatusTypeDef start (uint32_t counterMode, uint32_t prescaler, const InterruptPriority & prio, RealTimeClock::EventHandler * _handler = NULL);
@@ -205,6 +220,9 @@ public:
     void onSecondInterrupt ();
 
     void stop ();
+    const char * getLocalTime ();
+    void fillNtpRrequst (NtpPacket & ntpPacket);
+    void decodeNtpMessage (NtpPacket & ntpPacket);
 
 private:
 
@@ -214,10 +232,9 @@ private:
     RTC_DateTypeDef dateParameters;
 
     // These variables are modified from interrupt service routine, therefore declare them as volatile
-    volatile uint32_t syncMs1, syncMs2;
-    volatile int32_t errorMs;
-    volatile time_ms timeMillisec; // current time (in milliseconds)
-    volatile time_t timeSec; // current time (in seconds)
+    volatile time_ms upTimeMillisec; // up time (in milliseconds)
+    volatile time_t timeSec; // up-time and current time (in seconds)
+    char localTime[24];
 };
 
 

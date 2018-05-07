@@ -50,23 +50,23 @@ void Button::periodic ()
         // state is not changed: check for periodical press event
         if (currentState && pressTime != INFINITY_TIME)
         {
-            duration_ms d = rtc.getTimeMillisec() - pressTime;
+            duration_ms d = rtc.getUpTimeMillisec() - pressTime;
             if (d >= pressDuration)
             {
                 handler->onButtonPressed(this, numOccured);
-                pressTime = rtc.getTimeMillisec();
+                pressTime = rtc.getUpTimeMillisec();
                 ++numOccured;
             }
         }
     }
     else if (!currentState && newState)
     {
-        pressTime = rtc.getTimeMillisec();
+        pressTime = rtc.getUpTimeMillisec();
         numOccured = 0;
     }
     else
     {
-        duration_ms d = rtc.getTimeMillisec() - pressTime;
+        duration_ms d = rtc.getUpTimeMillisec() - pressTime;
         if (d < pressDelay)
         {
             // nothing to do

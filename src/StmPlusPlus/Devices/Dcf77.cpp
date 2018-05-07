@@ -135,7 +135,7 @@ void DcfReceiver::onSample ()
 {
     __HAL_TIM_CLEAR_IT(timer.getTimerParameters(), TIM_IT_UPDATE);
 
-    time_ms now = rtc.getTimeMillisec();
+    time_ms now = rtc.getUpTimeMillisec();
     bool newSample = filter.processSample(!pinInput.getBit());
     if (!prevSample && newSample)
     {
@@ -144,7 +144,7 @@ void DcfReceiver::onSample ()
         {
             highDuration = highEnd - highStart;
         }
-        if (rtc.getTimeMillisec() > highEnd)
+        if (rtc.getUpTimeMillisec() > highEnd)
         {
             lowDuration = now - highEnd;
         }

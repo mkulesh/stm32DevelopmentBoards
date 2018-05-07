@@ -49,7 +49,7 @@ public:
 
     inline void resetTime ()
     {
-        pressTime = rtc.getTimeMillisec();
+        pressTime = rtc.getUpTimeMillisec();
     }
 
     void periodic ();

@@ -45,7 +45,7 @@ void PiezoAlarm::start (unsigned char _maxNumber)
 {
     maxNumber = _maxNumber;
     state = ON1;
-    startTime = rtc.getTimeMillisec();
+    startTime = rtc.getUpTimeMillisec();
     stateTime = startTime;
     number = 0;
     setHigh();
@@ -59,31 +59,31 @@ void PiezoAlarm::periodic ()
     case OFF:
         return;
     case ON1:
-        if (rtc.getTimeMillisec() > (stateTime + onDuratin))
+        if (rtc.getUpTimeMillisec() > (stateTime + onDuratin))
         {
             state = PAUSE1;
-            stateTime = rtc.getTimeMillisec();
+            stateTime = rtc.getUpTimeMillisec();
             setLow();
         }
         break;
     case PAUSE1:
-        if (rtc.getTimeMillisec() > (stateTime + pause1Duratin))
+        if (rtc.getUpTimeMillisec() > (stateTime + pause1Duratin))
         {
             state = ON2;
-            stateTime = rtc.getTimeMillisec();
+            stateTime = rtc.getUpTimeMillisec();
             setHigh();
         }
         break;
     case ON2:
-        if (rtc.getTimeMillisec() > (stateTime + onDuratin))
+        if (rtc.getUpTimeMillisec() > (stateTime + onDuratin))
         {
             state = PAUSE2;
-            stateTime = rtc.getTimeMillisec();
+            stateTime = rtc.getUpTimeMillisec();
             setLow();
         }
         break;
     case PAUSE2:
-        if (rtc.getTimeMillisec() > (stateTime + pause2Duratin))
+        if (rtc.getUpTimeMillisec() > (stateTime + pause2Duratin))
         {
             if (++number >= maxNumber)
             {
@@ -92,7 +92,7 @@ void PiezoAlarm::periodic ()
             else
             {
                 state = ON1;
-                stateTime = rtc.getTimeMillisec();
+                stateTime = rtc.getUpTimeMillisec();
                 setHigh();
             }
         }
