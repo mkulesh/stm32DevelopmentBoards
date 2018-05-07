@@ -29,16 +29,16 @@ using namespace Devices;
  * Class EspSender
  ************************************************************************/
 
-EspSender::EspSender (Devices::Esp11 & _esp, IOPin & _errorLed) :
+EspSender::EspSender (const RealTimeClock & _rtc, Devices::Esp11 & _esp, IOPin & _errorLed) :
+        rtc(_rtc),
         esp(_esp),
         errorLed(_errorLed),
         espState(Esp11::AsyncCmd::OFF),
         outputMessage(NULL),
-        currentTime(0),
         repeatDelay(0),
-        nextOperationTime(0),
         turnOffDelay(0),
-        turnOffTime(__LONG_MAX__),
+        nextOperationTime(0),
+        turnOffTime(INFINITY_TIME),
         asyncStates { {
             AsyncState(Esp11::AsyncCmd::POWER_ON,       Esp11::AsyncCmd::ECHO_OFF,       "power on"),
             AsyncState(Esp11::AsyncCmd::ECHO_OFF,       Esp11::AsyncCmd::ENSURE_READY,   "echo off"),
@@ -48,7 +48,8 @@ EspSender::EspSender (Devices::Esp11 & _esp, IOPin & _errorLed) :
             AsyncState(Esp11::AsyncCmd::SET_ADDR,       Esp11::AsyncCmd::CONNECT_WLAN,   "set IP"),
             AsyncState(Esp11::AsyncCmd::CONNECT_WLAN,   Esp11::AsyncCmd::SET_CON_MODE,   "connect SSID"),
             AsyncState(Esp11::AsyncCmd::SET_CON_MODE,   Esp11::AsyncCmd::SET_SINDLE_CON, "set normal connection mode"),
-            AsyncState(Esp11::AsyncCmd::SET_SINDLE_CON, Esp11::AsyncCmd::CONNECT_SERVER, "set single connection"),
+            AsyncState(Esp11::AsyncCmd::SET_SINDLE_CON, Esp11::AsyncCmd::PING_SERVER,    "set single connection"),
+            AsyncState(Esp11::AsyncCmd::PING_SERVER,    Esp11::AsyncCmd::CONNECT_SERVER, "ping"),
             AsyncState(Esp11::AsyncCmd::CONNECT_SERVER, Esp11::AsyncCmd::SEND_MSG_SIZE,  "connect server"),
             AsyncState(Esp11::AsyncCmd::SEND_MSG_SIZE,  Esp11::AsyncCmd::SEND_MESSAGE,   Esp11::AsyncCmd::RECONNECT, "send message size"),
             AsyncState(Esp11::AsyncCmd::SEND_MESSAGE,   Esp11::AsyncCmd::WAITING,        Esp11::AsyncCmd::RECONNECT, "send message"),
@@ -73,8 +74,8 @@ void EspSender::sendMessage (const Config & config, const char* protocol, const 
     esp.setProtocol(protocol);
     esp.setServer(server);
     esp.setPort(port);
-    turnOffDelay = config.getTurnOffDelay();
-    repeatDelay = config.getRepeatDelay();
+    repeatDelay = config.getRepeatDelay() * MILLIS_IN_SEC;
+    turnOffDelay = config.getTurnOffDelay() * MILLIS_IN_SEC;
     outputMessage = msg;
     esp.setMessage(outputMessage);
     if (messageSize == 0)
@@ -94,14 +95,14 @@ void EspSender::sendMessage (const Config & config, const char* protocol, const 
     }
 }
 
-void EspSender::periodic (time_t seconds)
+void EspSender::periodic ()
 {
     if (espState == Esp11::AsyncCmd::OFF)
     {
         return;
     }
 
-    currentTime = seconds;
+    time_ms currentTime = rtc.getUpTimeMillisec();
     if (currentTime < nextOperationTime)
     {
         return;
@@ -118,7 +119,7 @@ void EspSender::periodic (time_t seconds)
             esp.periodic();
             if (esp.getInputMessageSize() > 0)
             {
-                turnOffTime = currentTime + turnOffDelay;
+                delayTurnOff();
             }
         }
         return;
@@ -136,7 +137,7 @@ void EspSender::periodic (time_t seconds)
 
         if (s->cmd == Esp11::AsyncCmd::POWER_ON)
         {
-            turnOffTime = __LONG_MAX__;
+            turnOffTime = INFINITY_TIME;
         }
         if (s->cmd == Esp11::AsyncCmd::SEND_MSG_SIZE)
         {
@@ -165,19 +166,19 @@ void EspSender::periodic (time_t seconds)
             if (s->cmd == Esp11::AsyncCmd::SEND_MESSAGE)
             {
                 outputMessage = NULL;
-                turnOffTime = currentTime + turnOffDelay;
+                delayTurnOff();
             }
             stateReport(true, s->description);
         }
         else
         {
             espState = s->errorNextCmd;
-            delayNextOperation(repeatDelay);
+            delayNextOperation();
             stateReport(false, s->description);
         }
         if (espState == Esp11::AsyncCmd::POWER_OFF)
         {
-            delayNextOperation(repeatDelay);
+            delayNextOperation();
         }
     }
     else

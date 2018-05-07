@@ -26,13 +26,13 @@ using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "ESP: "
 
-Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t txPin,
-              uint32_t rxPin, InterruptPriority & prio, IOPort::PortName powerPort,
-              uint32_t powerPin, TimerBase::TimerName timerName) :
+Esp11::Esp11 (const RealTimeClock & _rtc,
+              Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t txPin,
+              uint32_t rxPin, InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin) :
+        rtc(_rtc),
         usart(usartName, usartPort, txPin, rxPin),
         usartPrio(prio),
         pinPower(powerPort, powerPin, GPIO_MODE_OUTPUT_PP),
-        timer(timerName),
         sendLed(NULL),
         commState(CommState::NONE),
         rxIndex(0),
@@ -48,7 +48,7 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
         port(NULL),
         message(NULL),
         messageSize(0),
-        operationEnd(__UINT32_MAX__),
+        operationEnd(INFINITY_TIME),
         inputMessage(NULL),
         inputMessageSize(0)
 {
@@ -57,7 +57,6 @@ Esp11::Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t 
 
 bool Esp11::init ()
 {
-    timer.startCounterInMillis();
     HAL_StatusTypeDef status = usart.start(UART_MODE_RX, ESP_BAUDRATE, UART_WORDLENGTH_8B,
     					   UART_STOPBITS_1, UART_PARITY_NONE);
     if (status != HAL_OK)
@@ -117,7 +116,7 @@ bool Esp11::sendCmd (const char * cmd, size_t cmdLen, bool addCmdEnd)
         }
     }
     
-    USART_DEBUG("[" << timer.getValue() << "] -> " << cmd);
+    USART_DEBUG(" -> " << cmd);
     stopListening();
     
     ::memset(msgBuffer, 0, BUFFER_SIZE);
@@ -267,8 +266,7 @@ bool Esp11::transmit (Esp11::AsyncCmd cmd)
     }
 
     commState = CommState::TX;
-    timer.reset();
-    operationEnd = timer.getValue() + ESP_TIMEOUT;
+    operationEnd = rtc.getUpTimeMillisec() + ESP_TIMEOUT;
     shortOkResponse = true;
 
     bool isReady = true;
@@ -373,7 +371,7 @@ bool Esp11::getResponce (AsyncCmd cmd)
     }
 
     commState = CommState::NONE;
-    operationEnd = __UINT32_MAX__;
+    operationEnd = INFINITY_TIME;
 
     if (sendLed != NULL)
     {
@@ -395,7 +393,7 @@ void Esp11::periodic ()
         return;
     }
 
-    if (timer.getValue() > operationEnd)
+    if (rtc.getUpTimeMillisec() > operationEnd)
     {
         commState = CommState::ERROR;
         USART_DEBUG("Cannot receive ESP response message: ESP_TIMEOUT");

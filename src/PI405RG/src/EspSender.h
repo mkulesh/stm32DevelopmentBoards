@@ -29,7 +29,7 @@ class EspSender
 {
 public:
     
-    EspSender (Devices::Esp11 & _esp, IOPin & _errorLed);
+    EspSender (const RealTimeClock & _rtc, Devices::Esp11 & _esp, IOPin & _errorLed);
 
     inline bool isOutputMessageSent () const
     {
@@ -37,11 +37,11 @@ public:
     }
 
     void sendMessage (const Config & config, const char* protocol, const char* server, const char* port, const char * msg, size_t messageSize = 0);
-    void periodic (time_t seconds);
+    void periodic ();
 
 private:
 
-    static const size_t STATE_NUMBER = 17;
+    static const size_t STATE_NUMBER = 18;
 
     class AsyncState
     {
@@ -68,16 +68,23 @@ private:
         }
     };
     
+    const RealTimeClock & rtc;
     Devices::Esp11 & esp;
     IOPin & errorLed;
     Devices::Esp11::AsyncCmd espState;
     const char * outputMessage;
-    time_t currentTime, repeatDelay, nextOperationTime, turnOffDelay, turnOffTime;
+    time_ms repeatDelay, turnOffDelay; // configured delays in millis
+    time_ms nextOperationTime, turnOffTime;
     std::array<AsyncState, STATE_NUMBER> asyncStates;
 
-    inline void delayNextOperation (uint64_t delay)
+    inline void delayNextOperation ()
     {
-        nextOperationTime = currentTime + delay;
+        nextOperationTime = rtc.getUpTimeMillisec() + repeatDelay;
+    }
+
+    inline void delayTurnOff ()
+    {
+        turnOffTime = rtc.getUpTimeMillisec() + turnOffDelay;
     }
 
     void stateReport (bool result, const char * description);

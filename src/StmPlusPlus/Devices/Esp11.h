@@ -70,14 +70,14 @@ public:
     };
 
     static const uint32_t ESP_BAUDRATE = 115200;
-    static const uint32_t ESP_TIMEOUT = 10000;
+    static const time_ms ESP_TIMEOUT = 10000L;
     static const uint32_t BUFFER_SIZE = 1024;
 
 public:
     
-    Esp11 (Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
-           InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin,
-           TimerBase::TimerName timerName);
+    Esp11 (const RealTimeClock & _rtc,
+           Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
+           InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin);
 
     inline void processRxCpltCallback ()
     {
@@ -261,10 +261,10 @@ private:
     const char * CMD_END = "\r\n";
     const char * RESP_READY = "ready\r\n";
 
+    const RealTimeClock & rtc;
     Usart usart;
     InterruptPriority & usartPrio;
     IOPin pinPower;
-    TimerBase timer;
     IOPin * sendLed;
 
     __IO CommState commState;
@@ -283,7 +283,7 @@ private:
     const char * port;
     const char * message;
     size_t messageSize;
-    uint32_t operationEnd;
+    time_ms operationEnd;
     const char * inputMessage;
     size_t inputMessageSize;
 
@@ -312,7 +312,6 @@ private:
         usart.stopInterrupt();
         usart.stop();
         pinPower.putBit(false);
-        timer.stopCounter();
     }
 
     inline void setInputMessage (const char * msg, size_t len)
