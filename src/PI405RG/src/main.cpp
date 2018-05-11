@@ -125,14 +125,14 @@ public:
             espSender(rtc, esp, ledRed),
 
             // Input pins
-            pins { { IOPin(IOPort::A, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::A, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::A, GPIO_PIN_6,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::A, GPIO_PIN_7,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::C, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::C, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_0,  GPIO_MODE_INPUT, GPIO_PULLDOWN),
-                     IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLDOWN)
+            pins { { IOPin(IOPort::A, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLUP),
+                     IOPin(IOPort::A, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLUP),
+                     IOPin(IOPort::A, GPIO_PIN_6,  GPIO_MODE_INPUT, GPIO_PULLUP),
+                     IOPin(IOPort::A, GPIO_PIN_7,  GPIO_MODE_INPUT, GPIO_PULLUP),
+                     IOPin(IOPort::C, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLUP),
+                     IOPin(IOPort::C, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLUP),
+                     IOPin(IOPort::B, GPIO_PIN_0,  GPIO_MODE_INPUT, GPIO_PULLUP),
+                     IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLUP)
             } },
 
             // I2S2 Audio Configuration
@@ -145,9 +145,9 @@ public:
                      /* mute     = */ IOPort::B, GPIO_PIN_13,
                      /* smplFreq = */ IOPort::B, GPIO_PIN_14),
             streamer(sdCard, audioDac),
-            playButton(IOPort::B, GPIO_PIN_2, rtc)
+            playButton(IOPort::B, GPIO_PIN_2, GPIO_PULLUP, rtc)
     {
-        mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_4);
+        mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_5);
     }
     
     virtual ~MyApplication ()
@@ -195,7 +195,7 @@ public:
         }
         
         USART_DEBUG("Input pins: " << pins.size());
-        pinsState.fill(false);
+        pinsState.fill(true);
         USART_DEBUG("Pin state: " << fillMessage());
         esp.assignSendLed(&ledGreen);
 
@@ -238,6 +238,7 @@ public:
                 ::memcpy(&ntpPacket, messageBuffer, RealTimeClock::NTP_PACKET_SIZE);
                 rtc.decodeNtpMessage(ntpPacket);
                 ntpReceived = true;
+                reportState = true;
             }
 
             if (hardBitEvent.isOccured())

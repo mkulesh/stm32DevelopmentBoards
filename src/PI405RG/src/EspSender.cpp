@@ -71,11 +71,9 @@ void EspSender::sendMessage (const Config & config, const char* protocol, const 
     esp.setMask(config.getIpMask());
     esp.setSsid(config.getWlanName());
     esp.setPasswd(config.getWlanPass());
-    esp.setProtocol(protocol);
-    esp.setServer(server);
-    esp.setPort(port);
     repeatDelay = config.getRepeatDelay() * MILLIS_IN_SEC;
     turnOffDelay = config.getTurnOffDelay() * MILLIS_IN_SEC;
+
     outputMessage = msg;
     esp.setMessage(outputMessage);
     if (messageSize == 0)
@@ -84,6 +82,22 @@ void EspSender::sendMessage (const Config & config, const char* protocol, const 
     }
     esp.setMessageSize(messageSize);
     USART_DEBUG("Sending message to " << server << "/" << port << "[" << messageSize << "]: " << msg);
+
+    bool serverChanged = false;
+    if (esp.getProtocol() != NULL && esp.getServer() != NULL && esp.getPort() != NULL)
+    {
+        if (::strcmp(protocol, esp.getProtocol()) != 0 ||
+            ::strcmp(server, esp.getServer()) != 0 ||
+            ::strcmp(port, esp.getPort()) != 0)
+        {
+            USART_DEBUG("Connection parameters changed, reconnect");
+            serverChanged = true;
+        }
+    }
+    esp.setProtocol(protocol);
+    esp.setServer(server);
+    esp.setPort(port);
+
     nextOperationTime = 0;
     if (espState == Esp11::AsyncCmd::OFF)
     {
@@ -91,7 +105,7 @@ void EspSender::sendMessage (const Config & config, const char* protocol, const 
     }
     else if (espState == Esp11::AsyncCmd::WAITING)
     {
-        espState = Esp11::AsyncCmd::SEND_MSG_SIZE;
+        espState = serverChanged? Esp11::AsyncCmd::RECONNECT : Esp11::AsyncCmd::SEND_MSG_SIZE;
     }
 }
 

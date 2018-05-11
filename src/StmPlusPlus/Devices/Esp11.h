@@ -154,52 +154,52 @@ public:
         this->mode = mode;
     }
 
-    void setIp (const char* ip)
+    inline void setIp (const char* ip)
     {
         this->ip = ip;
     }
 
-    void setMask (const char* mask)
+    inline void setMask (const char* mask)
     {
         this->mask = mask;
     }
 
-    void setGatway (const char* gatway)
+    inline void setGatway (const char* gatway)
     {
         this->gatway = gatway;
     }
 
-    void setSsid (const char* ssid)
+    inline void setSsid (const char* ssid)
     {
         this->ssid = ssid;
     }
 
-    void setPasswd (const char* passwd)
+    inline void setPasswd (const char* passwd)
     {
         this->passwd = passwd;
     }
 
-    void setProtocol (const char* protocol)
+    inline void setProtocol (const char* protocol)
     {
         this->protocol = protocol;
     }
 
-    void setServer (const char* server)
+    inline void setServer (const char* server)
     {
         this->server = server;
     }
 
-    void setPort (const char* port)
+    inline void setPort (const char* port)
     {
         this->port = port;
     }
 
-    void setMessage (const char* message)
+    inline void setMessage (const char* message)
     {
         this->message = message;
     }
 
-    void setMessageSize (size_t messageSize)
+    inline void setMessageSize (size_t messageSize)
     {
         this->messageSize = messageSize;
     }
@@ -228,7 +228,22 @@ public:
     {
         return listening;
     }
+    
+    inline const char* getProtocol () const
+    {
+        return protocol;
+    }
+    
+    inline const char* getServer () const
+    {
+        return server;
+    }
 
+    inline const char* getPort () const
+    {
+        return port;
+    }
+    
     bool transmit (AsyncCmd cmd);
     bool getResponce (AsyncCmd cmd);
     void periodic ();

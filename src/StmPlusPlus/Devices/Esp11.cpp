@@ -320,8 +320,6 @@ bool Esp11::transmit (Esp11::AsyncCmd cmd)
         isReady = sendMessage();
         break;
     case AsyncCmd::DISCONNECT:
-        isReady = sendCmd(CMD_CLOSE_CONNECT);
-        break;
     case AsyncCmd::RECONNECT:
         isReady = sendCmd(CMD_CLOSE_CONNECT);
         break;

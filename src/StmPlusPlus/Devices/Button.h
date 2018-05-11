@@ -40,7 +40,7 @@ public:
         virtual void onButtonPressed (const Button *, uint32_t numOccured) =0;
     };
 
-    Button (PortName name, uint32_t pin, const RealTimeClock & _rtc, duration_ms _pressDelay = 50, duration_ms _pressDuration = 300);
+    Button (PortName name, uint32_t pin, uint32_t pull, const RealTimeClock & _rtc, duration_ms _pressDelay = 50, duration_ms _pressDuration = 300);
 
     inline void setHandler (EventHandler * _handler)
     {

@@ -23,8 +23,8 @@
 using namespace StmPlusPlus;
 using namespace StmPlusPlus::Devices;
 
-Button::Button (PortName name, uint32_t pin, const RealTimeClock & _rtc, duration_ms _pressDelay, duration_ms _pressDuration):
-    IOPin(name, pin, GPIO_MODE_INPUT, GPIO_PULLDOWN),
+Button::Button (PortName name, uint32_t pin, uint32_t pull, const RealTimeClock & _rtc, duration_ms _pressDelay, duration_ms _pressDuration):
+    IOPin(name, pin, GPIO_MODE_INPUT, pull, GPIO_SPEED_LOW),
     rtc(_rtc),
     pressDelay(_pressDelay),
     pressDuration(_pressDuration),
@@ -44,7 +44,7 @@ void Button::periodic ()
         return;
     }
 
-    bool newState = getBit();
+    bool newState = (gpioParameters.Pull == GPIO_PULLUP)? !getBit() : getBit();
     if (currentState == newState)
     {
         // state is not changed: check for periodical press event
