@@ -260,6 +260,7 @@ private:
     const char * CMD_INPUT_MESSAGE = "+IPD,";
     const char * CMD_END = "\r\n";
     const char * RESP_READY = "ready\r\n";
+    const char * UDP_PORT = "5888,0";
 
     const RealTimeClock & rtc;
     Usart usart;

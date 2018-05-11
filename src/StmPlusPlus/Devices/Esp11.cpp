@@ -227,7 +227,11 @@ bool Esp11::connectToServer ()
     ::strcat(cmdBuffer, server);
     ::strcat(cmdBuffer, "\",");
     ::strcat(cmdBuffer, port);
-    ::strcat(cmdBuffer, ",5888,0");
+    if (::strcmp(protocol, "UDP") == 0)
+    {
+        ::strcat(cmdBuffer, ",");
+        ::strcat(cmdBuffer, UDP_PORT);
+    }
     return sendCmd(cmdBuffer);
 }
 

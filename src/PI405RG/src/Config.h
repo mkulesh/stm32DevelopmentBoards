@@ -99,7 +99,9 @@ public:
         SERVER_IP      = 6,
         SERVER_PORT    = 7,
         REPEAT_DELAY   = 8,
-        TURN_OFF_DELAY = 9
+        TURN_OFF_DELAY = 9,
+        NTP_SERVER     = 10,
+        WAV_FILE       = 11
     };
 
     /**
@@ -107,7 +109,7 @@ public:
      */
     enum
     {
-        size = 10
+        size = 12
     };
 
     /**
@@ -188,6 +190,16 @@ public:
     inline int getTurnOffDelay () const
     {
         return turnOffDelay;
+    }
+
+    inline const char * getNtpServer () const
+    {
+        return parameters[CfgParameter::NTP_SERVER];
+    }
+
+    inline const char * getWavFile () const
+    {
+        return parameters[CfgParameter::WAV_FILE];
     }
     
 private:

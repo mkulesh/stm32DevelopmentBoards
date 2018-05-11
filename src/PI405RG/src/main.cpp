@@ -19,6 +19,7 @@
 
 #include "StmPlusPlus/StmPlusPlus.h"
 #include "StmPlusPlus/WavStreamer.h"
+#include "StmPlusPlus/Devices/Button.h"
 #include "EspSender.h"
 
 #include <array>
@@ -28,7 +29,7 @@ using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "Main: "
 
-class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler
+class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler, Devices::Button::EventHandler
 {
 public:
 
@@ -73,8 +74,9 @@ private:
     I2S i2s;
     AudioDac_UDA1334 audioDac;
     WavStreamer streamer;
-    IOPin playButton;
+    Devices::Button playButton;
 
+    // NTP data
     struct RealTimeClock::NtpPacket ntpPacket;
 
 public:
@@ -143,8 +145,7 @@ public:
                      /* mute     = */ IOPort::B, GPIO_PIN_13,
                      /* smplFreq = */ IOPort::B, GPIO_PIN_14),
             streamer(sdCard, audioDac),
-            playButton(IOPort::B, GPIO_PIN_2, GPIO_MODE_INPUT, GPIO_PULLUP, GPIO_SPEED_LOW)
-
+            playButton(IOPort::B, GPIO_PIN_2, rtc)
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_4);
     }
@@ -201,26 +202,13 @@ public:
         streamer.stop();
         streamer.setHandler(this);
         streamer.setVolume(1.0);
+        playButton.setHandler(this);
 
         bool reportState = false, ntpReceived = false;
         while (true)
         {
             updateSdCardState();
-            if (!playButton.getBit())
-            {
-                if (streamer.isActive())
-                {
-                    USART_DEBUG("Stopping WAV");
-                    streamer.stop();
-                    HAL_Delay(500);
-                }
-                else
-                {
-                    USART_DEBUG("Starting WAV");
-                    streamer.start(AudioDac_UDA1334::SourceType:: STREAM, "S44.WAV");
-                    HAL_Delay(500);
-                }
-            }
+            playButton.periodic();
             streamer.periodic();
 
             if (isInputPinsChanged())
@@ -257,7 +245,7 @@ public:
                 if (!ntpReceived && espSender.isOutputMessageSent())
                 {
                     rtc.fillNtpRrequst(ntpPacket);
-                    espSender.sendMessage(config, "UDP", "192.168.1.1", "123", (const char *)(&ntpPacket), RealTimeClock::NTP_PACKET_SIZE);
+                    espSender.sendMessage(config, "UDP", config.getNtpServer(), "123", (const char *)(&ntpPacket), RealTimeClock::NTP_PACKET_SIZE);
                 }
                 ledGreen.putBit(hardBitEvent.occurance() == 1);
             }
@@ -341,6 +329,24 @@ public:
     virtual void onFinishSteaming ()
     {
         pinSdPower.setHigh();
+    }
+
+    virtual void onButtonPressed (const Devices::Button * b, uint32_t numOccured)
+    {
+        if (b == &playButton)
+        {
+            USART_DEBUG("play button pressed: " << numOccured);
+            if (streamer.isActive())
+            {
+                USART_DEBUG("    Stopping WAV");
+                streamer.stop();
+            }
+            else
+            {
+                USART_DEBUG("    Starting WAV");
+                streamer.start(AudioDac_UDA1334::SourceType:: STREAM, config.getWavFile());
+            }
+        }
     }
 };
 

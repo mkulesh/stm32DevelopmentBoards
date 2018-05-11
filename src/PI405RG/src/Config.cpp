@@ -30,7 +30,8 @@ using namespace StmPlusPlus;
  ************************************************************************/
 
 const char * CfgParameter::strings[] = { "BOARD_ID", "THIS_IP", "IP_MASK", "GATE_IP", "WLAN_NAME", "WLAN_PASS",
-                                         "SERVER_IP", "SERVER_PORT", "REPEAT_DELAY", "TURN_OFF_DELAY" };
+                                         "SERVER_IP", "SERVER_PORT", "REPEAT_DELAY", "TURN_OFF_DELAY", "NTP_SERVER",
+                                         "WAV_FILE", "INVALID_PARAMETER" };
 
 ConvertClass<CfgParameter::Type, CfgParameter::size, CfgParameter::strings> CfgParameter::Convert;
 
@@ -92,6 +93,7 @@ FRESULT Config::readFile (const char * fileName)
     char buff[MAX_LINE_LENGTH + 1];
     char name[MAX_LINE_LENGTH + 1];
     char value[MAX_LINE_LENGTH + 1];
+    CfgParameter::Type par;
     
     while (f_gets(buff, MAX_LINE_LENGTH, &cfgFile) != 0)
     {
@@ -121,7 +123,6 @@ FRESULT Config::readFile (const char * fileName)
             continue;
         }
         
-        CfgParameter::Type par;
         if (!CfgParameter::Convert(name, par))
         {
             USART_DEBUG("Parameter " << name << " is not known");
