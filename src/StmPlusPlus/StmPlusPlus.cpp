@@ -372,7 +372,7 @@ Spi::Spi (DeviceName _device,
 {
     switch (device)
     {
-    case SPI_1:
+    case DeviceName::SPI_1:
         #ifdef SPI1
         sck.setAlternate(GPIO_AF5_SPI1);
         miso.setAlternate(GPIO_AF5_SPI1);
@@ -380,7 +380,7 @@ Spi::Spi (DeviceName _device,
         spiParams.Instance = SPI1;
         #endif
         break;
-    case SPI_2:
+    case DeviceName::SPI_2:
         #ifdef SPI2
         sck.setAlternate(GPIO_AF5_SPI2);
         miso.setAlternate(GPIO_AF5_SPI2);
@@ -388,7 +388,7 @@ Spi::Spi (DeviceName _device,
         spiParams.Instance = SPI2;
         #endif
         break;
-    case SPI_3:
+    case DeviceName::SPI_3:
         #ifdef SPI3
         sck.setAlternate(GPIO_AF6_SPI3);
         miso.setAlternate(GPIO_AF6_SPI3);
@@ -418,13 +418,15 @@ void Spi::enableClock()
 {
     switch (device)
     {
-    case SPI_1: __HAL_RCC_SPI1_CLK_ENABLE(); break;
-    case SPI_2:
+    case DeviceName::SPI_1:
+        __HAL_RCC_SPI1_CLK_ENABLE();
+        break;
+    case DeviceName::SPI_2:
         #ifdef SPI2
         __HAL_RCC_SPI2_CLK_ENABLE();
         #endif
         break;
-    case SPI_3:
+    case DeviceName::SPI_3:
         #ifdef SPI3
         __HAL_RCC_SPI3_CLK_ENABLE();
         #endif
@@ -437,13 +439,15 @@ void Spi::disableClock()
 {
     switch (device)
     {
-    case SPI_1: __HAL_RCC_SPI1_CLK_DISABLE(); break;
-    case SPI_2:
+    case DeviceName::SPI_1:
+        __HAL_RCC_SPI1_CLK_DISABLE();
+        break;
+    case DeviceName::SPI_2:
         #ifdef SPI2
         __HAL_RCC_SPI2_CLK_DISABLE();
         #endif
         break;
-    case SPI_3:
+    case DeviceName::SPI_3:
         #ifdef SPI3
         __HAL_RCC_SPI3_CLK_DISABLE();
         #endif
@@ -708,8 +712,8 @@ float AnalogToDigitConverter::getVoltage ()
  * Class I2S
  ************************************************************************/
 I2S::I2S (PortName name, uint32_t pin, const InterruptPriority & prio):
-    IOPort(name, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, pin, false),
-    irqPrio(prio)
+    IOPort{name, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, pin, false},
+    irqPrio{prio}
 {
     i2s.Instance = SPI2;
     i2s.Init.Mode = I2S_MODE_MASTER_TX;

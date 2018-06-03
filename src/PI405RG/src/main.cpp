@@ -41,7 +41,7 @@ private:
 
     RealTimeClock rtc;
     IOPin ledGreen, ledBlue, ledRed;
-    PeriodicalEvent hardBitEvent;
+    PeriodicalEvent heartbeatEvent;
     IOPin mco;
 
     // Interrupt priorities
@@ -90,7 +90,7 @@ public:
             ledGreen(IOPort::C, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP),
             ledBlue(IOPort::C, GPIO_PIN_2, GPIO_MODE_OUTPUT_PP),
             ledRed(IOPort::C, GPIO_PIN_3, GPIO_MODE_OUTPUT_PP),
-            hardBitEvent(rtc, 10, 2),
+            heartbeatEvent(rtc, 10, 2),
             mco(IOPort::A, GPIO_PIN_8, GPIO_MODE_AF_PP),
             
             // Interrupt priorities
@@ -241,14 +241,14 @@ public:
                 reportState = true;
             }
 
-            if (hardBitEvent.isOccured())
+            if (heartbeatEvent.isOccured())
             {
                 if (!ntpReceived && espSender.isOutputMessageSent())
                 {
                     rtc.fillNtpRrequst(ntpPacket);
                     espSender.sendMessage(config, "UDP", config.getNtpServer(), "123", (const char *)(&ntpPacket), RealTimeClock::NTP_PACKET_SIZE);
                 }
-                ledGreen.putBit(hardBitEvent.occurance() == 1);
+                ledGreen.putBit(heartbeatEvent.occurance() == 1);
             }
         }
     }
@@ -271,7 +271,7 @@ public:
     {
         if (espSender.isOutputMessageSent() && rtc.getTimeSec() % 2 == 0)
         {
-            hardBitEvent.resetTime();
+            heartbeatEvent.resetTime();
         }
     }
     

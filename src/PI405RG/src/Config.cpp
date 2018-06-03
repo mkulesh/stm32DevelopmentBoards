@@ -42,11 +42,11 @@ AsStringClass<CfgParameter::Type, CfgParameter::size, CfgParameter::strings> Cfg
  ************************************************************************/
 
 Config::Config (IOPin & _pinSdPower, Devices::SdCard & _sdCard, const char * _fileName) :
-        fileName(_fileName),
-        pinSdPower(_pinSdPower),
-        sdCard(_sdCard),
-        repeatDelay(0),
-        turnOffDelay(0)
+        fileName{_fileName},
+        pinSdPower{_pinSdPower},
+        sdCard{_sdCard},
+        repeatDelay{0},
+        turnOffDelay{0}
 {
     for (size_t i = 0; i < CfgParameter::size; ++i)
     {

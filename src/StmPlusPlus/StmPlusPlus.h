@@ -247,7 +247,7 @@ public:
 
     const uint32_t TIMEOUT = 5000;
 
-    enum DeviceName
+    enum class DeviceName
     {
         SPI_1 = 0,
         SPI_2 = 1,

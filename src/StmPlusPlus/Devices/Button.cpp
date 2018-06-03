@@ -24,14 +24,14 @@ using namespace StmPlusPlus;
 using namespace StmPlusPlus::Devices;
 
 Button::Button (PortName name, uint32_t pin, uint32_t pull, const RealTimeClock & _rtc, duration_ms _pressDelay, duration_ms _pressDuration):
-    IOPin(name, pin, GPIO_MODE_INPUT, pull, GPIO_SPEED_LOW),
-    rtc(_rtc),
-    pressDelay(_pressDelay),
-    pressDuration(_pressDuration),
-    pressTime(INFINITY_TIME),
-    currentState(false),
-    numOccured(0),
-    handler(NULL)
+    IOPin{name, pin, GPIO_MODE_INPUT, pull, GPIO_SPEED_LOW},
+    rtc{_rtc},
+    pressDelay{_pressDelay},
+    pressDuration{_pressDuration},
+    pressTime{INFINITY_TIME},
+    currentState{false},
+    numOccured{0},
+    handler{NULL}
 {
     // empty
 }

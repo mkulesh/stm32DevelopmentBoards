@@ -47,11 +47,6 @@ public:
         handler = _handler;
     }
 
-    inline void resetTime ()
-    {
-        pressTime = rtc.getUpTimeMillisec();
-    }
-
     void periodic ();
 
 private:
