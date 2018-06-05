@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+#include "HardwareMap.h"
 #include "StmPlusPlus/StmPlusPlus.h"
 #include "StmPlusPlus/WavStreamer.h"
 #include "StmPlusPlus/Devices/Button.h"
@@ -28,6 +29,10 @@ using namespace StmPlusPlus;
 using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "Main: "
+
+// Globally defined hardware device list
+HardwareLayout::Usart1 devUsart1;
+HardwareLayout::Usart2 devUsart2;
 
 class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler, Devices::Button::EventHandler
 {
@@ -83,8 +88,8 @@ public:
     
     MyApplication () :
             // logging
-            log(Usart::USART_1, IOPort::B, GPIO_PIN_6, GPIO_PIN_7, 115200),
-            
+            log(&devUsart1, IOPort::B, GPIO_PIN_6, GPIO_PIN_7, 115200),
+
             // RTC
             rtc(),
             ledGreen(IOPort::C, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP),
@@ -121,7 +126,7 @@ public:
             config(pinSdPower, sdCard, "conf.txt"),
 
             //ESP
-            esp(rtc, Usart::USART_2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, irqPrioEsp, IOPort::A, GPIO_PIN_1),
+            esp(rtc, &devUsart2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, irqPrioEsp, IOPort::A, GPIO_PIN_1),
             espSender(rtc, esp, ledRed),
 
             // Input pins
@@ -173,7 +178,6 @@ public:
     void run ()
     {
         log.initInstance();
-        HAL_Delay(100);
 
         USART_DEBUG("--------------------------------------------------------");
         USART_DEBUG("Oscillator frequency: " 

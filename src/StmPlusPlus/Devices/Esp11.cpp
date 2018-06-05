@@ -27,10 +27,10 @@ using namespace StmPlusPlus::Devices;
 #define USART_DEBUG_MODULE "ESP: "
 
 Esp11::Esp11 (const RealTimeClock & _rtc,
-              Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t txPin,
+              const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin,
               uint32_t rxPin, InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin) :
         rtc(_rtc),
-        usart(usartName, usartPort, txPin, rxPin),
+        usart(usartDevice, usartPort, txPin, rxPin),
         usartPrio(prio),
         pinPower(powerPort, powerPin, GPIO_MODE_OUTPUT_PP),
         sendLed(NULL),

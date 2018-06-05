@@ -26,26 +26,7 @@
 // 2. Compile with maximal level of warning check
 // 3. Compile with maximal optimization level
 
-#ifdef STM32F3
-#include "stm32f3xx.h"
-#include "stm32f3xx_hal_gpio.h"
-#include "stm32f3xx_hal_uart.h"
-#include "stm32f3xx_hal_tim.h"
-#include "stm32f3xx_hal_rcc.h"
-#include "stm32f3xx_hal_rcc_ex.h"
-#include "stm32f3xx_hal_adc.h"
-#endif
-
-#ifdef STM32F4
-#include "stm32f4xx.h"
-#include "stm32f4xx_hal_gpio.h"
-#include "stm32f4xx_hal_uart.h"
-#include "stm32f4xx_hal_tim.h"
-#include "stm32f4xx_hal_rcc.h"
-#include "stm32f4xx_hal_rtc_ex.h"
-#include "stm32f4xx_hal_adc.h"
-#include "stm32f4xx_hal_i2s.h"
-#endif
+#include "HardwareLayout.h"
 
 #include <ctime>
 #include <cstring>
@@ -326,33 +307,14 @@ public:
 /**
  * @brief Class that implements UART interface.
  */
-class Usart : public IOPort
+class Usart
 {
 public:
-
-    enum DeviceName
-    {
-        USART_1 = 0,
-        USART_2 = 1,
-        USART_6 = 2
-    };
 
     /**
      * @brief Default constructor.
      */
-    Usart (DeviceName device, PortName name, uint32_t txPin, uint32_t rxPin);
-
-    void enableClock();
-    void disableClock();
-
-    /**
-     * @brief Open transmission session with given mode.
-     */
-    inline HAL_StatusTypeDef startMode (uint32_t mode)
-    {
-        usartParameters.Init.Mode = mode;
-        return HAL_UART_Init(&usartParameters);
-    }
+    Usart (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin);
 
     /**
      * @brief Open transmission session with given parameters.
@@ -369,35 +331,65 @@ public:
     HAL_StatusTypeDef stop ();
 
     /**
+     * @brief Open transmission session with given mode.
+     */
+    inline HAL_StatusTypeDef startMode (uint32_t mode)
+    {
+        usartParameters.Init.Mode = mode;
+        return HAL_UART_Init(&usartParameters);
+    }
+
+    /**
      * @brief Send an amount of data in blocking mode.
      */
-    HAL_StatusTypeDef transmit (const char * buffer, size_t n, uint32_t timeout);
-    HAL_StatusTypeDef transmit (const char * buffer);
+    inline HAL_StatusTypeDef transmit (const char * buffer, size_t n, uint32_t timeout)
+    {
+        return HAL_UART_Transmit(&usartParameters, (unsigned char *)buffer, n, timeout);
+    }
+
+    inline HAL_StatusTypeDef transmit (const char * buffer)
+    {
+        return HAL_UART_Transmit(&usartParameters, (unsigned char *)buffer, ::strlen(buffer), 0xFFFF);
+    }
 
     /**
      * @brief Receive an amount of data in blocking mode.
      */
-    HAL_StatusTypeDef receive (const char * buffer, size_t n, uint32_t timeout);
+    inline HAL_StatusTypeDef receive (const char * buffer, size_t n, uint32_t timeout)
+    {
+        return HAL_UART_Receive(&usartParameters, (unsigned char *)buffer, n, timeout);
+    }
 
     /**
      * @brief Send an amount of data in interrupt mode.
      */
-    HAL_StatusTypeDef transmitIt (const char * buffer, size_t n);
+    inline HAL_StatusTypeDef transmitIt (const char * buffer, size_t n)
+    {
+        irqStatus = RESET;
+        return HAL_UART_Transmit_IT(&usartParameters, (unsigned char *)buffer, n);
+    }
 
     /**
      * @brief Receive an amount of data in interrupt mode.
      */
-    HAL_StatusTypeDef receiveIt (const char * buffer, size_t n);
+    inline HAL_StatusTypeDef receiveIt (const char * buffer, size_t n)
+    {
+        irqStatus = RESET;
+        return HAL_UART_Receive_IT(&usartParameters, (unsigned char *)buffer, n);
+    }
 
+    /**
+     * @brief Interrupt handling.
+     */
     inline void startInterrupt (const InterruptPriority & prio)
     {
-        HAL_NVIC_SetPriority(irqName, prio.first, prio.second);
-        HAL_NVIC_EnableIRQ(irqName);
+        HAL_NVIC_SetPriority(device->interrupt, prio.first, prio.second);
+        HAL_NVIC_EnableIRQ(device->interrupt);
     }
 
     inline void stopInterrupt ()
     {
-        HAL_NVIC_DisableIRQ(irqName);
+        HAL_NVIC_DisableIRQ(device->interrupt);
     }
 
     inline void processInterrupt ()
@@ -415,11 +407,11 @@ public:
         return irqStatus == SET;
     }
 
-private:
+protected:
 
-    DeviceName device;
+    const HardwareLayout::Usart * device;
+    IOPort port;
     UART_HandleTypeDef usartParameters;
-    IRQn_Type irqName;
     __IO ITStatus irqStatus;
 };
 
@@ -448,7 +440,9 @@ public:
     /**
      * @brief Default constructor.
      */
-    UsartLogger (DeviceName device, PortName name, uint32_t txPin, uint32_t rxPin, uint32_t _baudRate);
+    UsartLogger (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin, uint32_t _baudRate);
+
+    void initInstance ();
 
     static UsartLogger * getInstance ()
     {
@@ -458,12 +452,6 @@ public:
     static UsartLogger & getStream ()
     {
         return *instance;
-    }
-
-    inline void initInstance ()
-    {
-        instance = this;
-        start(UART_MODE_TX, baudRate, UART_WORDLENGTH_8B, UART_STOPBITS_1, UART_PARITY_NONE);
     }
 
     inline void clearInstance ()

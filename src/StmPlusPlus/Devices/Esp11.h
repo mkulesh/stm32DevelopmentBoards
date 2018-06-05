@@ -76,7 +76,7 @@ public:
 public:
     
     Esp11 (const RealTimeClock & _rtc,
-           Usart::DeviceName usartName, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
+           const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
            InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin);
 
     inline void processRxCpltCallback ()

@@ -197,38 +197,13 @@ void IOPin::activateClockOutput(uint32_t source, uint32_t div)
  * Class Usart
  ************************************************************************/
 
-#ifdef STM32L0
-#define GPIO_AF7_USART1 GPIO_AF4_USART1
-#define GPIO_AF7_USART2 GPIO_AF4_USART2
-#endif
-
-Usart::Usart (DeviceName _device, PortName name, uint32_t txPin, uint32_t rxPin):
-    IOPort(name, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, txPin | rxPin, false),
-    device(_device)
+Usart::Usart (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin):
+    device{_device},
+    port{name, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, txPin | rxPin, false},
+    irqStatus{RESET}
 {
-    switch (device)
-    {
-    case USART_1:
-        setAlternate(GPIO_AF7_USART1);
-        usartParameters.Instance = USART1;
-        irqName = USART1_IRQn;
-        break;
-
-    case USART_2:
-        setAlternate(GPIO_AF7_USART2);
-        usartParameters.Instance = USART2;
-        irqName = USART2_IRQn;
-        break;
-
-    case USART_6:
-        #ifdef USART6
-        setAlternate(GPIO_AF8_USART6);
-        usartParameters.Instance = USART6;
-        irqName = USART6_IRQn;
-        #endif
-        break;
-    }
-
+    port.setAlternate(device->alternate);
+    usartParameters.Instance = device->instance;
     usartParameters.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     usartParameters.Init.OverSampling = UART_OVERSAMPLING_16;
     #ifdef UART_ONE_BIT_SAMPLE_DISABLE
@@ -237,37 +212,6 @@ Usart::Usart (DeviceName _device, PortName name, uint32_t txPin, uint32_t rxPin)
     #ifdef UART_ADVFEATURE_NO_INIT
     usartParameters.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
     #endif
-    irqStatus = RESET;
-}
-
-void Usart::enableClock()
-{
-    switch (device)
-    {
-    case USART_1: __HAL_RCC_USART1_CLK_ENABLE(); break;
-    case USART_2: __HAL_RCC_USART2_CLK_ENABLE(); break;
-    case USART_6:
-        #ifdef USART6
-        __HAL_RCC_USART6_CLK_ENABLE();
-        #endif
-    break;
-    }
-}
-
-void Usart::disableClock()
-{
-    switch (device)
-    {
-    case USART_1: __HAL_RCC_USART1_CLK_DISABLE(); break;
-    case USART_2: __HAL_RCC_USART2_CLK_DISABLE(); break;
-    case USART_6:
-        #ifdef USART6
-        __HAL_RCC_USART6_FORCE_RESET();
-        __HAL_RCC_USART6_RELEASE_RESET();
-        __HAL_RCC_USART6_CLK_DISABLE();
-        #endif
-        break;
-    }
 }
 
 HAL_StatusTypeDef Usart::start (uint32_t mode,
@@ -276,7 +220,7 @@ HAL_StatusTypeDef Usart::start (uint32_t mode,
                    uint32_t stopBits/* = UART_STOPBITS_1*/,
                    uint32_t parity/* = UART_PARITY_NONE*/)
 {
-    enableClock();
+    device->enableClock();
     usartParameters.Init.Mode = mode;
     usartParameters.Init.BaudRate = baudRate;
     usartParameters.Init.WordLength = wordLength;
@@ -288,35 +232,8 @@ HAL_StatusTypeDef Usart::start (uint32_t mode,
 HAL_StatusTypeDef Usart::stop ()
 {
     HAL_StatusTypeDef retValue = HAL_UART_DeInit(&usartParameters);
-    disableClock();
+    device->disableClock();
     return retValue;
-}
-
-HAL_StatusTypeDef Usart::transmit (const char * buffer, size_t n, uint32_t timeout)
-{
-    return HAL_UART_Transmit(&usartParameters, (unsigned char *)buffer, n, timeout);
-}
-
-HAL_StatusTypeDef Usart::transmit (const char * buffer)
-{
-    return HAL_UART_Transmit(&usartParameters, (unsigned char *)buffer, ::strlen(buffer), 0xFFFF);
-}
-
-HAL_StatusTypeDef Usart::receive (const char * buffer, size_t n, uint32_t timeout)
-{
-    return HAL_UART_Receive(&usartParameters, (unsigned char *)buffer, n, timeout);
-}
-
-HAL_StatusTypeDef Usart::transmitIt (const char * buffer, size_t n)
-{
-    irqStatus = RESET;
-    return HAL_UART_Transmit_IT(&usartParameters, (unsigned char *)buffer, n);
-}
-
-HAL_StatusTypeDef Usart::receiveIt (const char * buffer, size_t n)
-{
-    irqStatus = RESET;
-    return HAL_UART_Receive_IT(&usartParameters, (unsigned char *)buffer, n);
 }
 
 /************************************************************************
@@ -325,12 +242,18 @@ HAL_StatusTypeDef Usart::receiveIt (const char * buffer, size_t n)
 
 UsartLogger * UsartLogger::instance = NULL;
 
-
-UsartLogger::UsartLogger (DeviceName device, PortName name, uint32_t txPin, uint32_t rxPin, uint32_t _baudRate):
-    Usart(device, name, txPin, rxPin),
-    baudRate(_baudRate)
+UsartLogger::UsartLogger (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin, uint32_t _baudRate):
+    Usart{_device, name, txPin, rxPin},
+    baudRate{_baudRate}
 {
     // empty
+}
+
+void UsartLogger::initInstance ()
+{
+    instance = this;
+    start(UART_MODE_TX, baudRate, UART_WORDLENGTH_8B, UART_STOPBITS_1, UART_PARITY_NONE);
+    while (HAL_UART_GetState(&usartParameters) != HAL_UART_STATE_READY);
 }
 
 UsartLogger & UsartLogger::operator << (const char * buffer)
