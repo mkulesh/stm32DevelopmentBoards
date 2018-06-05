@@ -31,36 +31,40 @@ using namespace StmPlusPlus;
  * Class System
  ************************************************************************/
 
-uint32_t System::externalOscillatorFreq = 16000000;
-uint32_t System::mcuFreq = 16000000;
+System * System::instance = NULL;
 
-void System::setClock (const System::ClockDiv & clkDiv, uint32_t FLatency, RtcType rtcType, int32_t msAdjustment)
+System::System (const HardwareLayout::SystemClock * _device):
+    device{_device},
+    mcuFreq{0}
 {
+    // empty
+}
+
+
+void System::start (uint32_t FLatency, RtcType rtcType, int32_t msAdjustment)
+{
+    device->enableClock();
     RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
     #ifdef STM32F3
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-    RCC_OscInitStruct.HSEPredivValue = clkDiv.PLLM;
+    RCC_OscInitStruct.HSEPredivValue = device->PLLM;
     RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
     RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
     RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL = clkDiv.PLLN;
+    RCC_OscInitStruct.PLL.PLLMUL = device->PLLN;
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider =  clkDiv.AHBCLKDivider;
-    RCC_ClkInitStruct.APB1CLKDivider = clkDiv.APB1CLKDivider;
-    RCC_ClkInitStruct.APB2CLKDivider = clkDiv.APB2CLKDivider;
+    RCC_ClkInitStruct.AHBCLKDivider =  device->AHBCLKDivider;
+    RCC_ClkInitStruct.APB1CLKDivider = device->APB1CLKDivider;
+    RCC_ClkInitStruct.APB2CLKDivider = device->APB2CLKDivider;
     #endif
 
     #ifdef STM32F4
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
@@ -68,18 +72,18 @@ void System::setClock (const System::ClockDiv & clkDiv, uint32_t FLatency, RtcTy
     RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = clkDiv.PLLM;
-    RCC_OscInitStruct.PLL.PLLN = clkDiv.PLLN;
-    RCC_OscInitStruct.PLL.PLLP = clkDiv.PLLP;
-    RCC_OscInitStruct.PLL.PLLQ = clkDiv.PLLQ;
+    RCC_OscInitStruct.PLL.PLLM = device->PLLM;
+    RCC_OscInitStruct.PLL.PLLN = device->PLLN;
+    RCC_OscInitStruct.PLL.PLLP = device->PLLP;
+    RCC_OscInitStruct.PLL.PLLQ = device->PLLQ;
     #ifdef STM32F410Rx
-    RCC_OscInitStruct.PLL.PLLR = clkDiv.PLLR;
+    RCC_OscInitStruct.PLL.PLLR = device->PLLR;
     #endif
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider =  clkDiv.AHBCLKDivider;
-    RCC_ClkInitStruct.APB1CLKDivider = clkDiv.APB1CLKDivider;
-    RCC_ClkInitStruct.APB2CLKDivider = clkDiv.APB2CLKDivider;
+    RCC_ClkInitStruct.AHBCLKDivider =  device->AHBCLKDivider;
+    RCC_ClkInitStruct.APB1CLKDivider = device->APB1CLKDivider;
+    RCC_ClkInitStruct.APB2CLKDivider = device->APB2CLKDivider;
     #endif
 
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
@@ -102,11 +106,11 @@ void System::setClock (const System::ClockDiv & clkDiv, uint32_t FLatency, RtcTy
         break;
     }
 
-    if (clkDiv.PLLI2SN != 0 && clkDiv.PLLI2SR != 0)
+    if (device->PLLI2SN != 0 && device->PLLI2SR != 0)
     {
         PeriphClkInit.PeriphClockSelection |= RCC_PERIPHCLK_I2S;
-        PeriphClkInit.PLLI2S.PLLI2SN = clkDiv.PLLI2SN;
-        PeriphClkInit.PLLI2S.PLLI2SR = clkDiv.PLLI2SR;
+        PeriphClkInit.PLLI2S.PLLI2SN = device->PLLI2SN;
+        PeriphClkInit.PLLI2S.PLLI2SR = device->PLLI2SR;
     }
 
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
@@ -121,9 +125,7 @@ void System::setClock (const System::ClockDiv & clkDiv, uint32_t FLatency, RtcTy
 
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
 
-    externalOscillatorFreq = HSE_VALUE;
     mcuFreq = HAL_RCC_GetHCLKFreq();
-
     HAL_SYSTICK_Config(mcuFreq/1000 + msAdjustment);
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 

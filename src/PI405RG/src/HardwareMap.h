@@ -25,6 +25,39 @@
 
 namespace HardwareLayout {
 
+
+class SystemClock1 : public SystemClock
+{
+public:
+    SystemClock1 ()
+    {
+        // Set system frequency to 168MHz
+        PLLM = 16;
+        PLLN = 336;
+        PLLP = 2;
+        PLLQ = 7;
+        AHBCLKDivider = RCC_SYSCLK_DIV1;
+        APB1CLKDivider = RCC_HCLK_DIV8;
+        APB2CLKDivider = RCC_HCLK_DIV8;
+        PLLI2SN = 192;
+        PLLI2SR = 2;
+    }
+    virtual void enableClock () const
+    {
+        __HAL_RCC_PWR_CLK_ENABLE();
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        __HAL_RCC_GPIOH_CLK_ENABLE();
+        __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    }
+    virtual void disableClock () const
+    {
+        __HAL_RCC_PWR_CLK_DISABLE();
+        __HAL_RCC_GPIOC_CLK_DISABLE();
+        __HAL_RCC_GPIOH_CLK_DISABLE();
+    }
+};
+
+
 class Usart1 : public Usart
 {
 public:
@@ -44,6 +77,7 @@ public:
         __HAL_RCC_USART1_CLK_DISABLE();
     }
 };
+
 
 class Usart2 : public Usart
 {

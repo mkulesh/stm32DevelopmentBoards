@@ -31,6 +31,7 @@ using namespace StmPlusPlus::Devices;
 #define USART_DEBUG_MODULE "Main: "
 
 // Globally defined hardware device list
+HardwareLayout::SystemClock1 devSystemClock;
 HardwareLayout::Usart1 devUsart1;
 HardwareLayout::Usart2 devUsart2;
 
@@ -180,8 +181,8 @@ public:
         log.initInstance();
 
         USART_DEBUG("--------------------------------------------------------");
-        USART_DEBUG("Oscillator frequency: " 
-                << System::getExternalOscillatorFreq() << ", MCU frequency: " << System::getMcuFreq());
+        USART_DEBUG("Oscillator frequency: " << System::getInstance()->getExternalOscillatorFreq()
+                    << ", MCU frequency: " << System::getInstance()->getMcuFreq());
         
         HAL_StatusTypeDef status = HAL_TIMEOUT;
         do
@@ -367,22 +368,13 @@ int main (void)
     IOPort defaultPortB(IOPort::PortName::B, GPIO_MODE_INPUT, GPIO_PULLDOWN);
     IOPort defaultPortC(IOPort::PortName::C, GPIO_MODE_INPUT, GPIO_PULLDOWN);
     
-    // Set system frequency to 168MHz
-    System::ClockDiv clkDiv;
-    clkDiv.PLLM = 16;
-    clkDiv.PLLN = 336;
-    clkDiv.PLLP = 2;
-    clkDiv.PLLQ = 7;
-    clkDiv.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    clkDiv.APB1CLKDivider = RCC_HCLK_DIV8;
-    clkDiv.APB2CLKDivider = RCC_HCLK_DIV8;
-    clkDiv.PLLI2SN = 192;
-    clkDiv.PLLI2SR = 2;
+    System sys(&devSystemClock);
     do
     {
-        System::setClock(clkDiv, FLASH_LATENCY_3, System::RtcType::RTC_EXT);
+        sys.start(FLASH_LATENCY_3, System::RtcType::RTC_EXT);
     }
-    while (System::getMcuFreq() != 168000000L);
+    while (sys.getMcuFreq() != 168000000L);
+    sys.initInstance();
     
     MyApplication app;
     appPtr = &app;

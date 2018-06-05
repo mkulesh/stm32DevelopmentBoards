@@ -94,7 +94,7 @@ void DcfReceiver::start (const InterruptPriority & prio, EventHandler * _handler
     reset();
     handler = _handler;
     pinPower.setLow();
-    timer.start(TIM_COUNTERMODE_UP, System::getMcuFreq() / 2000, 1000/DCF_SAMPLE_PER_SEC - 1);
+    timer.start(TIM_COUNTERMODE_UP, System::getInstance()->getMcuFreq() / 2000, 1000/DCF_SAMPLE_PER_SEC - 1);
     timer.startInterrupt(prio);
     active = true;
     USART_DEBUG("Started receiver, irqPrio = " << prio.first << "," << prio.second);

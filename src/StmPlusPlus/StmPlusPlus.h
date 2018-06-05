@@ -67,39 +67,13 @@ typedef union
 
 typedef std::pair<uint32_t, uint32_t> InterruptPriority;
 
+
 /**
  * @brief Static class collecting helper methods for general system settings.
  */
 class System
 {
-private:
-
-    static uint32_t externalOscillatorFreq;
-    static uint32_t mcuFreq;
-
 public:
-
-    class ClockDiv
-    {
-    public:
-
-        uint32_t PLLM; // Division factor for PLL VCO input clock
-        uint32_t PLLN; // Multiplication factor for PLL VCO output clock.
-        uint32_t PLLP; // Division factor for main system clock (SYSCLK)
-        uint32_t PLLQ; // Division factor for OTG FS, SDIO and RNG clocks
-        uint32_t PLLR; // PLL division factor for I2S, SAI, SYSTEM, SPDIFRX clocks (STM32F410xx)
-        uint32_t AHBCLKDivider; // The AHB clock (HCLK) divider. This clock is derived from the system clock (SYSCLK).
-        uint32_t APB1CLKDivider;// The APB1 clock (PCLK1) divider. This clock is derived from the AHB clock (HCLK).
-        uint32_t APB2CLKDivider;//  The APB2 clock (PCLK2) divider. This clock is derived from the AHB clock (HCLK).
-        uint32_t PLLI2SN; // The multiplication factor for PLLI2S VCO output clock
-        uint32_t PLLI2SR; // The division factor for I2S clock
-
-        ClockDiv(): PLLM(16), PLLN(20), PLLP(2), PLLQ(4), PLLR(2),
-                AHBCLKDivider(1), APB1CLKDivider(2), APB2CLKDivider(2), PLLI2SN(0), PLLI2SR(0)
-        {
-            // empty
-        }
-    };
 
     enum class RtcType
     {
@@ -108,18 +82,35 @@ public:
         RTC_EXT = 2
     };
 
-    static uint32_t getExternalOscillatorFreq ()
+    System (const HardwareLayout::SystemClock * _device);
+
+    void start (uint32_t FLatency, RtcType rtcType, int32_t msAdjustment = 0);
+
+    inline void initInstance ()
     {
-        return externalOscillatorFreq;
+        instance = this;
     }
 
-    static uint32_t getMcuFreq ()
+    static System * getInstance ()
+    {
+        return instance;
+    }
+
+    inline uint32_t getExternalOscillatorFreq () const
+    {
+        return HSE_VALUE;
+    }
+
+    inline uint32_t getMcuFreq () const
     {
         return mcuFreq;
     }
 
-    static void setClock (const ClockDiv & clkDiv, uint32_t FLatency, RtcType rtcType, int32_t msAdjustment = 0);
+private:
 
+    static System * instance;
+    const HardwareLayout::SystemClock * device;
+    uint32_t mcuFreq;
 };
 
 
