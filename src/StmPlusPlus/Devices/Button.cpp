@@ -23,9 +23,8 @@
 using namespace StmPlusPlus;
 using namespace StmPlusPlus::Devices;
 
-Button::Button (PortName name, uint32_t pin, uint32_t pull, const RealTimeClock & _rtc, duration_ms _pressDelay, duration_ms _pressDuration):
+Button::Button (PortName name, uint32_t pin, uint32_t pull, duration_ms _pressDelay, duration_ms _pressDuration):
     IOPin{name, pin, GPIO_MODE_INPUT, pull, GPIO_SPEED_LOW},
-    rtc{_rtc},
     pressDelay{_pressDelay},
     pressDuration{_pressDuration},
     pressTime{INFINITY_TIME},
@@ -45,28 +44,29 @@ void Button::periodic ()
     }
 
     bool newState = (gpioParameters.Pull == GPIO_PULLUP)? !getBit() : getBit();
+    time_ms currentTime = RealTimeClock::getInstance()->getUpTimeMillisec();
     if (currentState == newState)
     {
         // state is not changed: check for periodical press event
         if (currentState && pressTime != INFINITY_TIME)
         {
-            duration_ms d = rtc.getUpTimeMillisec() - pressTime;
+            duration_ms d = currentTime - pressTime;
             if (d >= pressDuration)
             {
                 handler->onButtonPressed(this, numOccured);
-                pressTime = rtc.getUpTimeMillisec();
+                pressTime = currentTime;
                 ++numOccured;
             }
         }
     }
     else if (!currentState && newState)
     {
-        pressTime = rtc.getUpTimeMillisec();
+        pressTime = currentTime;
         numOccured = 0;
     }
     else
     {
-        duration_ms d = rtc.getUpTimeMillisec() - pressTime;
+        duration_ms d = currentTime - pressTime;
         if (d < pressDelay)
         {
             // nothing to do

@@ -26,12 +26,9 @@ using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "ESP: "
 
-Esp11::Esp11 (const RealTimeClock & _rtc,
-              const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin,
-              uint32_t rxPin, InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin) :
-        rtc(_rtc),
+Esp11::Esp11 (const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin,
+              uint32_t rxPin, IOPort::PortName powerPort, uint32_t powerPin) :
         usart(usartDevice, usartPort, txPin, rxPin),
-        usartPrio(prio),
         pinPower(powerPort, powerPin, GPIO_MODE_OUTPUT_PP),
         sendLed(NULL),
         commState(CommState::NONE),
@@ -71,7 +68,7 @@ bool Esp11::init ()
     {
         powerOff();
     }
-    usart.startInterrupt(usartPrio);
+    usart.startInterrupt();
     return isReady;
 }
 
@@ -270,7 +267,7 @@ bool Esp11::transmit (Esp11::AsyncCmd cmd)
     }
 
     commState = CommState::TX;
-    operationEnd = rtc.getUpTimeMillisec() + ESP_TIMEOUT;
+    operationEnd = RealTimeClock::getInstance()->getUpTimeMillisec() + ESP_TIMEOUT;
     shortOkResponse = true;
 
     bool isReady = true;
@@ -395,7 +392,7 @@ void Esp11::periodic ()
         return;
     }
 
-    if (rtc.getUpTimeMillisec() > operationEnd)
+    if (RealTimeClock::getInstance()->getUpTimeMillisec() > operationEnd)
     {
         commState = CommState::ERROR;
         USART_DEBUG("Cannot receive ESP response message: ESP_TIMEOUT");

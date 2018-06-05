@@ -45,14 +45,13 @@ private:
         PAUSE2,
     };
     
-    const RealTimeClock & rtc;
     State state;
     time_ms startTime, stateTime;
     unsigned char maxNumber, number;
 
 public:
 
-    PiezoAlarm (PortName name, uint32_t pin, const RealTimeClock & _rtc);
+    PiezoAlarm (PortName name, uint32_t pin);
     void resetTime ();
     void start (unsigned char _maxNumber);
     void periodic ();

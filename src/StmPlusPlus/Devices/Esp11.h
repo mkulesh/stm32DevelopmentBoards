@@ -75,9 +75,8 @@ public:
 
 public:
     
-    Esp11 (const RealTimeClock & _rtc,
-           const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
-           InterruptPriority & prio, IOPort::PortName powerPort, uint32_t powerPin);
+    Esp11 (const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
+           IOPort::PortName powerPort, uint32_t powerPin);
 
     inline void processRxCpltCallback ()
     {
@@ -277,9 +276,7 @@ private:
     const char * RESP_READY = "ready\r\n";
     const char * UDP_PORT = "5888,0";
 
-    const RealTimeClock & rtc;
     Usart usart;
-    InterruptPriority & usartPrio;
     IOPin pinPower;
     IOPin * sendLed;
 

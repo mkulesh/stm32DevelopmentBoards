@@ -81,7 +81,7 @@ public:
                 const ::tm & dayTime, const char * dayTimeStr) =0;
     };
 
-    DcfReceiver (RealTimeClock & _rtc, IOPin & _pinInput, IOPin & _pinSample, Timer::TimerName timerName, IRQn_Type timerIrq);
+    DcfReceiver (IOPin & _pinInput, IOPin & _pinSample, Timer::TimerName timerName, IRQn_Type timerIrq);
 
     bool isActive() const
     {
@@ -97,9 +97,6 @@ private:
 
     // Data handler
     EventHandler * handler;
-
-    // RTC
-    RealTimeClock & rtc;
 
     // Input pin
     IOPin & pinInput;

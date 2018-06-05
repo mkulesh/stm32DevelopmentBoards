@@ -29,7 +29,7 @@ namespace HardwareLayout {
 class SystemClock1 : public SystemClock
 {
 public:
-    SystemClock1 ()
+    explicit SystemClock1 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): SystemClock{irqn, prio, subPrio}
     {
         // Set system frequency to 168MHz
         PLLM = 16;
@@ -58,19 +58,35 @@ public:
 };
 
 
+class Rtc1 : public Rtc
+{
+public:
+    explicit Rtc1 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): Rtc{irqn, prio, subPrio}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        __HAL_RCC_RTC_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __HAL_RCC_RTC_DISABLE();
+    }
+};
+
+
 class Usart1 : public Usart
 {
 public:
-    Usart1 (): Usart{USART1, GPIO_AF7_USART1, USART1_IRQn}
+    explicit Usart1 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
+        Usart{USART1, GPIO_AF7_USART1, irqn, prio, subPrio}
     {
         disableClock();
     }
     virtual void enableClock () const
     {
-        if (!__HAL_RCC_USART1_IS_CLK_ENABLED())
-        {
-            __HAL_RCC_USART1_CLK_ENABLE();
-        }
+        __HAL_RCC_USART1_CLK_ENABLE();
     }
     virtual void disableClock () const
     {
@@ -82,16 +98,14 @@ public:
 class Usart2 : public Usart
 {
 public:
-    Usart2 (): Usart{USART2, GPIO_AF7_USART2, USART2_IRQn}
+    explicit Usart2 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
+        Usart{USART2, GPIO_AF7_USART2, irqn, prio, subPrio}
     {
         disableClock();
     }
     virtual void enableClock () const
     {
-        if (!__HAL_RCC_USART2_IS_CLK_ENABLED())
-        {
-            __HAL_RCC_USART2_CLK_ENABLE();
-        }
+        __HAL_RCC_USART2_CLK_ENABLE();
     }
     virtual void disableClock () const
     {

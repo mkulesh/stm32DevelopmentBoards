@@ -66,12 +66,44 @@ public:
 };
 
 
+class Interrupt
+{
+public:
+    /**
+     * @brief Interrupt Number Definition
+     */
+    IRQn_Type irqn;
+    uint32_t prio, subPrio;
+
+    explicit Interrupt (IRQn_Type _irqn, uint32_t _prio, uint32_t _subPrio):
+        irqn{_irqn},
+        prio{_prio},
+        subPrio{_subPrio}
+    {
+       // empty
+    }
+
+    inline void start () const
+    {
+        HAL_NVIC_SetPriority(irqn, prio, subPrio);
+        HAL_NVIC_EnableIRQ(irqn);
+    }
+
+    inline void stop () const
+    {
+        HAL_NVIC_DisableIRQ(irqn);
+    }
+};
+
+
 /**
  * @brief Parameters of system clock.
  */
 class SystemClock : public HalDevice
 {
 public:
+
+    Interrupt sysTickIrq;
 
     uint32_t PLLM; // Division factor for PLL VCO input clock
     uint32_t PLLN; // Multiplication factor for PLL VCO output clock.
@@ -84,8 +116,26 @@ public:
     uint32_t PLLI2SN; // The multiplication factor for PLLI2S VCO output clock
     uint32_t PLLI2SR; // The division factor for I2S clock
 
-    SystemClock(): PLLM(16), PLLN(20), PLLP(2), PLLQ(4), PLLR(2),
-            AHBCLKDivider(1), APB1CLKDivider(2), APB2CLKDivider(2), PLLI2SN(0), PLLI2SR(0)
+    SystemClock(IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
+        sysTickIrq{irqn, prio, subPrio},
+        PLLM{16}, PLLN{20}, PLLP{2}, PLLQ{4}, PLLR{2},
+        AHBCLKDivider{1}, APB1CLKDivider{2}, APB2CLKDivider{2}, PLLI2SN{0}, PLLI2SR{0}
+    {
+        // empty
+    }
+};
+
+
+/**
+ * @brief Parameters of system clock.
+ */
+class Rtc : public HalDevice
+{
+public:
+
+    Interrupt wkUpIrq;
+
+    Rtc (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): wkUpIrq{irqn, prio, subPrio}
     {
         // empty
     }
@@ -102,7 +152,7 @@ public:
     /**
      * @brief UART registers base address
      */
-    USART_TypeDef *instance;
+    USART_TypeDef * instance;
 
     /**
      * @brief Peripheral to be connected to the selected pins
@@ -112,13 +162,12 @@ public:
     /**
      * @brief Interrupt Number Definition
      */
-    IRQn_Type interrupt;
+    Interrupt transmissionIrq;
 
-    Usart (USART_TypeDef *_instance, uint32_t _alternate, IRQn_Type _interrupt):
-        HalDevice(),
+    Usart (USART_TypeDef *_instance, uint32_t _alternate, IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
         instance{_instance},
         alternate{_alternate},
-        interrupt{_interrupt}
+        transmissionIrq{irqn, prio, subPrio}
     {
         // empty
     }

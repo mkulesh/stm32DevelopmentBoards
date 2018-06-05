@@ -22,9 +22,8 @@
 
 using namespace StmPlusPlus;
 
-PiezoAlarm::PiezoAlarm (PortName name, uint32_t pin, const RealTimeClock & _rtc) :
+PiezoAlarm::PiezoAlarm (PortName name, uint32_t pin) :
     IOPin(name, pin, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN),
-    rtc(_rtc),
     state(OFF),
     startTime(INFINITY_TIME),
     stateTime(INFINITY_TIME),
@@ -45,7 +44,7 @@ void PiezoAlarm::start (unsigned char _maxNumber)
 {
     maxNumber = _maxNumber;
     state = ON1;
-    startTime = rtc.getUpTimeMillisec();
+    startTime = RealTimeClock::getInstance()->getUpTimeMillisec();
     stateTime = startTime;
     number = 0;
     setHigh();
@@ -54,36 +53,37 @@ void PiezoAlarm::start (unsigned char _maxNumber)
 
 void PiezoAlarm::periodic ()
 {
+    time_ms currentTime = RealTimeClock::getInstance()->getUpTimeMillisec();
     switch (state)
     {
     case OFF:
         return;
     case ON1:
-        if (rtc.getUpTimeMillisec() > (stateTime + onDuratin))
+        if (currentTime > (stateTime + onDuratin))
         {
             state = PAUSE1;
-            stateTime = rtc.getUpTimeMillisec();
+            stateTime = currentTime;
             setLow();
         }
         break;
     case PAUSE1:
-        if (rtc.getUpTimeMillisec() > (stateTime + pause1Duratin))
+        if (currentTime > (stateTime + pause1Duratin))
         {
             state = ON2;
-            stateTime = rtc.getUpTimeMillisec();
+            stateTime = currentTime;
             setHigh();
         }
         break;
     case ON2:
-        if (rtc.getUpTimeMillisec() > (stateTime + onDuratin))
+        if (currentTime > (stateTime + onDuratin))
         {
             state = PAUSE2;
-            stateTime = rtc.getUpTimeMillisec();
+            stateTime = currentTime;
             setLow();
         }
         break;
     case PAUSE2:
-        if (rtc.getUpTimeMillisec() > (stateTime + pause2Duratin))
+        if (currentTime > (stateTime + pause2Duratin))
         {
             if (++number >= maxNumber)
             {
@@ -92,7 +92,7 @@ void PiezoAlarm::periodic ()
             else
             {
                 state = ON1;
-                stateTime = rtc.getUpTimeMillisec();
+                stateTime = currentTime;
                 setHigh();
             }
         }

@@ -42,6 +42,7 @@ typedef int32_t duration_sec;
 typedef uint64_t time_ms;
 typedef int64_t duration_ms;
 
+#define UNDEFINED_PRIO __UINT32_MAX__
 #define INFINITY_SEC __UINT32_MAX__
 #define INFINITY_TIME __UINT64_MAX__
 #define FIRST_CALENDAR_YEAR 1900
@@ -372,15 +373,14 @@ public:
     /**
      * @brief Interrupt handling.
      */
-    inline void startInterrupt (const InterruptPriority & prio)
+    inline void startInterrupt ()
     {
-        HAL_NVIC_SetPriority(device->interrupt, prio.first, prio.second);
-        HAL_NVIC_EnableIRQ(device->interrupt);
+        device->transmissionIrq.start();
     }
 
     inline void stopInterrupt ()
     {
-        HAL_NVIC_DisableIRQ(device->interrupt);
+        device->transmissionIrq.stop();
     }
 
     inline void processInterrupt ()
@@ -639,7 +639,17 @@ public:
     /**
      * @brief Default constructor.
      */
-    RealTimeClock ();
+    RealTimeClock (const HardwareLayout::Rtc * _device);
+
+    inline void initInstance ()
+    {
+        instance = this;
+    }
+
+    static RealTimeClock * getInstance ()
+    {
+        return instance;
+    }
 
     inline time_ms getUpTimeMillisec () const
     {
@@ -656,7 +666,7 @@ public:
         timeSec = sec;
     }
 
-    HAL_StatusTypeDef start (uint32_t counterMode, uint32_t prescaler, const InterruptPriority & prio, RealTimeClock::EventHandler * _handler = NULL);
+    HAL_StatusTypeDef start (uint32_t counterMode, uint32_t prescaler, RealTimeClock::EventHandler * _handler = NULL);
 
     void onMilliSecondInterrupt ();
     void onSecondInterrupt ();
@@ -668,6 +678,8 @@ public:
 
 private:
 
+    static RealTimeClock * instance;
+    const HardwareLayout::Rtc * device;
     EventHandler * handler;
     RTC_HandleTypeDef rtcParameters;
     RTC_TimeTypeDef timeParameters;
@@ -747,13 +759,12 @@ class PeriodicalEvent
 {
 private:
 
-    const RealTimeClock & rtc;
     time_ms lastEventTime, delay;
     long maxOccurrence, occurred;
 
 public:
 
-    PeriodicalEvent (const RealTimeClock & _rtc, time_ms _delay, long _maxOccurrence = -1);
+    PeriodicalEvent (time_ms _delay, long _maxOccurrence = -1);
     void resetTime ();
     bool isOccured ();
     inline long occurance () const

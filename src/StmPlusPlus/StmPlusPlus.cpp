@@ -130,7 +130,7 @@ void System::start (uint32_t FLatency, RtcType rtcType, int32_t msAdjustment)
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
     /* SysTick_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(device->sysTickIrq.irqn, device->sysTickIrq.prio, device->sysTickIrq.subPrio);
 }
 
 
@@ -539,10 +539,13 @@ HAL_StatusTypeDef Timer::stop ()
  * Class Rtc
  ************************************************************************/
 
-RealTimeClock::RealTimeClock ():
-    handler(NULL),
-    upTimeMillisec(0),
-    timeSec(0)
+RealTimeClock * RealTimeClock::instance = NULL;
+
+RealTimeClock::RealTimeClock (const HardwareLayout::Rtc * _device):
+    device{_device},
+    handler{NULL},
+    upTimeMillisec{0},
+    timeSec{0}
 {
     rtcParameters.Instance = RTC;
     rtcParameters.Init.HourFormat = RTC_HOURFORMAT_24;
@@ -562,16 +565,12 @@ RealTimeClock::RealTimeClock ():
     dateParameters.Month = RTC_MONTH_JANUARY;
     dateParameters.Date = 0x1;
     dateParameters.Year = 0x0;
-    
-    HAL_RTCEx_DeactivateWakeUpTimer(&rtcParameters);
-    HAL_RTC_DeInit(&rtcParameters);
-    __HAL_RCC_RTC_DISABLE();
 }
 
 
-HAL_StatusTypeDef RealTimeClock::start (uint32_t counter, uint32_t prescaler, const InterruptPriority & prio, RealTimeClock::EventHandler * _handler /*= NULL*/)
+HAL_StatusTypeDef RealTimeClock::start (uint32_t counter, uint32_t prescaler, RealTimeClock::EventHandler * _handler /*= NULL*/)
 {
-    __HAL_RCC_RTC_ENABLE();
+    device->enableClock();
 
     HAL_StatusTypeDef status = HAL_RTC_Init(&rtcParameters);
     if (status != HAL_OK)
@@ -591,14 +590,13 @@ HAL_StatusTypeDef RealTimeClock::start (uint32_t counter, uint32_t prescaler, co
     }
 
     handler = _handler;
-    HAL_NVIC_SetPriority(RTC_WKUP_IRQn, prio.first, prio.second);
-    HAL_NVIC_EnableIRQ(RTC_WKUP_IRQn);
+    device->wkUpIrq.start();
 
     USART_DEBUG("Started RTC"
              << ": Counter = " << counter
              << ", Prescaler = " << prescaler
              << ", timeSec = " << timeSec
-              << ", irqPrio = " << prio.first << "," << prio.second
+              << ", irqPrio = " << device->wkUpIrq.prio << "," << device->wkUpIrq.subPrio
              << ", Status = " << status);
 
     return status;
@@ -634,10 +632,10 @@ void RealTimeClock::stop ()
 {
     USART_DEBUG("Stopping RTC");
 
-    HAL_NVIC_DisableIRQ(RTC_WKUP_IRQn);
+    device->wkUpIrq.stop();
     HAL_RTCEx_DeactivateWakeUpTimer(&rtcParameters);
     HAL_RTC_DeInit(&rtcParameters);
-    __HAL_RCC_RTC_DISABLE();
+    device->disableClock();
     handler = NULL;
 }
 
@@ -834,8 +832,7 @@ HAL_StatusTypeDef Spi::stop ()
 /************************************************************************
  * Class PeriodicalEvent
  ************************************************************************/
-PeriodicalEvent::PeriodicalEvent (const RealTimeClock & _rtc, time_ms _delay, long _maxOccurrence /* = -1*/):
-    rtc(_rtc),
+PeriodicalEvent::PeriodicalEvent (time_ms _delay, long _maxOccurrence /* = -1*/):
     lastEventTime(0),
     delay(_delay),
     maxOccurrence(_maxOccurrence),
@@ -847,7 +844,7 @@ PeriodicalEvent::PeriodicalEvent (const RealTimeClock & _rtc, time_ms _delay, lo
 
 void PeriodicalEvent::resetTime ()
 {
-    lastEventTime = rtc.getUpTimeMillisec();
+    lastEventTime = RealTimeClock::getInstance()->getUpTimeMillisec();
     occurred = 0;
 }
 
@@ -858,9 +855,10 @@ bool PeriodicalEvent::isOccured ()
     {
         return false;
     }
-    if (rtc.getUpTimeMillisec() >= lastEventTime + delay)
+    time_ms now = RealTimeClock::getInstance()->getUpTimeMillisec();
+    if (now >= lastEventTime + delay)
     {
-        lastEventTime = rtc.getUpTimeMillisec();
+        lastEventTime = now;
         if (maxOccurrence > 0)
         {
             ++occurred;

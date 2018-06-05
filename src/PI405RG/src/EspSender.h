@@ -29,7 +29,7 @@ class EspSender
 {
 public:
     
-    EspSender (const RealTimeClock & _rtc, Devices::Esp11 & _esp, IOPin & _errorLed);
+    EspSender (Devices::Esp11 & _esp, IOPin & _errorLed);
 
     inline bool isOutputMessageSent () const
     {
@@ -68,7 +68,6 @@ private:
         }
     };
     
-    const RealTimeClock & rtc;
     Devices::Esp11 & esp;
     IOPin & errorLed;
     Devices::Esp11::AsyncCmd espState;
@@ -79,12 +78,12 @@ private:
 
     inline void delayNextOperation ()
     {
-        nextOperationTime = rtc.getUpTimeMillisec() + repeatDelay;
+        nextOperationTime = RealTimeClock::getInstance()->getUpTimeMillisec() + repeatDelay;
     }
 
     inline void delayTurnOff ()
     {
-        turnOffTime = rtc.getUpTimeMillisec() + turnOffDelay;
+        turnOffTime = RealTimeClock::getInstance()->getUpTimeMillisec() + turnOffDelay;
     }
 
     void stateReport (bool result, const char * description);

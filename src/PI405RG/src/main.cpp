@@ -31,9 +31,10 @@ using namespace StmPlusPlus::Devices;
 #define USART_DEBUG_MODULE "Main: "
 
 // Globally defined hardware device list
-HardwareLayout::SystemClock1 devSystemClock;
-HardwareLayout::Usart1 devUsart1;
-HardwareLayout::Usart2 devUsart2;
+HardwareLayout::SystemClock1 devSystemClock(SysTick_IRQn, 0, 0);
+HardwareLayout::Rtc1 devRtc1(RTC_WKUP_IRQn, 2, 0);
+HardwareLayout::Usart1 devUsart1(USART1_IRQn, UNDEFINED_PRIO, UNDEFINED_PRIO);
+HardwareLayout::Usart2 devUsart2(USART2_IRQn, 5, 0);
 
 class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler, Devices::Button::EventHandler
 {
@@ -52,9 +53,7 @@ private:
 
     // Interrupt priorities
     InterruptPriority irqPrioI2S;
-    InterruptPriority irqPrioEsp;
     InterruptPriority irqPrioSd;
-    InterruptPriority irqPrioRtc;
 
     // SD card
     IOPin pinSdPower, pinSdDetect;
@@ -92,18 +91,16 @@ public:
             log(&devUsart1, IOPort::B, GPIO_PIN_6, GPIO_PIN_7, 115200),
 
             // RTC
-            rtc(),
+            rtc(&devRtc1),
             ledGreen(IOPort::C, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP),
             ledBlue(IOPort::C, GPIO_PIN_2, GPIO_MODE_OUTPUT_PP),
             ledRed(IOPort::C, GPIO_PIN_3, GPIO_MODE_OUTPUT_PP),
-            heartbeatEvent(rtc, 10, 2),
+            heartbeatEvent(10, 2),
             mco(IOPort::A, GPIO_PIN_8, GPIO_MODE_AF_PP),
             
             // Interrupt priorities
             irqPrioI2S(6, 0), // I2S DMA interrupt priority: 7 will be also used
-            irqPrioEsp(5, 0),
             irqPrioSd(3, 0), // SD DMA interrupt priority: 4 will be also used
-            irqPrioRtc(2, 0),
             
             // SD card
             pinSdPower(IOPort::A, GPIO_PIN_15, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_HIGH, true, false),
@@ -127,8 +124,8 @@ public:
             config(pinSdPower, sdCard, "conf.txt"),
 
             //ESP
-            esp(rtc, &devUsart2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, irqPrioEsp, IOPort::A, GPIO_PIN_1),
-            espSender(rtc, esp, ledRed),
+            esp(&devUsart2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, IOPort::A, GPIO_PIN_1),
+            espSender(esp, ledRed),
 
             // Input pins
             pins { { IOPin(IOPort::A, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLUP),
@@ -151,7 +148,7 @@ public:
                      /* mute     = */ IOPort::B, GPIO_PIN_13,
                      /* smplFreq = */ IOPort::B, GPIO_PIN_14),
             streamer(sdCard, audioDac),
-            playButton(IOPort::B, GPIO_PIN_2, GPIO_PULLUP, rtc)
+            playButton(IOPort::B, GPIO_PIN_2, GPIO_PULLUP)
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_5);
     }
@@ -159,11 +156,6 @@ public:
     virtual ~MyApplication ()
     {
         // empty
-    }
-    
-    inline RealTimeClock & getRtc ()
-    {
-        return rtc;
     }
     
     inline I2S & getI2S ()
@@ -179,15 +171,17 @@ public:
     void run ()
     {
         log.initInstance();
+        rtc.initInstance();
 
         USART_DEBUG("--------------------------------------------------------");
         USART_DEBUG("Oscillator frequency: " << System::getInstance()->getExternalOscillatorFreq()
                     << ", MCU frequency: " << System::getInstance()->getMcuFreq());
         
         HAL_StatusTypeDef status = HAL_TIMEOUT;
+        rtc.stop();
         do
         {
-            status = rtc.start(8 * 2047 + 7, RTC_WAKEUPCLOCK_RTCCLK_DIV2, irqPrioRtc, this);
+            status = rtc.start(8 * 2047 + 7, RTC_WAKEUPCLOCK_RTCCLK_DIV2, this);
             USART_DEBUG("RTC start status: " << status);
         }
         while (status != HAL_OK);
@@ -387,9 +381,9 @@ extern "C"
 void SysTick_Handler (void)
 {
     HAL_IncTick();
-    if (appPtr != NULL)
+    if (RealTimeClock::getInstance() != NULL)
     {
-        appPtr->getRtc().onMilliSecondInterrupt();
+        RealTimeClock::getInstance()->onMilliSecondInterrupt();
     }
 }
 
@@ -400,9 +394,9 @@ void TIM5_IRQHandler ()
 
 void RTC_WKUP_IRQHandler ()
 {
-    if (appPtr != NULL)
+    if (RealTimeClock::getInstance() != NULL)
     {
-        appPtr->getRtc().onSecondInterrupt();
+        RealTimeClock::getInstance()->onSecondInterrupt();
     }
 }
 

@@ -29,8 +29,7 @@ using namespace Devices;
  * Class EspSender
  ************************************************************************/
 
-EspSender::EspSender (const RealTimeClock & _rtc, Devices::Esp11 & _esp, IOPin & _errorLed) :
-        rtc(_rtc),
+EspSender::EspSender (Devices::Esp11 & _esp, IOPin & _errorLed) :
         esp(_esp),
         errorLed(_errorLed),
         espState(Esp11::AsyncCmd::OFF),
@@ -116,7 +115,7 @@ void EspSender::periodic ()
         return;
     }
 
-    time_ms currentTime = rtc.getUpTimeMillisec();
+    time_ms currentTime = RealTimeClock::getInstance()->getUpTimeMillisec();
     if (currentTime < nextOperationTime)
     {
         return;

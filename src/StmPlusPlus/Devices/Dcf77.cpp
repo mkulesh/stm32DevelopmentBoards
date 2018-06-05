@@ -66,9 +66,8 @@ bool MedianFilter::processSample (bool val)
  * Class DcfReceiver
  ************************************************************************/
 
-DcfReceiver::DcfReceiver(RealTimeClock & _rtc, IOPin & _pinInput, IOPin & _pinPower, Timer::TimerName timerName, IRQn_Type timerIrq):
+DcfReceiver::DcfReceiver(IOPin & _pinInput, IOPin & _pinPower, Timer::TimerName timerName, IRQn_Type timerIrq):
     handler(NULL),
-    rtc(_rtc),
     pinInput(_pinInput),
     pinPower(_pinPower),
     timer(timerName, timerIrq),
@@ -135,7 +134,7 @@ void DcfReceiver::onSample ()
 {
     __HAL_TIM_CLEAR_IT(timer.getTimerParameters(), TIM_IT_UPDATE);
 
-    time_ms now = rtc.getUpTimeMillisec();
+    time_ms now = RealTimeClock::getInstance()->getUpTimeMillisec();
     bool newSample = filter.processSample(!pinInput.getBit());
     if (!prevSample && newSample)
     {
@@ -144,7 +143,7 @@ void DcfReceiver::onSample ()
         {
             highDuration = highEnd - highStart;
         }
-        if (rtc.getUpTimeMillisec() > highEnd)
+        if (now > highEnd)
         {
             lowDuration = now - highEnd;
         }
