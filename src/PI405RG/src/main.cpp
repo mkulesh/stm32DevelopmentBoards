@@ -238,7 +238,6 @@ public:
                 ::memcpy(&ntpPacket, messageBuffer, RealTimeClock::NTP_PACKET_SIZE);
                 rtc.decodeNtpMessage(ntpPacket);
                 ntpReceived = true;
-                reportState = true;
             }
 
             if (heartbeatEvent.isOccured())
