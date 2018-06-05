@@ -32,6 +32,7 @@ If you like to test this board, you can order it [on DirtyPCBs.com](http://dirty
 ![Top view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-labels.jpg)
 
 ### Documentation
+* [Отладочная плата STM32F4 в форм-факторе Raspberry Pi (In Russian)](https://habr.com/post/413101)
 * [Schematic](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/raw/master/pcb/stm32_pi_board_sch.pdf) 
 * [Dimensions](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/raw/master/pcb/stm32_pi_board_mech.pdf) 
 * [Top layer](https://docs.google.com/viewer?url=https://github.com/mkulesh/stm32DevelopmentBoards/raw/master/pcb/stm32_pi_board_top.pdf)
@@ -67,7 +68,7 @@ You can order these boards [on DirtyPCBs.com](http://dirtypcbs.com/store/designe
 
 ## Reviews and Publications:
 * [Discussion on www.mikrocontroller.net (In German)](https://www.mikrocontroller.net/topic/433910)
-* [Нестандартный способ подружиться с STM32: не Ардуино и не Discovery (In Russian)](https://geektimes.ru/post/292493)
+* [Нестандартный способ подружиться с STM32: не Ардуино и не Discovery (In Russian)](https://habr.com/post/406313)
 
 ## License
 This software is published under the *GNU General Public License, Version 3*
