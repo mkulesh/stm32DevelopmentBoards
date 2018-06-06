@@ -75,8 +75,7 @@ public:
 
 public:
     
-    Esp11 (const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin, uint32_t rxPin,
-           IOPort::PortName powerPort, uint32_t powerPin);
+    Esp11 (const HardwareLayout::Usart * usartDevice, IOPort::PortName powerPort, uint32_t powerPin);
 
     inline void processRxCpltCallback ()
     {

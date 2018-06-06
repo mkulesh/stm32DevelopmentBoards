@@ -26,9 +26,8 @@ using namespace StmPlusPlus::Devices;
 
 #define USART_DEBUG_MODULE "ESP: "
 
-Esp11::Esp11 (const HardwareLayout::Usart * usartDevice, IOPort::PortName usartPort, uint32_t txPin,
-              uint32_t rxPin, IOPort::PortName powerPort, uint32_t powerPin) :
-        usart(usartDevice, usartPort, txPin, rxPin),
+Esp11::Esp11 (const HardwareLayout::Usart * usartDevice, IOPort::PortName powerPort, uint32_t powerPin) :
+        usart(usartDevice),
         pinPower(powerPort, powerPin, GPIO_MODE_OUTPUT_PP),
         sendLed(NULL),
         commState(CommState::NONE),

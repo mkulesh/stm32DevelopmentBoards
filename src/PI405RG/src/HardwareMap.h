@@ -23,13 +23,13 @@
 
 #include "StmPlusPlus/HardwareLayout.h"
 
-namespace HardwareLayout {
+namespace MyHardware {
 
 
-class SystemClock1 : public SystemClock
+class SystemClock : public HardwareLayout::SystemClock
 {
 public:
-    explicit SystemClock1 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): SystemClock{irqn, prio, subPrio}
+    explicit SystemClock (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): HardwareLayout::SystemClock{irqn, prio, subPrio}
     {
         // Set system frequency to 168MHz
         PLLM = 16;
@@ -58,10 +58,10 @@ public:
 };
 
 
-class Rtc1 : public Rtc
+class Rtc : public HardwareLayout::Rtc
 {
 public:
-    explicit Rtc1 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): Rtc{irqn, prio, subPrio}
+    explicit Rtc (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): HardwareLayout::Rtc{irqn, prio, subPrio}
     {
         // empty
     }
@@ -76,11 +76,65 @@ public:
 };
 
 
-class Usart1 : public Usart
+class PortA : public HardwareLayout::Port
 {
 public:
-    explicit Usart1 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
-        Usart{USART1, GPIO_AF7_USART1, irqn, prio, subPrio}
+    explicit PortA (): Port{GPIOA}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        ++numberOfUsers;
+        if (!__HAL_RCC_GPIOA_IS_CLK_DISABLED())
+        {
+            __HAL_RCC_GPIOA_CLK_ENABLE();
+        }
+    }
+    virtual void disableClock () const
+    {
+        --numberOfUsers;
+        if (!isUsed())
+        {
+            __HAL_RCC_GPIOA_CLK_DISABLE();
+        }
+    }
+};
+
+
+class PortB : public HardwareLayout::Port
+{
+public:
+    explicit PortB (): Port{GPIOB}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        ++numberOfUsers;
+        if (!__HAL_RCC_GPIOB_IS_CLK_DISABLED())
+        {
+            __HAL_RCC_GPIOB_CLK_ENABLE();
+        }
+    }
+    virtual void disableClock () const
+    {
+        --numberOfUsers;
+        if (!isUsed() && __HAL_RCC_GPIOB_IS_CLK_ENABLED())
+        {
+            __HAL_RCC_GPIOB_CLK_DISABLE();
+        }
+    }
+};
+
+
+class Usart1 : public HardwareLayout::Usart
+{
+public:
+    explicit Usart1 (HardwareLayout::Port * txPort, uint32_t txPin,
+                     HardwareLayout::Port * rxPort, uint32_t rxPin,
+                     IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
+        Usart{USART1, txPort, txPin, rxPort, rxPin, GPIO_AF7_USART1, irqn, prio, subPrio}
     {
         disableClock();
     }
@@ -95,11 +149,13 @@ public:
 };
 
 
-class Usart2 : public Usart
+class Usart2 : public HardwareLayout::Usart
 {
 public:
-    explicit Usart2 (IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
-        Usart{USART2, GPIO_AF7_USART2, irqn, prio, subPrio}
+    explicit Usart2 (HardwareLayout::Port * txPort, uint32_t txPin,
+                     HardwareLayout::Port * rxPort, uint32_t rxPin,
+                     IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
+        Usart{USART2, txPort, txPin, rxPort, rxPin, GPIO_AF7_USART2, irqn, prio, subPrio}
     {
         disableClock();
     }

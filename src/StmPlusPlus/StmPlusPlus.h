@@ -148,6 +148,16 @@ public:
             bool callInit = true);
 
     /**
+     * @brief Default constructor.
+     */
+    IOPort (const HardwareLayout::Port * device,
+            uint32_t mode,
+            uint32_t pull = GPIO_NOPULL,
+            uint32_t speed = GPIO_SPEED_HIGH,
+            uint32_t pin = GPIO_PIN_All,
+            bool callInit = true);
+
+    /**
      * @brief Specifies the operating mode for the selected pins.
      */
     inline void setMode (uint32_t mode)
@@ -270,6 +280,15 @@ public:
     }
 
     /**
+     * @brief Default constructor.
+     */
+    IOPin (const HardwareLayout::Pin & device, uint32_t mode, uint32_t pull = GPIO_NOPULL, uint32_t speed = GPIO_SPEED_HIGH, bool callInit = true, bool value = false):
+        IOPort(device.port, mode, pull, speed, device.pin, callInit)
+    {
+        HAL_GPIO_WritePin(port, gpioParameters.Pin, (GPIO_PinState)value);
+    }
+
+    /**
      * @brief Set or clear the selected data port bit.
      *
      * @note   This function uses GPIOx_BSRR and GPIOx_BRR registers to allow atomic read/modify
@@ -306,7 +325,7 @@ public:
     /**
      * @brief Default constructor.
      */
-    Usart (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin);
+    Usart (const HardwareLayout::Usart * _device);
 
     /**
      * @brief Open transmission session with given parameters.
@@ -375,12 +394,12 @@ public:
      */
     inline void startInterrupt ()
     {
-        device->transmissionIrq.start();
+        device->txRxIrq.start();
     }
 
     inline void stopInterrupt ()
     {
-        device->transmissionIrq.stop();
+        device->txRxIrq.stop();
     }
 
     inline void processInterrupt ()
@@ -401,7 +420,6 @@ public:
 protected:
 
     const HardwareLayout::Usart * device;
-    IOPort port;
     UART_HandleTypeDef usartParameters;
     __IO ITStatus irqStatus;
 };
@@ -431,7 +449,7 @@ public:
     /**
      * @brief Default constructor.
      */
-    UsartLogger (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin, uint32_t _baudRate);
+    UsartLogger (const HardwareLayout::Usart * _device, uint32_t _baudRate);
 
     void initInstance ();
 

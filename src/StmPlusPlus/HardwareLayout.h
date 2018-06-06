@@ -66,6 +66,28 @@ public:
 };
 
 
+class HalSharedDevice : public HalDevice
+{
+protected:
+    /**
+     * @brief Counter: how many devices currently use this port
+     */
+    mutable size_t numberOfUsers;
+
+public:
+
+    HalSharedDevice (): numberOfUsers{0}
+    {
+        // empty
+    }
+
+    bool isUsed () const
+    {
+        return numberOfUsers > 0;
+    }
+};
+
+
 class Interrupt
 {
 public:
@@ -116,7 +138,7 @@ public:
     uint32_t PLLI2SN; // The multiplication factor for PLLI2S VCO output clock
     uint32_t PLLI2SR; // The division factor for I2S clock
 
-    SystemClock(IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
+    explicit SystemClock(IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
         sysTickIrq{irqn, prio, subPrio},
         PLLM{16}, PLLN{20}, PLLP{2}, PLLQ{4}, PLLR{2},
         AHBCLKDivider{1}, APB1CLKDivider{2}, APB2CLKDivider{2}, PLLI2SN{0}, PLLI2SR{0}
@@ -135,7 +157,47 @@ public:
 
     Interrupt wkUpIrq;
 
-    Rtc (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): wkUpIrq{irqn, prio, subPrio}
+    explicit Rtc (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): wkUpIrq{irqn, prio, subPrio}
+    {
+        // empty
+    }
+};
+
+
+/**
+ * @brief Parameters of a port.
+ */
+class Port : public HalSharedDevice
+{
+public:
+
+    /**
+     * @brief General Purpose I/O
+     */
+    GPIO_TypeDef * instance;
+
+    explicit Port (GPIO_TypeDef * _instance):
+        instance{_instance}
+    {
+        // empty
+    }
+};
+
+
+class Pin
+{
+public:
+    /**
+     * @brief Related port
+     */
+    Port * port;
+
+    /**
+     * @brief Pin index
+     */
+    uint32_t pin;
+
+    explicit Pin (Port * _port, uint32_t _pin): port{_port}, pin{_pin}
     {
         // empty
     }
@@ -155,6 +217,16 @@ public:
     USART_TypeDef * instance;
 
     /**
+     * @brief TX pin
+     */
+    Pin tx;
+
+    /**
+     * @brief RX pin
+     */
+    Pin rx;
+
+    /**
      * @brief Peripheral to be connected to the selected pins
      */
     uint32_t alternate;
@@ -162,12 +234,14 @@ public:
     /**
      * @brief Interrupt Number Definition
      */
-    Interrupt transmissionIrq;
+    Interrupt txRxIrq;
 
-    Usart (USART_TypeDef *_instance, uint32_t _alternate, IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
+    explicit Usart (USART_TypeDef *_instance, Port * _txPort, uint32_t _txPin, Port * _rxPort, uint32_t _rxPin, uint32_t _alternate, IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
         instance{_instance},
+        tx{_txPort, _txPin},
+        rx{_rxPort, _rxPin},
         alternate{_alternate},
-        transmissionIrq{irqn, prio, subPrio}
+        txRxIrq{irqn, prio, subPrio}
     {
         // empty
     }

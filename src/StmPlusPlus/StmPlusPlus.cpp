@@ -185,6 +185,27 @@ IOPort::IOPort (
     }
 }
 
+IOPort::IOPort (
+        const HardwareLayout::Port * device,
+        uint32_t mode,
+        uint32_t pull/* = GPIO_NOPULL*/,
+        uint32_t speed/* = GPIO_SPEED_HIGH*/,
+        uint32_t pin/* = GPIO_PIN_All*/,
+        bool callInit/* = true*/)
+{
+    gpioParameters.Pin   = pin;
+    gpioParameters.Mode  = mode;
+    gpioParameters.Pull  = pull;
+    gpioParameters.Speed = speed;
+    port = device->instance;
+    device->enableClock();
+    HAL_GPIO_DeInit(port, pin);
+    if (callInit)
+    {
+        HAL_GPIO_Init(port, &gpioParameters);
+    }
+}
+
 void IOPin::activateClockOutput(uint32_t source, uint32_t div)
 {
   gpioParameters.Mode = GPIO_MODE_AF_PP;
@@ -199,12 +220,20 @@ void IOPin::activateClockOutput(uint32_t source, uint32_t div)
  * Class Usart
  ************************************************************************/
 
-Usart::Usart (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin):
+Usart::Usart (const HardwareLayout::Usart * _device):
     device{_device},
-    port{name, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, txPin | rxPin, false},
     irqStatus{RESET}
 {
-    port.setAlternate(device->alternate);
+    // Initialize Tx pin
+    {
+        IOPin txPin(_device->tx, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
+        txPin.setAlternate(device->alternate);
+    }
+    // Initialize Tx pin
+    {
+        IOPin rxPin(_device->rx, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
+        rxPin.setAlternate(device->alternate);
+    }
     usartParameters.Instance = device->instance;
     usartParameters.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     usartParameters.Init.OverSampling = UART_OVERSAMPLING_16;
@@ -244,8 +273,8 @@ HAL_StatusTypeDef Usart::stop ()
 
 UsartLogger * UsartLogger::instance = NULL;
 
-UsartLogger::UsartLogger (const HardwareLayout::Usart * _device, IOPort::PortName name, uint32_t txPin, uint32_t rxPin, uint32_t _baudRate):
-    Usart{_device, name, txPin, rxPin},
+UsartLogger::UsartLogger (const HardwareLayout::Usart * _device, uint32_t _baudRate):
+    Usart{_device},
     baudRate{_baudRate}
 {
     // empty

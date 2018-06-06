@@ -31,10 +31,12 @@ using namespace StmPlusPlus::Devices;
 #define USART_DEBUG_MODULE "Main: "
 
 // Globally defined hardware device list
-HardwareLayout::SystemClock1 devSystemClock(SysTick_IRQn, 0, 0);
-HardwareLayout::Rtc1 devRtc1(RTC_WKUP_IRQn, 2, 0);
-HardwareLayout::Usart1 devUsart1(USART1_IRQn, UNDEFINED_PRIO, UNDEFINED_PRIO);
-HardwareLayout::Usart2 devUsart2(USART2_IRQn, 5, 0);
+MyHardware::PortA portA;
+MyHardware::PortB portB;
+MyHardware::SystemClock devSystemClock(SysTick_IRQn, 0, 0);
+MyHardware::Rtc devRtc(RTC_WKUP_IRQn, 2, 0);
+MyHardware::Usart1 devUsart1(&portB, GPIO_PIN_6, &portB, GPIO_PIN_7, USART1_IRQn, UNDEFINED_PRIO, UNDEFINED_PRIO);
+MyHardware::Usart2 devUsart2(&portA, GPIO_PIN_2, &portA, GPIO_PIN_3, USART2_IRQn, 5, 0);
 
 class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler, Devices::Button::EventHandler
 {
@@ -88,10 +90,10 @@ public:
     
     MyApplication () :
             // logging
-            log(&devUsart1, IOPort::B, GPIO_PIN_6, GPIO_PIN_7, 115200),
+            log(&devUsart1, 115200),
 
             // RTC
-            rtc(&devRtc1),
+            rtc(&devRtc),
             ledGreen(IOPort::C, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP),
             ledBlue(IOPort::C, GPIO_PIN_2, GPIO_MODE_OUTPUT_PP),
             ledRed(IOPort::C, GPIO_PIN_3, GPIO_MODE_OUTPUT_PP),
@@ -124,7 +126,7 @@ public:
             config(pinSdPower, sdCard, "conf.txt"),
 
             //ESP
-            esp(&devUsart2, IOPort::A, GPIO_PIN_2, GPIO_PIN_3, IOPort::A, GPIO_PIN_1),
+            esp(&devUsart2, IOPort::A, GPIO_PIN_1),
             espSender(esp, ledRed),
 
             // Input pins
