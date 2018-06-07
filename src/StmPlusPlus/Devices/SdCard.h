@@ -43,9 +43,6 @@ public:
     static const size_t FAT_FS_OBJECT_LENGHT = 64;
 
     const uint32_t TIMEOUT = 10000;
-    const IRQn_Type RX_IRQ = DMA2_Stream3_IRQn;
-    const IRQn_Type TX_IRQ = DMA2_Stream6_IRQn;
-    const IRQn_Type SDIO_IRQ = SDIO_IRQn;
 
     typedef struct
     {
@@ -59,7 +56,7 @@ public:
     /**
      * @brief Default constructor.
      */
-    SdCard (IOPin & _sdDetect, IOPort & _portSd1, IOPort & _portSd2);
+    SdCard (const HardwareLayout::Sdio * _device, IOPin & _sdDetect);
 
     static SdCard * getInstance ()
     {
@@ -101,11 +98,6 @@ public:
         return !sdDetect.getBit();
     }
 
-    inline void setIrqPrio (const InterruptPriority & prio)
-    {
-        irqPrio = prio;
-    }
-
     void clearPort ();
 
     bool start (uint32_t clockDiv = 0);
@@ -122,15 +114,15 @@ public:
 private:
 
     static SdCard * instance;
+    const HardwareLayout::Sdio * device;
 
     IOPin & sdDetect;
-    IOPort & portSd1;
-    IOPort & portSd2;
+    IOPort port1;
+    IOPort port2;
     SD_HandleTypeDef sdParams;
     HAL_SD_CardInfoTypedef sdCardInfo;
     DMA_HandleTypeDef sdDmaRx;
     DMA_HandleTypeDef sdDmaTx;
-    InterruptPriority irqPrio;
 
     // FAT FS
     static Diskio_drvTypeDef fatFsDriver;

@@ -33,10 +33,28 @@ using namespace StmPlusPlus::Devices;
 // Globally defined hardware device list
 MyHardware::PortA portA;
 MyHardware::PortB portB;
-MyHardware::SystemClock devSystemClock(SysTick_IRQn, 0, 0);
-MyHardware::Rtc devRtc(RTC_WKUP_IRQn, 2, 0);
-MyHardware::Usart1 devUsart1(&portB, GPIO_PIN_6, &portB, GPIO_PIN_7, USART1_IRQn, UNDEFINED_PRIO, UNDEFINED_PRIO);
-MyHardware::Usart2 devUsart2(&portA, GPIO_PIN_2, &portA, GPIO_PIN_3, USART2_IRQn, 5, 0);
+MyHardware::PortC portC;
+MyHardware::PortD portD;
+MyHardware::SystemClock devSystemClock (SysTick_IRQn, 0, 0);
+MyHardware::Rtc devRtc (RTC_WKUP_IRQn, 2, 0);
+
+MyHardware::Sdio devSdio (&portC, /*SDIO_D0*/GPIO_PIN_8 | /*SDIO_D1*/GPIO_PIN_9 | /*SDIO_D2*/GPIO_PIN_10 | /*SDIO_D3*/GPIO_PIN_11 | /*SDIO_CK*/GPIO_PIN_12,
+                          &portD, /*SDIO_CMD*/GPIO_PIN_2,
+                          HardwareLayout::Interrupt(SDIO_IRQn, 3, 0),
+                          HardwareLayout::Interrupt(DMA2_Stream6_IRQn, 4, 0),
+                          HardwareLayout::Interrupt(DMA2_Stream3_IRQn, 5, 0));
+
+MyHardware::I2S devI2S (&portB, /*I2S2_CK*/GPIO_PIN_10 | /*I2S2_WS*/GPIO_PIN_12 | /*I2S2_SD*/GPIO_PIN_15,
+                        HardwareLayout::Interrupt(SPI2_IRQn, 6, 0),
+                        HardwareLayout::Interrupt(DMA1_Stream4_IRQn, 7, 0));
+
+MyHardware::Usart1 devUsart1 (&portB, GPIO_PIN_6,
+                              &portB, GPIO_PIN_7,
+                              HardwareLayout::Interrupt(USART1_IRQn, UNDEFINED_PRIO, UNDEFINED_PRIO));
+
+MyHardware::Usart2 devUsart2 (&portA, GPIO_PIN_2,
+                              &portA, GPIO_PIN_3,
+                              HardwareLayout::Interrupt(USART2_IRQn, 8, 0));
 
 class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler, Devices::Button::EventHandler
 {
@@ -53,13 +71,8 @@ private:
     PeriodicalEvent heartbeatEvent;
     IOPin mco;
 
-    // Interrupt priorities
-    InterruptPriority irqPrioI2S;
-    InterruptPriority irqPrioSd;
-
     // SD card
     IOPin pinSdPower, pinSdDetect;
-    IOPort portSd1, portSd2;
     SdCard sdCard;
     bool sdCardInserted;
 
@@ -100,26 +113,10 @@ public:
             heartbeatEvent(10, 2),
             mco(IOPort::A, GPIO_PIN_8, GPIO_MODE_AF_PP),
             
-            // Interrupt priorities
-            irqPrioI2S(6, 0), // I2S DMA interrupt priority: 7 will be also used
-            irqPrioSd(3, 0), // SD DMA interrupt priority: 4 will be also used
-            
             // SD card
             pinSdPower(IOPort::A, GPIO_PIN_15, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_HIGH, true, false),
             pinSdDetect(IOPort::B, GPIO_PIN_3, GPIO_MODE_INPUT, GPIO_PULLUP),
-            portSd1(IOPort::C,
-                    /* mode     = */GPIO_MODE_OUTPUT_PP,
-                    /* pull     = */GPIO_PULLUP,
-                    /* speed    = */GPIO_SPEED_FREQ_VERY_HIGH,
-                    /* pin      = */GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12,
-                    /* callInit = */false),
-            portSd2(IOPort::D,
-                    /* mode     = */GPIO_MODE_OUTPUT_PP,
-                    /* pull     = */GPIO_PULLUP,
-                    /* speed    = */GPIO_SPEED_FREQ_VERY_HIGH,
-                    /* pin      = */GPIO_PIN_2,
-                    /* callInit = */false),
-            sdCard(pinSdDetect, portSd1, portSd2),
+            sdCard(&devSdio, pinSdDetect),
             sdCardInserted(false),
             
             // Configuration
@@ -140,11 +137,7 @@ public:
                      IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLUP)
             } },
 
-            // I2S2 Audio Configuration
-            // PB10 --> I2S2_CK
-            // PB12 --> I2S2_WS
-            // PB15 --> I2S2_SD
-            i2s(IOPort::B, GPIO_PIN_10 | GPIO_PIN_12 | GPIO_PIN_15, irqPrioI2S),
+            i2s(&devI2S),
             audioDac(i2s,
                      /* power    = */ IOPort::B, GPIO_PIN_11,
                      /* mute     = */ IOPort::B, GPIO_PIN_13,
@@ -188,7 +181,6 @@ public:
         }
         while (status != HAL_OK);
 
-        sdCard.setIrqPrio(irqPrioSd);
         sdCard.initInstance();
         if (sdCard.isCardInserted())
         {

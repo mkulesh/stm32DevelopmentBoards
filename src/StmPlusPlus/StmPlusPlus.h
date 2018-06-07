@@ -835,10 +835,7 @@ class I2S : public IOPort
 {
 public:
 
-    const IRQn_Type I2S_IRQ = SPI2_IRQn;
-    const IRQn_Type DMA_TX_IRQ = DMA1_Stream4_IRQn;
-
-    I2S (PortName name, uint32_t pin, const InterruptPriority & prio);
+    I2S (const HardwareLayout::I2S * _device);
     HAL_StatusTypeDef start (uint32_t standard, uint32_t audioFreq, uint32_t dataFormat);
     void stop ();
 
@@ -859,9 +856,9 @@ public:
 
 private:
 
+    const HardwareLayout::I2S * device;
     I2S_HandleTypeDef i2s;
     DMA_HandleTypeDef i2sDmaTx;
-    const InterruptPriority & irqPrio;
 };
 
 } // end namespace

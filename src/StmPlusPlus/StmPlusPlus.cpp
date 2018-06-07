@@ -1064,11 +1064,11 @@ float AnalogToDigitConverter::getVoltage ()
 /************************************************************************
  * Class I2S
  ************************************************************************/
-I2S::I2S (PortName name, uint32_t pin, const InterruptPriority & prio):
-    IOPort{name, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, pin, false},
-    irqPrio{prio}
+I2S::I2S (const HardwareLayout::I2S * _device):
+    IOPort{_device->pins.port, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, _device->pins.pin, false},
+    device{_device}
 {
-    i2s.Instance = SPI2;
+    i2s.Instance = device->instance;
     i2s.Init.Mode = I2S_MODE_MASTER_TX;
     i2s.Init.Standard = I2S_STANDARD_PHILIPS; // will be re-defined at communication start
     i2s.Init.DataFormat = I2S_DATAFORMAT_16B; // will be re-defined at communication start
@@ -1099,10 +1099,11 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
     i2s.Init.Standard = standard;
     i2s.Init.AudioFreq = audioFreq;
     i2s.Init.DataFormat = dataFormat;
-    setMode(GPIO_MODE_AF_PP);
-    setAlternate(GPIO_AF5_SPI2);
 
-    __HAL_RCC_SPI2_CLK_ENABLE();
+    setMode(GPIO_MODE_AF_PP);
+    setAlternate(device->alternate);
+
+    device->enableClock();
     HAL_StatusTypeDef status = HAL_I2S_Init(&i2s);
     if (status != HAL_OK)
     {
@@ -1110,7 +1111,6 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
         return HAL_ERROR;
     }
 
-    __HAL_RCC_DMA1_CLK_ENABLE();
     __HAL_LINKDMA(&i2s, hdmatx, i2sDmaTx);
     status = HAL_DMA_Init(&i2sDmaTx);
     if (status != HAL_OK)
@@ -1119,10 +1119,9 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
         return HAL_ERROR;
     }
 
-    HAL_NVIC_SetPriority(I2S_IRQ, irqPrio.first, irqPrio.second);
-    HAL_NVIC_EnableIRQ(I2S_IRQ);
-    HAL_NVIC_SetPriority(DMA_TX_IRQ, irqPrio.first + 1, irqPrio.second);
-    HAL_NVIC_EnableIRQ(DMA_TX_IRQ);
+    device->i2sIrq.start();
+    HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+    device->txIrq.start();
 
     return HAL_OK;
 }
@@ -1130,12 +1129,11 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
 
 void I2S::stop ()
 {
-    HAL_NVIC_DisableIRQ(I2S_IRQ);
-    HAL_NVIC_DisableIRQ(DMA_TX_IRQ);
+    device->i2sIrq.stop();
+    device->txIrq.stop();
     HAL_DMA_DeInit(&i2sDmaTx);
-    __HAL_RCC_DMA1_CLK_DISABLE();
     HAL_I2S_DeInit(&i2s);
-    __HAL_RCC_SPI2_CLK_DISABLE();
+    device->disableClock();
     setMode(GPIO_MODE_INPUT);
 }
 

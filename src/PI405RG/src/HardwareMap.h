@@ -86,7 +86,7 @@ public:
     virtual void enableClock () const
     {
         ++numberOfUsers;
-        if (!__HAL_RCC_GPIOA_IS_CLK_DISABLED())
+        if (__HAL_RCC_GPIOA_IS_CLK_DISABLED())
         {
             __HAL_RCC_GPIOA_CLK_ENABLE();
         }
@@ -112,7 +112,7 @@ public:
     virtual void enableClock () const
     {
         ++numberOfUsers;
-        if (!__HAL_RCC_GPIOB_IS_CLK_DISABLED())
+        if (__HAL_RCC_GPIOB_IS_CLK_DISABLED())
         {
             __HAL_RCC_GPIOB_CLK_ENABLE();
         }
@@ -128,13 +128,65 @@ public:
 };
 
 
+class PortC : public HardwareLayout::Port
+{
+public:
+    explicit PortC (): Port{GPIOC}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        ++numberOfUsers;
+        if (__HAL_RCC_GPIOC_IS_CLK_DISABLED())
+        {
+            __HAL_RCC_GPIOC_CLK_ENABLE();
+        }
+    }
+    virtual void disableClock () const
+    {
+        --numberOfUsers;
+        if (!isUsed() && __HAL_RCC_GPIOC_IS_CLK_ENABLED())
+        {
+            __HAL_RCC_GPIOC_CLK_DISABLE();
+        }
+    }
+};
+
+
+class PortD : public HardwareLayout::Port
+{
+public:
+    explicit PortD (): Port{GPIOD}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        ++numberOfUsers;
+        if (__HAL_RCC_GPIOD_IS_CLK_DISABLED())
+        {
+            __HAL_RCC_GPIOD_CLK_ENABLE();
+        }
+    }
+    virtual void disableClock () const
+    {
+        --numberOfUsers;
+        if (!isUsed() && __HAL_RCC_GPIOD_IS_CLK_ENABLED())
+        {
+            __HAL_RCC_GPIOD_CLK_DISABLE();
+        }
+    }
+};
+
+
 class Usart1 : public HardwareLayout::Usart
 {
 public:
     explicit Usart1 (HardwareLayout::Port * txPort, uint32_t txPin,
                      HardwareLayout::Port * rxPort, uint32_t rxPin,
-                     IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
-        Usart{USART1, txPort, txPin, rxPort, rxPin, GPIO_AF7_USART1, irqn, prio, subPrio}
+                     HardwareLayout::Interrupt && txRxIrq):
+        Usart{USART1, txPort, txPin, rxPort, rxPin, GPIO_AF7_USART1, std::move(txRxIrq)}
     {
         disableClock();
     }
@@ -154,8 +206,8 @@ class Usart2 : public HardwareLayout::Usart
 public:
     explicit Usart2 (HardwareLayout::Port * txPort, uint32_t txPin,
                      HardwareLayout::Port * rxPort, uint32_t rxPin,
-                     IRQn_Type irqn, uint32_t prio, uint32_t subPrio):
-        Usart{USART2, txPort, txPin, rxPort, rxPin, GPIO_AF7_USART2, irqn, prio, subPrio}
+                     HardwareLayout::Interrupt && txRxIrq):
+        Usart{USART2, txPort, txPin, rxPort, rxPin, GPIO_AF7_USART2, std::move(txRxIrq)}
     {
         disableClock();
     }
@@ -166,6 +218,53 @@ public:
     virtual void disableClock () const
     {
         __HAL_RCC_USART2_CLK_DISABLE();
+    }
+};
+
+
+class Sdio : public HardwareLayout::Sdio
+{
+public:
+    explicit Sdio (HardwareLayout::Port * port1, uint32_t port1pins,
+                   HardwareLayout::Port * port2, uint32_t port2pins,
+                   HardwareLayout::Interrupt && sdioIrq,
+                   HardwareLayout::Interrupt && txIrq,
+                   HardwareLayout::Interrupt && rxIrq):
+        HardwareLayout::Sdio{SDIO, port1, port1pins, port2, port2pins, GPIO_AF12_SDIO, std::move(sdioIrq), std::move(txIrq), std::move(rxIrq)}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        __HAL_RCC_SDIO_CLK_ENABLE();
+        __HAL_RCC_DMA2_CLK_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __HAL_RCC_SDIO_CLK_DISABLE();
+        __HAL_RCC_DMA2_CLK_DISABLE();
+    }
+};
+
+
+class I2S : public HardwareLayout::I2S
+{
+public:
+    explicit I2S (HardwareLayout::Port * port, uint32_t pins,
+                  HardwareLayout::Interrupt && i2sIrq, HardwareLayout::Interrupt && txIrq):
+        HardwareLayout::I2S{SPI2, port, pins, GPIO_AF5_SPI2, std::move(i2sIrq), std::move(txIrq)}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        __HAL_RCC_SPI2_CLK_ENABLE();
+        __HAL_RCC_DMA1_CLK_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __HAL_RCC_SPI2_CLK_DISABLE();
+        __HAL_RCC_DMA1_CLK_DISABLE();
     }
 };
 

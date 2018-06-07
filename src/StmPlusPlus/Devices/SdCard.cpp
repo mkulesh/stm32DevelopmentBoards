@@ -140,11 +140,11 @@ Diskio_drvTypeDef SdCard::fatFsDriver =
  * Class SdCard
  ************************************************************************/
 
-SdCard::SdCard (IOPin & _sdDetect, IOPort & _portSd1, IOPort & _portSd2):
+SdCard::SdCard (const HardwareLayout::Sdio * _device, IOPin & _sdDetect):
+    device(_device),
     sdDetect(_sdDetect),
-    portSd1(_portSd1),
-    portSd2(_portSd2),
-    irqPrio(5,0)
+    port1(_device->port1.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->port1.pin, false),
+    port2(_device->port2.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->port2.pin, false)
 {
     // empty
 }
@@ -152,11 +152,11 @@ SdCard::SdCard (IOPin & _sdDetect, IOPort & _portSd1, IOPort & _portSd2):
 
 void SdCard::clearPort ()
 {
-    portSd1.setMode(GPIO_MODE_OUTPUT_PP);
-    portSd1.setHigh();
+    port1.setMode(GPIO_MODE_OUTPUT_PP);
+    port1.setHigh();
 
-    portSd2.setMode(GPIO_MODE_OUTPUT_PP);
-    portSd2.setHigh();
+    port2.setMode(GPIO_MODE_OUTPUT_PP);
+    port2.setHigh();
 }
 
 
@@ -168,14 +168,14 @@ bool SdCard::start (uint32_t clockDiv)
         return false;
     }
 
-    portSd1.setMode(GPIO_MODE_AF_PP);
-    portSd1.setAlternate(GPIO_AF12_SDIO);
+    port1.setMode(GPIO_MODE_AF_PP);
+    port1.setAlternate(device->alternate);
 
-    portSd2.setMode(GPIO_MODE_AF_PP);
-    portSd2.setAlternate(GPIO_AF12_SDIO);
+    port2.setMode(GPIO_MODE_AF_PP);
+    port2.setAlternate(device->alternate);
 
-    __HAL_RCC_SDIO_CLK_ENABLE();
-    sdParams.Instance = SDIO;
+    device->enableClock();
+    sdParams.Instance = device->instance;
     sdParams.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
     sdParams.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
     sdParams.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
@@ -205,12 +205,7 @@ bool SdCard::start (uint32_t clockDiv)
         return false;
     }
 
-    /* NVIC configuration for SDIO interrupts */
-    HAL_NVIC_SetPriority(SDIO_IRQ, irqPrio.first, irqPrio.second);
-    HAL_NVIC_EnableIRQ(SDIO_IRQ);
-
-    /* DMA controller clock enable */
-    __HAL_RCC_DMA2_CLK_ENABLE();
+    device->sdioIrq.start();
 
     sdDmaRx.Instance = DMA2_Stream3;
     sdDmaRx.Init.Channel = DMA_CHANNEL_4;
@@ -257,13 +252,11 @@ bool SdCard::start (uint32_t clockDiv)
     /* DMA interrupt init */
     /* DMA2_Stream3_IRQn interrupt configuration */
     HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
-    HAL_NVIC_SetPriority(RX_IRQ, irqPrio.first + 1, irqPrio.second);
-    HAL_NVIC_EnableIRQ(RX_IRQ);
+    device->rxIrq.start();
 
     /* DMA2_Stream6_IRQn interrupt configuration */
     HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
-    HAL_NVIC_SetPriority(TX_IRQ, irqPrio.first + 1, irqPrio.second);
-    HAL_NVIC_EnableIRQ(TX_IRQ);
+    device->txIrq.start();
 
     USART_DEBUG("Card successfully initialized: " << UsartLogger::ENDL
              << "  CardType = " << sdCardInfo.CardType << UsartLogger::ENDL
@@ -272,7 +265,7 @@ bool SdCard::start (uint32_t clockDiv)
              << "  DAT_BUS_WIDTH = " << cardStatus.DAT_BUS_WIDTH << UsartLogger::ENDL
              << "  SD_CARD_TYPE = " << cardStatus.SD_CARD_TYPE << UsartLogger::ENDL
              << "  SPEED_CLASS = " << cardStatus.SPEED_CLASS << UsartLogger::ENDL
-               << "  irqPrio = " << irqPrio.first << "," << irqPrio.second);
+             << "  irqPrio = " << device->sdioIrq.prio << "," << device->sdioIrq.subPrio);
     return true;
 }
 
@@ -372,13 +365,13 @@ FRESULT SdCard::openAppend (uint32_t clockDiv, FIL * fp, const char * path)
 
 void SdCard::stop ()
 {
-    HAL_NVIC_DisableIRQ(TX_IRQ);
-    HAL_NVIC_DisableIRQ(RX_IRQ);
+    device->txIrq.stop();
+    device->rxIrq.stop();
     HAL_DMA_DeInit(&sdDmaTx);
     HAL_DMA_DeInit(&sdDmaRx);
-    HAL_NVIC_DisableIRQ(SDIO_IRQ);
+    device->sdioIrq.stop();
     HAL_SD_DeInit(&sdParams);
-    __HAL_RCC_SDIO_CLK_DISABLE();
+    device->disableClock();
 }
 
 
