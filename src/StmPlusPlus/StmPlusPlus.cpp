@@ -1059,8 +1059,8 @@ float AnalogToDigitConverter::getVoltage ()
  * Class I2S
  ************************************************************************/
 I2S::I2S (const HardwareLayout::I2S * _device):
-    IOPort{_device->pins, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, false},
-    device{_device}
+        device{_device},
+        pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW}
 {
     i2s.Instance = device->instance;
     i2s.Init.Mode = I2S_MODE_MASTER_TX;
@@ -1072,19 +1072,19 @@ I2S::I2S (const HardwareLayout::I2S * _device):
     i2s.Init.ClockSource = I2S_CLOCK_PLL;
     i2s.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_DISABLE;
 
-    i2sDmaTx.Instance = DMA1_Stream4;
-    i2sDmaTx.Init.Channel = DMA_CHANNEL_0;
-    i2sDmaTx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    i2sDmaTx.Init.PeriphInc = DMA_PINC_DISABLE;
-    i2sDmaTx.Init.MemInc = DMA_MINC_ENABLE;
-    i2sDmaTx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-    i2sDmaTx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-    i2sDmaTx.Init.Mode = DMA_NORMAL;
-    i2sDmaTx.Init.Priority = DMA_PRIORITY_LOW;
-    i2sDmaTx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    i2sDmaTx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    i2sDmaTx.Init.MemBurst = DMA_PBURST_SINGLE;
-    i2sDmaTx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    txDma.Instance = device->txDma.instance;
+    txDma.Init.Channel = device->txDma.channel;
+    txDma.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    txDma.Init.PeriphInc = DMA_PINC_DISABLE;
+    txDma.Init.MemInc = DMA_MINC_ENABLE;
+    txDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    txDma.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    txDma.Init.Mode = DMA_NORMAL;
+    txDma.Init.Priority = DMA_PRIORITY_LOW;
+    txDma.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    txDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+    txDma.Init.MemBurst = DMA_PBURST_SINGLE;
+    txDma.Init.PeriphBurst = DMA_PBURST_SINGLE;
 }
 
 
@@ -1094,8 +1094,7 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
     i2s.Init.AudioFreq = audioFreq;
     i2s.Init.DataFormat = dataFormat;
 
-    setMode(GPIO_MODE_AF_PP);
-    setAlternate(device->pins.alternate);
+    pins.setMode(GPIO_MODE_AF_PP);
 
     device->enableClock();
     HAL_StatusTypeDef status = HAL_I2S_Init(&i2s);
@@ -1105,8 +1104,8 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
         return HAL_ERROR;
     }
 
-    __HAL_LINKDMA(&i2s, hdmatx, i2sDmaTx);
-    status = HAL_DMA_Init(&i2sDmaTx);
+    __HAL_LINKDMA(&i2s, hdmatx, txDma);
+    status = HAL_DMA_Init(&txDma);
     if (status != HAL_OK)
     {
         USART_DEBUG("Can not initialize I2S DMA/TX channel: " << status);
@@ -1125,10 +1124,10 @@ void I2S::stop ()
 {
     device->i2sIrq.stop();
     device->txIrq.stop();
-    HAL_DMA_DeInit(&i2sDmaTx);
+    HAL_DMA_DeInit(&txDma);
     HAL_I2S_DeInit(&i2s);
     device->disableClock();
-    setMode(GPIO_MODE_INPUT);
+    pins.setMode(GPIO_MODE_INPUT);
 }
 
 

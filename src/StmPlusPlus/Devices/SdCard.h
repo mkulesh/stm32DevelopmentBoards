@@ -70,12 +70,12 @@ public:
 
     inline void processDmaRxInterrupt ()
     {
-        HAL_DMA_IRQHandler(&sdDmaRx);
+        HAL_DMA_IRQHandler(&rxDma);
     }
 
     inline void processDmaTxInterrupt ()
     {
-        HAL_DMA_IRQHandler(&sdDmaTx);
+        HAL_DMA_IRQHandler(&txDma);
     }
 
     inline void processSdIOInterrupt ()
@@ -98,15 +98,12 @@ public:
         return !sdDetect.getBit();
     }
 
-    void clearPort ();
-
     bool start (uint32_t clockDiv = 0);
+    void stop ();
 
     bool mountFatFs ();
     void listFiles ();
     FRESULT openAppend (uint32_t clockDiv, FIL * fp, const char * path);
-
-    void stop ();
 
     HAL_SD_ErrorTypedef readBlocks (uint32_t *pData, uint64_t addr, uint32_t blockSize, uint32_t numOfBlocks);
     HAL_SD_ErrorTypedef writeBlocks (uint32_t *pData, uint64_t addr, uint32_t blockSize, uint32_t numOfBlocks);
@@ -121,8 +118,8 @@ private:
     IOPort pins2;
     SD_HandleTypeDef sdParams;
     HAL_SD_CardInfoTypedef sdCardInfo;
-    DMA_HandleTypeDef sdDmaRx;
-    DMA_HandleTypeDef sdDmaTx;
+    DMA_HandleTypeDef rxDma;
+    DMA_HandleTypeDef txDma;
 
     // FAT FS
     static Diskio_drvTypeDef fatFsDriver;

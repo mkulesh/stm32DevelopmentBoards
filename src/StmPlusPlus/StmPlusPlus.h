@@ -831,7 +831,7 @@ private:
 /**
  * @brief Class that implements I2S interface
  */
-class I2S : public IOPort
+class I2S
 {
 public:
 
@@ -851,14 +851,15 @@ public:
 
     inline void processDmaTxInterrupt ()
     {
-        HAL_DMA_IRQHandler(&i2sDmaTx);
+        HAL_DMA_IRQHandler(&txDma);
     }
 
 private:
 
     const HardwareLayout::I2S * device;
+    IOPort pins;
     I2S_HandleTypeDef i2s;
-    DMA_HandleTypeDef i2sDmaTx;
+    DMA_HandleTypeDef txDma;
 };
 
 } // end namespace

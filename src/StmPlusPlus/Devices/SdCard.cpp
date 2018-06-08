@@ -143,20 +143,10 @@ Diskio_drvTypeDef SdCard::fatFsDriver =
 SdCard::SdCard (const HardwareLayout::Sdio * _device, IOPin & _sdDetect):
     device(_device),
     sdDetect(_sdDetect),
-    pins1(_device->pins1, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, false),
-    pins2(_device->pins2, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, false)
+    pins1(_device->pins1, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH),
+    pins2(_device->pins2, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH)
 {
     // empty
-}
-
-
-void SdCard::clearPort ()
-{
-    pins1.setMode(GPIO_MODE_OUTPUT_PP);
-    pins1.setHigh();
-
-    pins2.setMode(GPIO_MODE_OUTPUT_PP);
-    pins2.setHigh();
 }
 
 
@@ -168,13 +158,11 @@ bool SdCard::start (uint32_t clockDiv)
         return false;
     }
 
-    pins1.setMode(GPIO_MODE_AF_PP);
-    pins1.setAlternate(device->pins1.alternate);
-
-    pins2.setMode(GPIO_MODE_AF_PP);
-    pins2.setAlternate(device->pins2.alternate);
-
     device->enableClock();
+
+    pins1.setMode(GPIO_MODE_AF_PP);
+    pins2.setMode(GPIO_MODE_AF_PP);
+
     sdParams.Instance = device->instance;
     sdParams.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
     sdParams.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
@@ -207,42 +195,42 @@ bool SdCard::start (uint32_t clockDiv)
 
     device->sdioIrq.start();
 
-    sdDmaRx.Instance = DMA2_Stream3;
-    sdDmaRx.Init.Channel = DMA_CHANNEL_4;
-    sdDmaRx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    sdDmaRx.Init.PeriphInc = DMA_PINC_DISABLE;
-    sdDmaRx.Init.MemInc = DMA_MINC_ENABLE;
-    sdDmaRx.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    sdDmaRx.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    sdDmaRx.Init.Mode = DMA_PFCTRL;
-    sdDmaRx.Init.Priority = DMA_PRIORITY_LOW;
-    sdDmaRx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    sdDmaRx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    sdDmaRx.Init.MemBurst = DMA_MBURST_INC4;
-    sdDmaRx.Init.PeriphBurst = DMA_PBURST_INC4;
-    __HAL_LINKDMA(&sdParams, hdmarx, sdDmaRx);
-    HAL_StatusTypeDef dmaStatus = HAL_DMA_Init(&sdDmaRx);
+    rxDma.Instance = device->rxDma.instance;
+    rxDma.Init.Channel = device->rxDma.channel;
+    rxDma.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    rxDma.Init.PeriphInc = DMA_PINC_DISABLE;
+    rxDma.Init.MemInc = DMA_MINC_ENABLE;
+    rxDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    rxDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    rxDma.Init.Mode = DMA_PFCTRL;
+    rxDma.Init.Priority = DMA_PRIORITY_LOW;
+    rxDma.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    rxDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+    rxDma.Init.MemBurst = DMA_MBURST_INC4;
+    rxDma.Init.PeriphBurst = DMA_PBURST_INC4;
+    __HAL_LINKDMA(&sdParams, hdmarx, rxDma);
+    HAL_StatusTypeDef dmaStatus = HAL_DMA_Init(&rxDma);
     if (dmaStatus != HAL_OK)
     {
         USART_DEBUG("Can not initialize SD DMA/RX channel: " << dmaStatus);
         return false;
     }
 
-    sdDmaTx.Instance = DMA2_Stream6;
-    sdDmaTx.Init.Channel = DMA_CHANNEL_4;
-    sdDmaTx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    sdDmaTx.Init.PeriphInc = DMA_PINC_DISABLE;
-    sdDmaTx.Init.MemInc = DMA_MINC_ENABLE;
-    sdDmaTx.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    sdDmaTx.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    sdDmaTx.Init.Mode = DMA_PFCTRL;
-    sdDmaTx.Init.Priority = DMA_PRIORITY_LOW;
-    sdDmaTx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    sdDmaTx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    sdDmaTx.Init.MemBurst = DMA_MBURST_INC4;
-    sdDmaTx.Init.PeriphBurst = DMA_PBURST_INC4;
-    __HAL_LINKDMA(&sdParams, hdmatx, sdDmaTx);
-    dmaStatus = HAL_DMA_Init(&sdDmaTx);
+    txDma.Instance = device->txDma.instance;
+    txDma.Init.Channel = device->txDma.channel;
+    txDma.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    txDma.Init.PeriphInc = DMA_PINC_DISABLE;
+    txDma.Init.MemInc = DMA_MINC_ENABLE;
+    txDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    txDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    txDma.Init.Mode = DMA_PFCTRL;
+    txDma.Init.Priority = DMA_PRIORITY_LOW;
+    txDma.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    txDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+    txDma.Init.MemBurst = DMA_MBURST_INC4;
+    txDma.Init.PeriphBurst = DMA_PBURST_INC4;
+    __HAL_LINKDMA(&sdParams, hdmatx, txDma);
+    dmaStatus = HAL_DMA_Init(&txDma);
     if (dmaStatus != HAL_OK)
     {
         USART_DEBUG("Can not initialize SD DMA/TX channel: " << dmaStatus);
@@ -267,6 +255,20 @@ bool SdCard::start (uint32_t clockDiv)
              << "  SPEED_CLASS = " << cardStatus.SPEED_CLASS << UsartLogger::ENDL
              << "  irqPrio = " << device->sdioIrq.prio << "," << device->sdioIrq.subPrio);
     return true;
+}
+
+
+void SdCard::stop ()
+{
+    device->txIrq.stop();
+    device->rxIrq.stop();
+    device->sdioIrq.stop();
+    HAL_DMA_DeInit(&txDma);
+    HAL_DMA_DeInit(&rxDma);
+    HAL_SD_DeInit(&sdParams);
+    device->disableClock();
+    pins1.setMode(GPIO_MODE_INPUT);
+    pins2.setMode(GPIO_MODE_INPUT);
 }
 
 
@@ -360,18 +362,6 @@ FRESULT SdCard::openAppend (uint32_t clockDiv, FIL * fp, const char * path)
         }
     }
     return fr;
-}
-
-
-void SdCard::stop ()
-{
-    device->txIrq.stop();
-    device->rxIrq.stop();
-    HAL_DMA_DeInit(&sdDmaTx);
-    HAL_DMA_DeInit(&sdDmaRx);
-    device->sdioIrq.stop();
-    HAL_SD_DeInit(&sdParams);
-    device->disableClock();
 }
 
 

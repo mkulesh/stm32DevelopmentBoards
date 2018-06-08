@@ -58,7 +58,6 @@ bool Config::readConfiguration ()
 {
     USART_DEBUG("Reading configuration from file: " << fileName);
     
-    sdCard.clearPort();
     pinSdPower.setLow();
     HAL_Delay(250);
     

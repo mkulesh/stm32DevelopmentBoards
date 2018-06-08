@@ -128,6 +128,31 @@ public:
 };
 
 
+class Dma
+{
+public:
+    /**
+     * @brief DMA Controller Definition
+     */
+    DMA_Stream_TypeDef * instance;
+
+    /**
+     * @brief Specifies the channel used for the specified stream
+     */
+    uint32_t channel;
+
+    Dma (DMA_Stream_TypeDef * _instance, uint32_t _channel): instance{_instance}, channel{_channel}
+    {
+       // empty
+    }
+
+    Dma (Dma && dma): instance{dma.instance}, channel{dma.channel}
+    {
+       // empty
+    }
+};
+
+
 /**
  * @brief Parameters of system clock.
  */
@@ -284,17 +309,26 @@ public:
      */
     Interrupt sdioIrq, txIrq, rxIrq;
 
+    /**
+     * @brief DMA used for transmission
+     */
+    Dma txDma, rxDma;
+
     explicit Sdio (SD_TypeDef *_instance,
                    Port * _port1, uint32_t _port1pins,
                    Port * _port2, uint32_t _port2pins,
                    uint32_t _alternate,
-                   Interrupt && _sdioIrq, Interrupt && _txIrq, Interrupt && _rxIrq):
+                   Interrupt && _sdioIrq,
+                   Interrupt && _txIrq, Dma && _txDma,
+                   Interrupt && _rxIrq, Dma && _rxDma):
          instance{_instance},
          pins1{_port1, _port1pins, _alternate},
          pins2{_port2, _port2pins, _alternate},
          sdioIrq{std::move(_sdioIrq)},
          txIrq{std::move(_txIrq)},
-         rxIrq{std::move(_rxIrq)}
+         rxIrq{std::move(_rxIrq)},
+         txDma{std::move(_txDma)},
+         rxDma{std::move(_rxDma)}
     {
         // empty
     }
@@ -323,15 +357,21 @@ public:
      */
     Interrupt i2sIrq, txIrq;
 
+    /**
+     * @brief DMA used for transmission
+     */
+    Dma txDma;
 
     explicit I2S (SPI_TypeDef *_instance,
                   Port * _port, uint32_t _pins,
                   uint32_t _alternate,
-                  Interrupt && _i2sIrq, Interrupt && _txIrq):
+                  Interrupt && _i2sIrq,
+                  Interrupt && _txIrq, Dma && _txDma):
          instance{_instance},
          pins{_port, _pins, _alternate},
          i2sIrq{std::move(_i2sIrq)},
-         txIrq{std::move(_txIrq)}
+         txIrq{std::move(_txIrq)},
+         txDma{std::move(_txDma)}
     {
         // empty
     }
