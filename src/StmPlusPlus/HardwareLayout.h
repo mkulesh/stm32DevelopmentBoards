@@ -194,7 +194,7 @@ public:
 };
 
 
-class Pin
+class Pins
 {
 public:
     /**
@@ -205,9 +205,9 @@ public:
     /**
      * @brief Pin index
      */
-    uint32_t pin;
+    uint32_t pins;
 
-    explicit Pin (Port * _port, uint32_t _pin): port{_port}, pin{_pin}
+    explicit Pins (Port * _port, uint32_t _pins): port{_port}, pins{_pins}
     {
         // empty
     }
@@ -229,12 +229,12 @@ public:
     /**
      * @brief TX pin
      */
-    Pin tx;
+    Pins txPin;
 
     /**
      * @brief RX pin
      */
-    Pin rx;
+    Pins rxPin;
 
     /**
      * @brief Peripheral to be connected to the selected pins
@@ -252,8 +252,8 @@ public:
                     uint32_t _alternate,
                     Interrupt && _txRxIrq):
         instance{_instance},
-        tx{_txPort, _txPin},
-        rx{_rxPort, _rxPin},
+        txPin{_txPort, _txPin},
+        rxPin{_rxPort, _rxPin},
         alternate{_alternate},
         txRxIrq{std::move(_txRxIrq)}
     {
@@ -277,7 +277,7 @@ public:
     /**
      * @brief Pins from two ports
      */
-    Pin port1, port2;
+    Pins pins1, pins2;
 
     /**
      * @brief Peripheral to be connected to the selected pins
@@ -295,8 +295,8 @@ public:
                    uint32_t _alternate,
                    Interrupt && _sdioIrq, Interrupt && _txIrq, Interrupt && _rxIrq):
          instance{_instance},
-         port1{_port1, _port1pins},
-         port2{_port2, _port2pins},
+         pins1{_port1, _port1pins},
+         pins2{_port2, _port2pins},
          alternate{_alternate},
          sdioIrq{std::move(_sdioIrq)},
          txIrq{std::move(_txIrq)},
@@ -322,7 +322,7 @@ public:
     /**
      * @brief Pins from corresponding ports
      */
-    Pin pins;
+    Pins pins;
 
     /**
      * @brief Peripheral to be connected to the selected pins

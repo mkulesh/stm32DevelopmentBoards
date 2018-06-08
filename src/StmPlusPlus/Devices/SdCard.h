@@ -117,8 +117,8 @@ private:
     const HardwareLayout::Sdio * device;
 
     IOPin & sdDetect;
-    IOPort port1;
-    IOPort port2;
+    IOPort pins1;
+    IOPort pins2;
     SD_HandleTypeDef sdParams;
     HAL_SD_CardInfoTypedef sdCardInfo;
     DMA_HandleTypeDef sdDmaRx;

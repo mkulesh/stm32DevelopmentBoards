@@ -143,8 +143,8 @@ Diskio_drvTypeDef SdCard::fatFsDriver =
 SdCard::SdCard (const HardwareLayout::Sdio * _device, IOPin & _sdDetect):
     device(_device),
     sdDetect(_sdDetect),
-    port1(_device->port1.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->port1.pin, false),
-    port2(_device->port2.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->port2.pin, false)
+    pins1(_device->pins1.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->pins1.pins, false),
+    pins2(_device->pins2.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->pins2.pins, false)
 {
     // empty
 }
@@ -152,11 +152,11 @@ SdCard::SdCard (const HardwareLayout::Sdio * _device, IOPin & _sdDetect):
 
 void SdCard::clearPort ()
 {
-    port1.setMode(GPIO_MODE_OUTPUT_PP);
-    port1.setHigh();
+    pins1.setMode(GPIO_MODE_OUTPUT_PP);
+    pins1.setHigh();
 
-    port2.setMode(GPIO_MODE_OUTPUT_PP);
-    port2.setHigh();
+    pins2.setMode(GPIO_MODE_OUTPUT_PP);
+    pins2.setHigh();
 }
 
 
@@ -168,11 +168,11 @@ bool SdCard::start (uint32_t clockDiv)
         return false;
     }
 
-    port1.setMode(GPIO_MODE_AF_PP);
-    port1.setAlternate(device->alternate);
+    pins1.setMode(GPIO_MODE_AF_PP);
+    pins1.setAlternate(device->alternate);
 
-    port2.setMode(GPIO_MODE_AF_PP);
-    port2.setAlternate(device->alternate);
+    pins2.setMode(GPIO_MODE_AF_PP);
+    pins2.setAlternate(device->alternate);
 
     device->enableClock();
     sdParams.Instance = device->instance;

@@ -226,12 +226,12 @@ Usart::Usart (const HardwareLayout::Usart * _device):
 {
     // Initialize Tx pin
     {
-        IOPin txPin(_device->tx, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
+        IOPin txPin(_device->txPin, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
         txPin.setAlternate(device->alternate);
     }
     // Initialize Tx pin
     {
-        IOPin rxPin(_device->rx, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
+        IOPin rxPin(_device->rxPin, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
         rxPin.setAlternate(device->alternate);
     }
     usartParameters.Instance = device->instance;
@@ -1065,7 +1065,7 @@ float AnalogToDigitConverter::getVoltage ()
  * Class I2S
  ************************************************************************/
 I2S::I2S (const HardwareLayout::I2S * _device):
-    IOPort{_device->pins.port, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, _device->pins.pin, false},
+    IOPort{_device->pins.port, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, _device->pins.pins, false},
     device{_device}
 {
     i2s.Instance = device->instance;
