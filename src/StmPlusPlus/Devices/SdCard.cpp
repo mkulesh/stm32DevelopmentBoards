@@ -143,8 +143,8 @@ Diskio_drvTypeDef SdCard::fatFsDriver =
 SdCard::SdCard (const HardwareLayout::Sdio * _device, IOPin & _sdDetect):
     device(_device),
     sdDetect(_sdDetect),
-    pins1(_device->pins1.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->pins1.pins, false),
-    pins2(_device->pins2.port, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, _device->pins2.pins, false)
+    pins1(_device->pins1, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, false),
+    pins2(_device->pins2, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_VERY_HIGH, false)
 {
     // empty
 }
@@ -169,10 +169,10 @@ bool SdCard::start (uint32_t clockDiv)
     }
 
     pins1.setMode(GPIO_MODE_AF_PP);
-    pins1.setAlternate(device->alternate);
+    pins1.setAlternate(device->pins1.alternate);
 
     pins2.setMode(GPIO_MODE_AF_PP);
-    pins2.setAlternate(device->alternate);
+    pins2.setAlternate(device->pins2.alternate);
 
     device->enableClock();
     sdParams.Instance = device->instance;

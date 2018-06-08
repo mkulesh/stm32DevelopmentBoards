@@ -185,21 +185,19 @@ IOPort::IOPort (
     }
 }
 
-IOPort::IOPort (
-        const HardwareLayout::Port * device,
+IOPort::IOPort (const HardwareLayout::Pins & device,
         uint32_t mode,
         uint32_t pull/* = GPIO_NOPULL*/,
         uint32_t speed/* = GPIO_SPEED_HIGH*/,
-        uint32_t pin/* = GPIO_PIN_All*/,
         bool callInit/* = true*/)
 {
-    gpioParameters.Pin   = pin;
+    gpioParameters.Pin   = device.pins;
     gpioParameters.Mode  = mode;
     gpioParameters.Pull  = pull;
     gpioParameters.Speed = speed;
-    port = device->instance;
-    device->enableClock();
-    HAL_GPIO_DeInit(port, pin);
+    port = device.port->instance;
+    device.port->enableClock();
+    HAL_GPIO_DeInit(port, device.pins);
     if (callInit)
     {
         HAL_GPIO_Init(port, &gpioParameters);
@@ -227,12 +225,12 @@ Usart::Usart (const HardwareLayout::Usart * _device):
     // Initialize Tx pin
     {
         IOPin txPin(_device->txPin, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
-        txPin.setAlternate(device->alternate);
+        txPin.setAlternate(device->txPin.alternate);
     }
     // Initialize Tx pin
     {
         IOPin rxPin(_device->rxPin, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
-        rxPin.setAlternate(device->alternate);
+        rxPin.setAlternate(device->rxPin.alternate);
     }
     usartParameters.Instance = device->instance;
     usartParameters.Init.HwFlowCtl = UART_HWCONTROL_NONE;
@@ -1065,7 +1063,7 @@ float AnalogToDigitConverter::getVoltage ()
  * Class I2S
  ************************************************************************/
 I2S::I2S (const HardwareLayout::I2S * _device):
-    IOPort{_device->pins.port, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, _device->pins.pins, false},
+    IOPort{_device->pins, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, false},
     device{_device}
 {
     i2s.Instance = device->instance;
@@ -1101,7 +1099,7 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
     i2s.Init.DataFormat = dataFormat;
 
     setMode(GPIO_MODE_AF_PP);
-    setAlternate(device->alternate);
+    setAlternate(device->pins.alternate);
 
     device->enableClock();
     HAL_StatusTypeDef status = HAL_I2S_Init(&i2s);

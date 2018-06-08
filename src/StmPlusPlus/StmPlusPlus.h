@@ -150,11 +150,10 @@ public:
     /**
      * @brief Default constructor.
      */
-    IOPort (const HardwareLayout::Port * device,
+    IOPort (const HardwareLayout::Pins & device,
             uint32_t mode,
             uint32_t pull = GPIO_NOPULL,
             uint32_t speed = GPIO_SPEED_HIGH,
-            uint32_t pin = GPIO_PIN_All,
             bool callInit = true);
 
     /**
@@ -283,7 +282,7 @@ public:
      * @brief Default constructor.
      */
     IOPin (const HardwareLayout::Pins & device, uint32_t mode, uint32_t pull = GPIO_NOPULL, uint32_t speed = GPIO_SPEED_HIGH, bool callInit = true, bool value = false):
-        IOPort(device.port, mode, pull, speed, device.pins, callInit)
+        IOPort(device, mode, pull, speed, callInit)
     {
         HAL_GPIO_WritePin(port, gpioParameters.Pin, (GPIO_PinState)value);
     }

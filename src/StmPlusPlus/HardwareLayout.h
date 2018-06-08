@@ -203,11 +203,17 @@ public:
     Port * port;
 
     /**
-     * @brief Pin index
+     * @brief Pin indices
      */
     uint32_t pins;
 
-    explicit Pins (Port * _port, uint32_t _pins): port{_port}, pins{_pins}
+    /**
+     * @brief Peripheral to be connected to the selected pins
+     */
+    uint32_t alternate;
+
+    explicit Pins (Port * _port, uint32_t _pins, uint32_t _alternate): port{_port}, pins{_pins}, alternate{_alternate}
+
     {
         // empty
     }
@@ -237,11 +243,6 @@ public:
     Pins rxPin;
 
     /**
-     * @brief Peripheral to be connected to the selected pins
-     */
-    uint32_t alternate;
-
-    /**
      * @brief Interrupt Number Definition
      */
     Interrupt txRxIrq;
@@ -252,9 +253,8 @@ public:
                     uint32_t _alternate,
                     Interrupt && _txRxIrq):
         instance{_instance},
-        txPin{_txPort, _txPin},
-        rxPin{_rxPort, _rxPin},
-        alternate{_alternate},
+        txPin{_txPort, _txPin, _alternate},
+        rxPin{_rxPort, _rxPin, _alternate},
         txRxIrq{std::move(_txRxIrq)}
     {
         // empty
@@ -280,12 +280,7 @@ public:
     Pins pins1, pins2;
 
     /**
-     * @brief Peripheral to be connected to the selected pins
-     */
-    uint32_t alternate;
-
-    /**
-     * @brief Interrupt Number Definition
+     * @brief Interrupts used for transmission
      */
     Interrupt sdioIrq, txIrq, rxIrq;
 
@@ -295,9 +290,8 @@ public:
                    uint32_t _alternate,
                    Interrupt && _sdioIrq, Interrupt && _txIrq, Interrupt && _rxIrq):
          instance{_instance},
-         pins1{_port1, _port1pins},
-         pins2{_port2, _port2pins},
-         alternate{_alternate},
+         pins1{_port1, _port1pins, _alternate},
+         pins2{_port2, _port2pins, _alternate},
          sdioIrq{std::move(_sdioIrq)},
          txIrq{std::move(_txIrq)},
          rxIrq{std::move(_rxIrq)}
@@ -325,22 +319,17 @@ public:
     Pins pins;
 
     /**
-     * @brief Peripheral to be connected to the selected pins
-     */
-    uint32_t alternate;
-
-    /**
-     * @brief Interrupt Number Definition
+     * @brief Interrupts used for transmission
      */
     Interrupt i2sIrq, txIrq;
+
 
     explicit I2S (SPI_TypeDef *_instance,
                   Port * _port, uint32_t _pins,
                   uint32_t _alternate,
                   Interrupt && _i2sIrq, Interrupt && _txIrq):
          instance{_instance},
-         pins{_port, _pins},
-         alternate{_alternate},
+         pins{_port, _pins, _alternate},
          i2sIrq{std::move(_i2sIrq)},
          txIrq{std::move(_txIrq)}
     {
