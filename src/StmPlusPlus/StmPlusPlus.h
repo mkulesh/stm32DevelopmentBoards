@@ -338,7 +338,7 @@ public:
     /**
      * @brief Close the transmission session.
      */
-    HAL_StatusTypeDef stop ();
+    void stop ();
 
     /**
      * @brief Open transmission session with given mode.
@@ -419,6 +419,7 @@ public:
 protected:
 
     const HardwareLayout::Usart * device;
+    IOPin txPin, rxPin;
     UART_HandleTypeDef usartParameters;
     __IO ITStatus irqStatus;
 };

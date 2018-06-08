@@ -195,6 +195,7 @@ IOPort::IOPort (const HardwareLayout::Pins & device,
     gpioParameters.Mode  = mode;
     gpioParameters.Pull  = pull;
     gpioParameters.Speed = speed;
+    gpioParameters.Alternate  = device.alternate;
     port = device.port->instance;
     device.port->enableClock();
     HAL_GPIO_DeInit(port, device.pins);
@@ -220,18 +221,10 @@ void IOPin::activateClockOutput(uint32_t source, uint32_t div)
 
 Usart::Usart (const HardwareLayout::Usart * _device):
     device{_device},
+    txPin(_device->txPin, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_HIGH),
+    rxPin(_device->rxPin, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_HIGH),
     irqStatus{RESET}
 {
-    // Initialize Tx pin
-    {
-        IOPin txPin(_device->txPin, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
-        txPin.setAlternate(device->txPin.alternate);
-    }
-    // Initialize Tx pin
-    {
-        IOPin rxPin(_device->rxPin, GPIO_MODE_AF_PP, GPIO_PULLUP, GPIO_SPEED_FREQ_HIGH, false);
-        rxPin.setAlternate(device->rxPin.alternate);
-    }
     usartParameters.Instance = device->instance;
     usartParameters.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     usartParameters.Init.OverSampling = UART_OVERSAMPLING_16;
@@ -249,6 +242,8 @@ HAL_StatusTypeDef Usart::start (uint32_t mode,
                    uint32_t stopBits/* = UART_STOPBITS_1*/,
                    uint32_t parity/* = UART_PARITY_NONE*/)
 {
+    txPin.setMode(GPIO_MODE_AF_PP);
+    rxPin.setMode(GPIO_MODE_AF_PP);
     device->enableClock();
     usartParameters.Init.Mode = mode;
     usartParameters.Init.BaudRate = baudRate;
@@ -258,11 +253,12 @@ HAL_StatusTypeDef Usart::start (uint32_t mode,
     return HAL_UART_Init(&usartParameters);
 }
 
-HAL_StatusTypeDef Usart::stop ()
+void Usart::stop ()
 {
-    HAL_StatusTypeDef retValue = HAL_UART_DeInit(&usartParameters);
+    HAL_UART_DeInit(&usartParameters);
     device->disableClock();
-    return retValue;
+    txPin.setMode(GPIO_MODE_INPUT);
+    rxPin.setMode(GPIO_MODE_INPUT);
 }
 
 /************************************************************************
