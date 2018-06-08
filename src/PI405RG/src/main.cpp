@@ -63,6 +63,8 @@ MyHardware::Usart2 devUsart2 (
     &portA, GPIO_PIN_3,
     HardwareLayout::Interrupt(USART2_IRQn, 8, 0));
 
+MyHardware::Adc1 adc1(&portA, GPIO_PIN_0);
+MyHardware::Adc2 adc2(&portA, GPIO_PIN_0);
 
 
 class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler, Devices::Button::EventHandler
@@ -108,6 +110,9 @@ private:
     // NTP data
     struct RealTimeClock::NtpPacket ntpPacket;
 
+    // ADC
+    AnalogToDigitConverter adc;
+
 public:
     
     MyApplication () :
@@ -146,13 +151,17 @@ public:
                      IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLUP)
             } },
 
+            // Audio
             i2s(&devI2S),
             audioDac(i2s,
                      /* power    = */ IOPort::B, GPIO_PIN_11,
                      /* mute     = */ IOPort::B, GPIO_PIN_13,
                      /* smplFreq = */ IOPort::B, GPIO_PIN_14),
             streamer(sdCard, audioDac),
-            playButton(IOPort::B, GPIO_PIN_2, GPIO_PULLUP)
+            playButton(IOPort::B, GPIO_PIN_2, GPIO_PULLUP),
+
+            // ADC
+            adc(&adc1, 0, 3.33)
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_5);
     }
@@ -205,6 +214,9 @@ public:
         streamer.setHandler(this);
         streamer.setVolume(1.0);
         playButton.setHandler(this);
+
+        adc.stop();
+        adc.start();
 
         bool reportState = false, ntpReceived = false;
         while (true)
@@ -274,6 +286,8 @@ public:
         {
             heartbeatEvent.resetTime();
         }
+        float v = adc.getVoltage();
+        USART_DEBUG("ADC voltage: " << (int)(v*100.0));
     }
     
     void updateSdCardState ()

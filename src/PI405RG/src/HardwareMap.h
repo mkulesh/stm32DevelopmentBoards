@@ -270,5 +270,43 @@ public:
     }
 };
 
+
+class Adc1 : public HardwareLayout::Adc
+{
+public:
+    explicit Adc1 (HardwareLayout::Port * port, uint32_t pins):
+        HardwareLayout::Adc{1, ADC1, port, pins}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        __ADC1_CLK_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __ADC1_CLK_DISABLE();
+    }
+};
+
+
+class Adc2 : public HardwareLayout::Adc
+{
+public:
+    explicit Adc2 (HardwareLayout::Port * port, uint32_t pins):
+        HardwareLayout::Adc{2, ADC2, port, pins}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        __ADC2_CLK_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __ADC2_CLK_DISABLE();
+    }
+};
+
 } // end namespace
 #endif

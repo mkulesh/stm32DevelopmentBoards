@@ -896,30 +896,13 @@ bool PeriodicalEvent::isOccured ()
  * Class AnalogToDigitConverter
  ************************************************************************/
 
-AnalogToDigitConverter::AnalogToDigitConverter (PortName name, uint32_t pin, DeviceName _device, uint32_t channel, float _vRef):
-    IOPin(name, pin, GPIO_MODE_ANALOG, GPIO_NOPULL),
+AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, float _vRef):
+    IOPin(_device->pins, GPIO_MODE_ANALOG, GPIO_NOPULL),
     device(_device),
     hadc(NULL),
     vRef(_vRef)
 {
-    switch (device)
-    {
-    case ADC_1:
-        #ifdef ADC1
-        adcParams.Instance = ADC1;
-        #endif
-        break;
-    case ADC_2:
-        #ifdef ADC2
-        adcParams.Instance = ADC2;
-        #endif
-        break;
-    case ADC_3:
-        #ifdef ADC3
-        adcParams.Instance = ADC3;
-        #endif
-        break;
-    }
+    adcParams.Instance = device->instance;
 
     #ifdef STM32F4
     adcParams.Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV2;
@@ -940,69 +923,21 @@ AnalogToDigitConverter::AnalogToDigitConverter (PortName name, uint32_t pin, Dev
     adcChannel.SamplingTime = ADC_SAMPLETIME_56CYCLES;
     adcChannel.Offset = 0;
     #endif
-    HAL_ADC_DeInit(&adcParams);
-    disableClock();
 
     // for Multichannel ADC reading, see
     // https://my.st.com/public/STe2ecommunities/mcu/Lists/cortex_mx_stm32/flat.aspx?RootFolder=%2Fpublic%2FSTe2ecommunities%2Fmcu%2FLists%2Fcortex_mx_stm32%2FMultichannel%20ADC%20reading&FolderCTID=0x01200200770978C69A1141439FE559EB459D7580009C4E14902C3CDE46A77F0FFD06506F5B&currentviews=105
 }
 
 
-void AnalogToDigitConverter::enableClock()
-{
-    switch (device)
-    {
-    case ADC_1:
-        #ifdef ADC1
-        __ADC1_CLK_ENABLE();
-        #endif
-        break;
-    case ADC_2:
-        #ifdef ADC2
-        __ADC2_CLK_ENABLE();
-        #endif
-        break;
-    case ADC_3:
-        #ifdef __HAL_RCC_ADC3_CLK_ENABLE
-        __ADC3_CLK_ENABLE();
-        #endif
-        break;
-    }
-}
-
-
-void AnalogToDigitConverter::disableClock()
-{
-    switch (device)
-    {
-    case ADC_1:
-        #ifdef ADC1
-        __ADC1_CLK_DISABLE();
-        #endif
-        break;
-    case ADC_2:
-        #ifdef ADC2
-        __ADC2_CLK_DISABLE();
-        #endif
-        break;
-    case ADC_3:
-        #ifdef __HAL_RCC_ADC3_CLK_DISABLE
-        __ADC3_CLK_DISABLE();
-        #endif
-        break;
-    }
-}
-
-
 HAL_StatusTypeDef AnalogToDigitConverter::start ()
 {
     hadc = &adcParams;
-    enableClock();
+    device->enableClock();
 
     HAL_StatusTypeDef status = HAL_ADC_Init(hadc);
     if (status != HAL_OK)
     {
-        USART_DEBUG("Can not initialize ACD " << (size_t)device << ": " << status);
+        USART_DEBUG("Can not initialize ACD " << device->id << ": " << status);
         return status;
     }
 
@@ -1013,7 +948,7 @@ HAL_StatusTypeDef AnalogToDigitConverter::start ()
         return status;
     }
 
-    USART_DEBUG("Started ACD " << (size_t)device
+    USART_DEBUG("Started ACD " << device->id
              << ": channel = " << adcChannel.Channel
              << ", Status = " << status);
 
@@ -1021,13 +956,12 @@ HAL_StatusTypeDef AnalogToDigitConverter::start ()
 }
 
 
-HAL_StatusTypeDef AnalogToDigitConverter::stop ()
+void AnalogToDigitConverter::stop ()
 {
-    USART_DEBUG("Stopping ADC " << (size_t)device);
-    HAL_StatusTypeDef retValue = HAL_ADC_DeInit(&adcParams);
-    disableClock();
+    USART_DEBUG("Stopping ADC " << device->id);
+    HAL_ADC_DeInit(&adcParams);
+    device->disableClock();
     hadc = NULL;
-    return retValue;
 }
 
 

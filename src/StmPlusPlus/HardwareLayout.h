@@ -53,7 +53,9 @@ class HalDevice
 {
 public:
 
-    HalDevice ()
+    size_t id;
+
+    HalDevice (): id{0}
     {
         // empty
     }
@@ -374,6 +376,32 @@ public:
          txDma{std::move(_txDma)}
     {
         // empty
+    }
+};
+
+
+/**
+ * @brief Parameters of Analog-to-digital converter.
+ */
+class Adc : public HalDevice
+{
+public:
+
+    /**
+     * @brief ADC registers base address
+     */
+    ADC_TypeDef * instance;
+
+    /**
+     * @brief Pins from corresponding ports
+     */
+    Pins pins;
+
+    explicit Adc (size_t _id, ADC_TypeDef *_instance, Port * _port, uint32_t _pins):
+         instance{_instance},
+         pins{_port, _pins, 0}
+    {
+        id = _id;
     }
 };
 

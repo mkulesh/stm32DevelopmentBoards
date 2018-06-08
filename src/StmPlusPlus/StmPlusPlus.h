@@ -801,30 +801,20 @@ public:
 
     const uint32_t INVALID_VALUE = __UINT32_MAX__;
 
-    enum DeviceName
-    {
-        ADC_1 = 0,
-        ADC_2 = 1,
-        ADC_3 = 2,
-    };
-
-    AnalogToDigitConverter (PortName name, uint32_t pin, DeviceName _device, uint32_t channel, float _vRef);
+    AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, float _vRef);
 
     HAL_StatusTypeDef start ();
-    HAL_StatusTypeDef stop ();
+    void stop ();
     uint32_t getValue ();
     float getVoltage ();
 
 private:
 
-    DeviceName device;
+    const HardwareLayout::Adc * device;
     ADC_HandleTypeDef * hadc;
     ADC_HandleTypeDef adcParams;
     ADC_ChannelConfTypeDef adcChannel;
     float vRef;
-
-    void enableClock();
-    void disableClock();
 };
 
 
