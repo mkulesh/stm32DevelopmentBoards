@@ -228,8 +228,8 @@ public:
     explicit Sdio (HardwareLayout::Port * port1, uint32_t port1pins,
                    HardwareLayout::Port * port2, uint32_t port2pins,
                    HardwareLayout::Interrupt && sdioIrq,
-                   HardwareLayout::Interrupt && txIrq, HardwareLayout::Dma && txDma,
-                   HardwareLayout::Interrupt && rxIrq, HardwareLayout::Dma && rxDma):
+                   HardwareLayout::Interrupt && txIrq, HardwareLayout::DmaStream && txDma,
+                   HardwareLayout::Interrupt && rxIrq, HardwareLayout::DmaStream && rxDma):
         HardwareLayout::Sdio{SDIO, port1, port1pins, port2, port2pins, GPIO_AF12_SDIO,
             std::move(sdioIrq), std::move(txIrq), std::move(txDma), std::move(rxIrq), std::move(rxDma)}
     {
@@ -253,7 +253,7 @@ class I2S : public HardwareLayout::I2S
 public:
     explicit I2S (HardwareLayout::Port * port, uint32_t pins,
                   HardwareLayout::Interrupt && i2sIrq,
-                  HardwareLayout::Interrupt && txIrq, HardwareLayout::Dma && txDma):
+                  HardwareLayout::Interrupt && txIrq, HardwareLayout::DmaStream && txDma):
         HardwareLayout::I2S{SPI2, port, pins, GPIO_AF5_SPI2, std::move(i2sIrq), std::move(txIrq), std::move(txDma)}
     {
         // empty

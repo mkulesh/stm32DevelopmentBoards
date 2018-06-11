@@ -43,15 +43,15 @@ MyHardware::Sdio devSdio (
     &portD, /*SDIO_CMD*/GPIO_PIN_2,
     HardwareLayout::Interrupt(SDIO_IRQn, 3, 0),
     HardwareLayout::Interrupt(DMA2_Stream6_IRQn, 4, 0),
-    HardwareLayout::Dma(DMA2_Stream6, DMA_CHANNEL_4),
+    HardwareLayout::DmaStream(DMA2_Stream6, DMA_CHANNEL_4),
     HardwareLayout::Interrupt(DMA2_Stream3_IRQn, 5, 0),
-    HardwareLayout::Dma(DMA2_Stream3, DMA_CHANNEL_4));
+    HardwareLayout::DmaStream(DMA2_Stream3, DMA_CHANNEL_4));
 
 MyHardware::I2S devI2S (
     &portB, /*I2S2_CK*/GPIO_PIN_10 | /*I2S2_WS*/GPIO_PIN_12 | /*I2S2_SD*/GPIO_PIN_15,
     HardwareLayout::Interrupt(SPI2_IRQn, 6, 0),
     HardwareLayout::Interrupt(DMA1_Stream4_IRQn, 7, 0),
-    HardwareLayout::Dma(DMA1_Stream4, DMA_CHANNEL_0));
+    HardwareLayout::DmaStream(DMA1_Stream4, DMA_CHANNEL_0));
 
 MyHardware::Usart1 devUsart1 (
     &portB, GPIO_PIN_6,

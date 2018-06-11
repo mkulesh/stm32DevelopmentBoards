@@ -130,7 +130,7 @@ public:
 };
 
 
-class Dma
+class DmaStream
 {
 public:
     /**
@@ -143,12 +143,12 @@ public:
      */
     uint32_t channel;
 
-    Dma (DMA_Stream_TypeDef * _instance, uint32_t _channel): instance{_instance}, channel{_channel}
+    DmaStream (DMA_Stream_TypeDef * _instance, uint32_t _channel): instance{_instance}, channel{_channel}
     {
        // empty
     }
 
-    Dma (Dma && dma): instance{dma.instance}, channel{dma.channel}
+    DmaStream (DmaStream && dma): instance{dma.instance}, channel{dma.channel}
     {
        // empty
     }
@@ -314,15 +314,15 @@ public:
     /**
      * @brief DMA used for transmission
      */
-    Dma txDma, rxDma;
+    DmaStream txDma, rxDma;
 
     explicit Sdio (SD_TypeDef *_instance,
                    Port * _port1, uint32_t _port1pins,
                    Port * _port2, uint32_t _port2pins,
                    uint32_t _alternate,
                    Interrupt && _sdioIrq,
-                   Interrupt && _txIrq, Dma && _txDma,
-                   Interrupt && _rxIrq, Dma && _rxDma):
+                   Interrupt && _txIrq, DmaStream && _txDma,
+                   Interrupt && _rxIrq, DmaStream && _rxDma):
          instance{_instance},
          pins1{_port1, _port1pins, _alternate},
          pins2{_port2, _port2pins, _alternate},
@@ -362,13 +362,13 @@ public:
     /**
      * @brief DMA used for transmission
      */
-    Dma txDma;
+    DmaStream txDma;
 
     explicit I2S (SPI_TypeDef *_instance,
                   Port * _port, uint32_t _pins,
                   uint32_t _alternate,
                   Interrupt && _i2sIrq,
-                  Interrupt && _txIrq, Dma && _txDma):
+                  Interrupt && _txIrq, DmaStream && _txDma):
          instance{_instance},
          pins{_port, _pins, _alternate},
          i2sIrq{std::move(_i2sIrq)},
