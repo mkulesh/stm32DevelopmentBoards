@@ -66,8 +66,6 @@ typedef union
     } bytes;
 } WordToBytes;
 
-typedef std::pair<uint32_t, uint32_t> InterruptPriority;
-
 
 /**
  * @brief Static class collecting helper methods for general system settings.
@@ -490,33 +488,9 @@ class TimerBase
 public:
 
     /**
-     * @brief Enumeration collecting timer names.
-     */
-    enum TimerName
-    {
-        TIM_1 =  0,
-        TIM_2 =  1,
-        TIM_3 =  2,
-        TIM_4 =  3,
-        TIM_5 =  4,
-        TIM_6 =  5,
-        TIM_7 =  6,
-        TIM_8 =  7,
-        TIM_9 =  8,
-        TIM_10 = 9,
-        TIM_11 = 10,
-        TIM_12 = 11,
-        TIM_13 = 12,
-        TIM_14 = 13,
-        TIM_15 = 14,
-        TIM_16 = 15,
-        TIM_17 = 16
-    };
-
-    /**
      * @brief Default constructor.
      */
-    TimerBase (TimerName timerName);
+    TimerBase (const HardwareLayout::Timer * _device);
 
     inline TIM_HandleTypeDef * getTimerParameters ()
     {
@@ -530,10 +504,11 @@ public:
 
     inline HAL_StatusTypeDef startCounterInMillis ()
     {
+        // TODO: here, there is some problem related to SystemCoreClock frequency
         return startCounter(TIM_COUNTERMODE_UP, SystemCoreClock/4000 - 1, __UINT32_MAX__, TIM_CLOCKDIVISION_DIV1);
     }
 
-    HAL_StatusTypeDef stopCounter ();
+    void stopCounter ();
 
     inline uint32_t getValue () const
     {
@@ -547,6 +522,7 @@ public:
 
 protected:
 
+    const HardwareLayout::Timer * device;
     TIM_HandleTypeDef timerParameters;
 };
 
@@ -558,15 +534,10 @@ class PulseWidthModulation : public TimerBase
 {
 public:
 
-    PulseWidthModulation (IOPort::PortName name, uint32_t _pin, TimerName timerName, uint32_t channel);
+    PulseWidthModulation (const HardwareLayout::Timer * _device, IOPort::PortName name, uint32_t _pin, uint32_t channel);
 
     bool start (uint32_t freq);
-
-    inline void stop ()
-    {
-        HAL_TIM_PWM_Stop(&timerParameters, channel);
-        pin.setLow();
-    }
+    void stop ();
 
 private:
 
@@ -593,30 +564,29 @@ public:
     /**
      * @brief Default constructor.
      */
-    Timer (TimerName timerName, IRQn_Type _irqName = SysTick_IRQn);
+    Timer (const HardwareLayout::Timer * _device);
+
+    inline void setHandler (EventHandler * _handler)
+    {
+        handler = _handler;
+    }
 
     void setPrescaler (uint32_t prescaler);
+    void setPeriod (uint32_t period);
 
     HAL_StatusTypeDef start (uint32_t counterMode,
                              uint32_t prescaler,
                              uint32_t period,
                              uint32_t clockDivision = TIM_CLOCKDIVISION_DIV1,
                              uint32_t repetitionCounter = 1);
-    void startInterrupt (const InterruptPriority & prio, EventHandler * _handler = NULL);
-
-    inline void stopInterrupt ()
-    {
-        HAL_NVIC_DisableIRQ(irqName);
-    }
 
     void processInterrupt () const;
 
-    HAL_StatusTypeDef stop ();
+    void stop ();
 
 private:
 
     EventHandler * handler;
-    IRQn_Type irqName;
 };
 
 

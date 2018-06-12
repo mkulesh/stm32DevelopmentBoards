@@ -81,14 +81,14 @@ public:
                 const ::tm & dayTime, const char * dayTimeStr) =0;
     };
 
-    DcfReceiver (IOPin & _pinInput, IOPin & _pinSample, Timer::TimerName timerName, IRQn_Type timerIrq);
+    DcfReceiver (IOPin & _pinInput, IOPin & _pinSample, const HardwareLayout::Timer * _timer);
 
     bool isActive() const
     {
         return active;
     }
 
-    void start (const InterruptPriority & prio, EventHandler * _handler);
+    void start (EventHandler * _handler);
     void periodic ();
     void onSample ();
     void stop ();

@@ -22,6 +22,7 @@
 #include "StmPlusPlus/WavStreamer.h"
 #include "StmPlusPlus/Devices/Button.h"
 #include "EspSender.h"
+#include "EventQueue.h"
 
 #include <array>
 
@@ -63,24 +64,40 @@ MyHardware::Usart2 devUsart2 (
     &portA, GPIO_PIN_3,
     HardwareLayout::Interrupt(USART2_IRQn, 8, 0));
 
+MyHardware::Timer3 devTimer3(HardwareLayout::Interrupt(TIM3_IRQn, 9, 0));
+MyHardware::Timer5 devTimer5(HardwareLayout::Interrupt(TIM5_IRQn, 10, 0));
+
 MyHardware::Adc1 adc1(&portA, GPIO_PIN_0);
 MyHardware::Adc2 adc2(&portA, GPIO_PIN_0);
 
 
-class MyApplication : public RealTimeClock::EventHandler, WavStreamer::EventHandler, Devices::Button::EventHandler
+class MyApplication : public WavStreamer::EventHandler, Devices::Button::EventHandler
 {
 public:
 
     static const size_t INPUT_PINS = 8;  // Number of monitored input pins
+    static const uint32_t HEARTBEAT_LONG_DELAY = 999;
+    static const uint32_t HEARTBEAT_SHORT_DELAY = 30;
+    static const uint32_t NTP_REQUEST_DELAY = 30*1000;
+
+    enum class EventType
+    {
+        SECOND_INTERRUPT = 0,
+        HEARTBEAT_INTERRUPT = 1,
+        NTP_REQUEST = 2
+    };
 
 private:
     
     UsartLogger log;
 
+    EventQueue<EventType, 100> eventQueue;
+
     RealTimeClock rtc;
-    IOPin ledGreen, ledBlue, ledRed;
-    PeriodicalEvent heartbeatEvent;
     IOPin mco;
+
+    IOPin ledGreen, ledBlue, ledRed;
+    Timer heartbeatTimer;
 
     // SD card
     IOPin pinSdPower, pinSdDetect;
@@ -109,6 +126,8 @@ private:
 
     // NTP data
     struct RealTimeClock::NtpPacket ntpPacket;
+    Timer ntpRequestTimer;
+    bool ntpRequestActive;
 
     // ADC
     AnalogToDigitConverter adc;
@@ -121,12 +140,14 @@ public:
 
             // RTC
             rtc(&devRtc),
+            mco(IOPort::A, GPIO_PIN_8, GPIO_MODE_AF_PP),
+
             ledGreen(IOPort::C, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP),
             ledBlue(IOPort::C, GPIO_PIN_2, GPIO_MODE_OUTPUT_PP),
             ledRed(IOPort::C, GPIO_PIN_3, GPIO_MODE_OUTPUT_PP),
-            heartbeatEvent(10, 2),
-            mco(IOPort::A, GPIO_PIN_8, GPIO_MODE_AF_PP),
-            
+
+            heartbeatTimer(&devTimer5),
+
             // SD card
             pinSdPower(IOPort::A, GPIO_PIN_15, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_HIGH, true, false),
             pinSdDetect(IOPort::B, GPIO_PIN_3, GPIO_MODE_INPUT, GPIO_PULLUP),
@@ -160,6 +181,10 @@ public:
             streamer(sdCard, audioDac),
             playButton(IOPort::B, GPIO_PIN_2, GPIO_PULLUP),
 
+            // NTP
+            ntpRequestTimer(&devTimer3),
+            ntpRequestActive(false),
+
             // ADC
             adc(&adc1, 0, 3.33)
     {
@@ -171,6 +196,11 @@ public:
         // empty
     }
     
+    inline void scheduleEvent (EventType t)
+    {
+        eventQueue.put(t);
+    }
+
     inline I2S & getI2S ()
     {
         return i2s;
@@ -179,6 +209,16 @@ public:
     inline Esp11 & getEsp ()
     {
         return esp;
+    }
+
+    inline const Timer & getHeartBeatTimer () const
+    {
+        return heartbeatTimer;
+    }
+
+    inline const Timer & getNtpRequestTimer () const
+    {
+        return ntpRequestTimer;
     }
 
     void run ()
@@ -194,7 +234,7 @@ public:
         rtc.stop();
         do
         {
-            status = rtc.start(8 * 2047 + 7, RTC_WAKEUPCLOCK_RTCCLK_DIV2, this);
+            status = rtc.start(8 * 2047 + 7, RTC_WAKEUPCLOCK_RTCCLK_DIV2, NULL);
             USART_DEBUG("RTC start status: " << status);
         }
         while (status != HAL_OK);
@@ -208,19 +248,45 @@ public:
         USART_DEBUG("Input pins: " << pins.size());
         pinsState.fill(true);
         USART_DEBUG("Pin state: " << fillMessage());
-        esp.assignSendLed(&ledGreen);
+        esp.assignSendLed(&ledBlue);
 
         streamer.stop();
         streamer.setHandler(this);
         streamer.setVolume(1.0);
         playButton.setHandler(this);
 
+        // start ADC
         adc.stop();
         adc.start();
 
-        bool reportState = false, ntpReceived = false;
+        // start timers
+        uint32_t timerPrescaler = SystemCoreClock/4000 - 1;
+        USART_DEBUG("Timer prescaler: " << timerPrescaler);
+        heartbeatTimer.start(TIM_COUNTERMODE_UP, timerPrescaler, HEARTBEAT_LONG_DELAY);
+        ntpRequestTimer.start(TIM_COUNTERMODE_UP, timerPrescaler, NTP_REQUEST_DELAY);
+
+        bool reportState = false;
         while (true)
         {
+            if (!eventQueue.empty())
+            {
+                switch (eventQueue.get())
+                {
+                case EventType::SECOND_INTERRUPT:
+                    handleSeconds();
+                    handleNtpRequest();
+                    break;
+
+                case EventType::HEARTBEAT_INTERRUPT:
+                    handleHeartbeat();
+                    break;
+
+                case EventType::NTP_REQUEST:
+                    ntpRequestActive = true;
+                    handleNtpRequest();
+                    break;
+                }
+            }
             updateSdCardState();
             playButton.periodic();
             streamer.periodic();
@@ -251,21 +317,34 @@ public:
                 esp.getInputMessage(messageBuffer, esp.getInputMessageSize());
                 ::memcpy(&ntpPacket, messageBuffer, RealTimeClock::NTP_PACKET_SIZE);
                 rtc.decodeNtpMessage(ntpPacket);
-                ntpReceived = true;
-            }
-
-            if (heartbeatEvent.isOccured())
-            {
-                if (!ntpReceived && espSender.isOutputMessageSent())
-                {
-                    rtc.fillNtpRrequst(ntpPacket);
-                    espSender.sendMessage(config, "UDP", config.getNtpServer(), "123", (const char *)(&ntpPacket), RealTimeClock::NTP_PACKET_SIZE);
-                }
-                ledGreen.putBit(heartbeatEvent.occurance() == 1);
+                ntpRequestActive = false;
+                ntpRequestTimer.reset();
             }
         }
     }
     
+    void handleSeconds ()
+    {
+        float v = adc.getVoltage();
+        USART_DEBUG(rtc.getLocalTime() << ": ADC=" << (int)(v*100.0));
+    }
+
+    void handleHeartbeat ()
+    {
+        ledGreen.putBit(!ledGreen.getBit());
+        heartbeatTimer.reset();
+        heartbeatTimer.setPeriod(ledGreen.getBit()? HEARTBEAT_SHORT_DELAY : HEARTBEAT_LONG_DELAY);
+    }
+
+    void handleNtpRequest ()
+    {
+        if (ntpRequestActive && espSender.isOutputMessageSent())
+        {
+            rtc.fillNtpRrequst(ntpPacket);
+            espSender.sendMessage(config, "UDP", config.getNtpServer(), "123", (const char *)(&ntpPacket), RealTimeClock::NTP_PACKET_SIZE);
+        }
+    }
+
     bool isInputPinsChanged ()
     {
         bool isChanged = false;
@@ -278,16 +357,6 @@ public:
             }
         }
         return isChanged;
-    }
-    
-    virtual void onRtcWakeUp ()
-    {
-        if (espSender.isOutputMessageSent() && rtc.getTimeSec() % 2 == 0)
-        {
-            heartbeatEvent.resetTime();
-        }
-        float v = adc.getVoltage();
-        USART_DEBUG("ADC voltage: " << (int)(v*100.0));
     }
     
     void updateSdCardState ()
@@ -403,17 +472,25 @@ void SysTick_Handler (void)
     }
 }
 
-void TIM5_IRQHandler ()
-{
-    // empty
-}
-
 void RTC_WKUP_IRQHandler ()
 {
     if (RealTimeClock::getInstance() != NULL)
     {
         RealTimeClock::getInstance()->onSecondInterrupt();
     }
+    appPtr->scheduleEvent(MyApplication::EventType::SECOND_INTERRUPT);
+}
+
+void TIM3_IRQHandler ()
+{
+    appPtr->getNtpRequestTimer().processInterrupt();
+    appPtr->scheduleEvent(MyApplication::EventType::NTP_REQUEST);
+}
+
+void TIM5_IRQHandler ()
+{
+    appPtr->getHeartBeatTimer().processInterrupt();
+    appPtr->scheduleEvent(MyApplication::EventType::HEARTBEAT_INTERRUPT);
 }
 
 void DMA2_Stream3_IRQHandler (void)

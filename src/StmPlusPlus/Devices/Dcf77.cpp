@@ -66,11 +66,11 @@ bool MedianFilter::processSample (bool val)
  * Class DcfReceiver
  ************************************************************************/
 
-DcfReceiver::DcfReceiver(IOPin & _pinInput, IOPin & _pinPower, Timer::TimerName timerName, IRQn_Type timerIrq):
+DcfReceiver::DcfReceiver(IOPin & _pinInput, IOPin & _pinPower, const HardwareLayout::Timer * _timer):
     handler(NULL),
     pinInput(_pinInput),
     pinPower(_pinPower),
-    timer(timerName, timerIrq),
+    timer(_timer),
     active(false),
     dataBitsAvailable(false),
     filter(),
@@ -88,15 +88,13 @@ DcfReceiver::DcfReceiver(IOPin & _pinInput, IOPin & _pinPower, Timer::TimerName 
 }
 
 
-void DcfReceiver::start (const InterruptPriority & prio, EventHandler * _handler)
+void DcfReceiver::start (EventHandler * _handler)
 {
     reset();
     handler = _handler;
     pinPower.setLow();
     timer.start(TIM_COUNTERMODE_UP, System::getInstance()->getMcuFreq() / 2000, 1000/DCF_SAMPLE_PER_SEC - 1);
-    timer.startInterrupt(prio);
     active = true;
-    USART_DEBUG("Started receiver, irqPrio = " << prio.first << "," << prio.second);
 }
 
 

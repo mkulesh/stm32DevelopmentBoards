@@ -70,7 +70,7 @@ public:
     };
 
     static const uint32_t ESP_BAUDRATE = 115200;
-    static const time_ms ESP_TIMEOUT = 10000L;
+    static const time_ms ESP_TIMEOUT = 30000L;
     static const uint32_t BUFFER_SIZE = 1024;
 
 public:

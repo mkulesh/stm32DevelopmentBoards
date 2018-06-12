@@ -304,144 +304,45 @@ UsartLogger & UsartLogger::operator << (Manupulator /*m*/)
 /************************************************************************
  * Class TimerBase
  ************************************************************************/
-#define INITIALIZE_STMPLUSPLUS_TIMER(name, enableName) { \
-        enableName(); \
-        timerParameters.Instance = name; \
-        }
-
-
-TimerBase::TimerBase (TimerName timerName)
+TimerBase::TimerBase (const HardwareLayout::Timer * _device):
+    device{_device}
 {
-    switch (timerName)
-    {
-    case TIM_1:
-        #ifdef TIM1
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM1, __TIM1_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_2:
-        #ifdef TIM2
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM2, __TIM2_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_3:
-        #ifdef TIM3
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM3, __TIM3_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_4:
-        #ifdef TIM4
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM4, __TIM4_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_5:
-        #ifdef TIM5
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM5, __TIM5_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_6:
-        #ifdef TIM6
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM6, __TIM6_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_7:
-        #ifdef TIM7
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM7, __TIM7_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_8:
-        #ifdef TIM8
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM8, __TIM8_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_9:
-        #ifdef TIM9
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM9, __TIM9_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_10:
-        #ifdef TIM10
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM10, __TIM10_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_11:
-        #ifdef TIM11
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM11, __TIM11_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_12:
-        #ifdef TIM12
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM12, __TIM12_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_13:
-        #ifdef TIM13
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM13, __TIM13_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_14:
-        #ifdef TIM10
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM14, __TIM14_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_15:
-        #ifdef TIM15
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM15, __TIM15_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_16:
-        #ifdef TIM16
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM16, __TIM16_CLK_ENABLE);
-        #endif
-        break;
-    case TIM_17:
-        #ifdef TIM17
-        INITIALIZE_STMPLUSPLUS_TIMER(TIM17, __TIM17_CLK_ENABLE);
-        #endif
-        break;
-    }
+    timerParameters.Instance = device->instance;
 }
+
 
 HAL_StatusTypeDef TimerBase::startCounter (uint32_t counterMode,
                          uint32_t prescaler,
                          uint32_t period,
                          uint32_t clockDivision/* = TIM_CLOCKDIVISION_DIV1*/)
 {
+    device->enableClock();
     timerParameters.Init.CounterMode = counterMode;
     timerParameters.Init.Prescaler = prescaler;
     timerParameters.Init.Period = period;
     timerParameters.Init.ClockDivision = clockDivision;
     __HAL_TIM_SET_COUNTER(&timerParameters, 0);
-
     HAL_TIM_Base_Init(&timerParameters);
     return HAL_TIM_Base_Start(&timerParameters);
 }
 
-HAL_StatusTypeDef TimerBase::stopCounter ()
+
+void TimerBase::stopCounter ()
 {
     HAL_TIM_Base_Stop(&timerParameters);
-    return HAL_TIM_Base_DeInit(&timerParameters);
+    HAL_TIM_Base_DeInit(&timerParameters);
+    device->disableClock();
 }
 
 /************************************************************************
- * Class TimerBase
+ * Class PulseWidthModulation
  ************************************************************************/
-PulseWidthModulation::PulseWidthModulation (IOPort::PortName name, uint32_t _pin, TimerName timerName, uint32_t _channel):
-    TimerBase(timerName),
-    pin(name, _pin, GPIO_MODE_AF_PP, GPIO_PULLDOWN, GPIO_SPEED_FREQ_HIGH, false, false),
-    channel(_channel)
+PulseWidthModulation::PulseWidthModulation (const HardwareLayout::Timer * _device, IOPort::PortName name, uint32_t _pin,  uint32_t _channel):
+    TimerBase{_device},
+    pin{name, _pin, GPIO_MODE_AF_PP, GPIO_PULLDOWN, GPIO_SPEED_FREQ_HIGH, false, false},
+    channel{_channel}
 {
-    switch (timerName)
-    {
-    case TIM_2:
-        #ifdef GPIO_AF2_TIM2
-        pin.setAlternate(GPIO_AF2_TIM2);
-        #endif
-        break;
-    default:
-        break;
-    }
-
+    pin.setAlternate(device->alternate);
     timerParameters.Init.Prescaler     = 0;
     timerParameters.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     timerParameters.Init.CounterMode   = TIM_COUNTERMODE_UP;
@@ -453,6 +354,8 @@ PulseWidthModulation::PulseWidthModulation (IOPort::PortName name, uint32_t _pin
 
 bool PulseWidthModulation::start (uint32_t freq)
 {
+    device->enableClock();
+
     uint32_t uwPeriodValue = SystemCoreClock/freq;
     timerParameters.Init.Period = uwPeriodValue - 1;
     channelParameters.Pulse = uwPeriodValue/2;
@@ -481,13 +384,19 @@ bool PulseWidthModulation::start (uint32_t freq)
 }
 
 
+void PulseWidthModulation::stop ()
+{
+    HAL_TIM_PWM_Stop(&timerParameters, channel);
+    device->disableClock();
+    pin.setLow();
+}
+
 /************************************************************************
  * Class Timer
  ************************************************************************/
-Timer::Timer (TimerName timerName, IRQn_Type _irqName):
-    TimerBase(timerName),
-    handler(NULL),
-    irqName(_irqName)
+Timer::Timer (const HardwareLayout::Timer * _device):
+    TimerBase(_device),
+    handler(NULL)
 {
     // empty
 }
@@ -499,6 +408,12 @@ void Timer::setPrescaler (uint32_t prescaler)
     timerParameters.Init.Prescaler = prescaler;
     __HAL_TIM_SET_PRESCALER(&timerParameters, prescaler);
 }
+
+void Timer::setPeriod (uint32_t period)
+{
+    timerParameters.Init.Period = period;
+    __HAL_TIM_SET_AUTORELOAD(&timerParameters, period);
+}
 #endif
 
 
@@ -508,6 +423,8 @@ HAL_StatusTypeDef Timer::start (uint32_t counterMode,
                          uint32_t clockDivision/* = TIM_CLOCKDIVISION_DIV1*/,
                          uint32_t repetitionCounter/* = 1*/)
 {
+    device->enableClock();
+    device->timerIrq.start();
     timerParameters.Init.CounterMode = counterMode;
     timerParameters.Init.Prescaler = prescaler;
     timerParameters.Init.Period = period;
@@ -516,15 +433,15 @@ HAL_StatusTypeDef Timer::start (uint32_t counterMode,
     __HAL_TIM_SET_COUNTER(&timerParameters, 0);
 
     HAL_TIM_Base_Init(&timerParameters);
-    return HAL_TIM_Base_Start_IT(&timerParameters);
-}
+    HAL_StatusTypeDef status = HAL_TIM_Base_Start_IT(&timerParameters);
+    if (status != HAL_OK)
+    {
+        USART_DEBUG("Can not initialize timer: " << status);
+        return HAL_ERROR;
+    }
 
-
-void Timer::startInterrupt (const InterruptPriority & prio, Timer::EventHandler * _handler /*= NULL*/)
-{
-    handler = _handler;
-    HAL_NVIC_SetPriority(irqName, prio.first, prio.second);
-    HAL_NVIC_EnableIRQ(irqName);
+    USART_DEBUG("Started timer, irqPrio = " << device->timerIrq.prio << "," << device->timerIrq.subPrio);
+    return status;
 }
 
 
@@ -544,19 +461,14 @@ void Timer::processInterrupt () const
 }
 
 
-HAL_StatusTypeDef Timer::stop ()
+void Timer::stop ()
 {
-    HAL_NVIC_DisableIRQ(irqName);
+    device->timerIrq.stop();
     HAL_TIM_Base_Stop_IT(&timerParameters);
+    HAL_TIM_Base_DeInit(&timerParameters);
+    device->disableClock();
     handler = NULL;
-    return HAL_TIM_Base_DeInit(&timerParameters);
 }
-
-
-#undef INITIALIZE_STMPLUSPLUS_TIMER
-#undef INITIALIZE_STMPLUSPLUS_THANDLER
-
-
 
 /************************************************************************
  * Class Rtc

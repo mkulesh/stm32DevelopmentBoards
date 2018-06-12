@@ -180,6 +180,44 @@ public:
 };
 
 
+class Timer3 : public HardwareLayout::Timer
+{
+public:
+    explicit Timer3 (HardwareLayout::Interrupt && timerIrq):
+        HardwareLayout::Timer{TIM3, GPIO_AF2_TIM3, std::move(timerIrq)}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        __TIM3_CLK_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __TIM3_CLK_DISABLE();
+    }
+};
+
+
+class Timer5 : public HardwareLayout::Timer
+{
+public:
+    explicit Timer5 (HardwareLayout::Interrupt && timerIrq):
+        HardwareLayout::Timer{TIM5, GPIO_AF2_TIM5, std::move(timerIrq)}
+    {
+        // empty
+    }
+    virtual void enableClock () const
+    {
+        __TIM5_CLK_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __TIM5_CLK_DISABLE();
+    }
+};
+
+
 class Usart1 : public HardwareLayout::Usart
 {
 public:

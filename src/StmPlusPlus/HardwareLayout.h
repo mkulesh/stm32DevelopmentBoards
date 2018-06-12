@@ -248,6 +248,38 @@ public:
 
 
 /**
+ * @brief Parameters of a timer.
+ */
+class Timer : public HalDevice
+{
+public:
+
+    /**
+     * @brief Timer registers base address
+     */
+    TIM_TypeDef * instance;
+
+    /**
+     * @brief Peripheral to be connected to the selected pins
+     */
+    uint32_t alternate;
+
+    /**
+     * @brief Interrupt Number Definition
+     */
+    Interrupt timerIrq;
+
+    explicit Timer (TIM_TypeDef * _instance, uint32_t _alternate, Interrupt && _timerIrq):
+         instance{_instance},
+         alternate{_alternate},
+         timerIrq{std::move(_timerIrq)}
+    {
+        // empty
+    }
+};
+
+
+/**
  * @brief Parameters of USART device.
  */
 class Usart : public HalDevice
