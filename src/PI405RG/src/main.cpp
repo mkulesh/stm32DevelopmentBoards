@@ -21,6 +21,7 @@
 #include "StmPlusPlus/StmPlusPlus.h"
 #include "StmPlusPlus/WavStreamer.h"
 #include "StmPlusPlus/Devices/Button.h"
+#include "StmPlusPlus/Devices/Ssd.h"
 #include "EspSender.h"
 #include "EventQueue.h"
 
@@ -64,8 +65,11 @@ MyHardware::Usart2 devUsart2 (
     &portA, GPIO_PIN_3,
     HardwareLayout::Interrupt(USART2_IRQn, 8, 0));
 
-MyHardware::Timer3 devTimer3(HardwareLayout::Interrupt(TIM3_IRQn, 9, 0));
-MyHardware::Timer5 devTimer5(HardwareLayout::Interrupt(TIM5_IRQn, 10, 0));
+MyHardware::Spi1 devSpi1(&portA, GPIO_PIN_5 | GPIO_PIN_7,
+    HardwareLayout::Interrupt(SPI1_IRQn, 9, 0));
+
+MyHardware::Timer3 devTimer3(HardwareLayout::Interrupt(TIM3_IRQn, 10, 0));
+MyHardware::Timer5 devTimer5(HardwareLayout::Interrupt(TIM5_IRQn, 11, 0));
 
 MyHardware::Adc1 adc1(&portA, GPIO_PIN_0);
 MyHardware::Adc2 adc2(&portA, GPIO_PIN_0);
@@ -75,7 +79,7 @@ class MyApplication : public WavStreamer::EventHandler, Devices::Button::EventHa
 {
 public:
 
-    static const size_t INPUT_PINS = 8;  // Number of monitored input pins
+    static const size_t INPUT_PINS = 4;  // Number of monitored input pins
     static const uint32_t HEARTBEAT_LONG_DELAY = 999;
     static const uint32_t HEARTBEAT_SHORT_DELAY = 30;
     static const uint32_t NTP_REQUEST_DELAY = 30*1000;
@@ -132,6 +136,12 @@ private:
     // ADC
     AnalogToDigitConverter adc;
 
+    // SSD
+    Spi spi;
+    IOPin pinSsdCs;
+    Devices::Ssd_74HC595_SPI ssd;
+    char localTime[24];
+
 public:
     
     MyApplication () :
@@ -162,11 +172,7 @@ public:
             espSender(esp, ledRed),
 
             // Input pins
-            pins { { IOPin(IOPort::A, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLUP),
-                     IOPin(IOPort::A, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLUP),
-                     IOPin(IOPort::A, GPIO_PIN_6,  GPIO_MODE_INPUT, GPIO_PULLUP),
-                     IOPin(IOPort::A, GPIO_PIN_7,  GPIO_MODE_INPUT, GPIO_PULLUP),
-                     IOPin(IOPort::C, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLUP),
+            pins { { IOPin(IOPort::C, GPIO_PIN_4,  GPIO_MODE_INPUT, GPIO_PULLUP),
                      IOPin(IOPort::C, GPIO_PIN_5,  GPIO_MODE_INPUT, GPIO_PULLUP),
                      IOPin(IOPort::B, GPIO_PIN_0,  GPIO_MODE_INPUT, GPIO_PULLUP),
                      IOPin(IOPort::B, GPIO_PIN_1,  GPIO_MODE_INPUT, GPIO_PULLUP)
@@ -186,9 +192,24 @@ public:
             ntpRequestActive(false),
 
             // ADC
-            adc(&adc1, 0, 3.33)
+            adc(&adc1, 0, 3.33),
+
+            // SSD
+            spi(&devSpi1, GPIO_PULLUP),
+            pinSsdCs(IOPort::A, GPIO_PIN_4, GPIO_MODE_OUTPUT_PP, GPIO_PULLUP, GPIO_SPEED_HIGH, true, true),
+            ssd(spi, pinSsdCs, true)
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_5);
+        Devices::Ssd::SegmentsMask sm;
+        sm.top = 3;
+        sm.rightTop = 5;
+        sm.rightBottom = 7;
+        sm.bottom = 4;
+        sm.leftBottom = 1;
+        sm.leftTop = 2;
+        sm.center = 6;
+        sm.dot = 0;
+        ssd.setSegmentsMask(sm);
     }
     
     virtual ~MyApplication ()
@@ -219,6 +240,11 @@ public:
     inline const Timer & getNtpRequestTimer () const
     {
         return ntpRequestTimer;
+    }
+
+    inline Spi & getSpi ()
+    {
+        return spi;
     }
 
     void run ()
@@ -252,12 +278,17 @@ public:
 
         streamer.stop();
         streamer.setHandler(this);
-        streamer.setVolume(1.0);
+        streamer.setVolume(0.5);
         playButton.setHandler(this);
 
         // start ADC
         adc.stop();
         adc.start();
+
+        // SPI and SSD
+        spi.start(SPI_DIRECTION_1LINE, SPI_BAUDRATEPRESCALER_64, SPI_DATASIZE_8BIT, SPI_PHASE_2EDGE);
+        spi.startInterrupt();
+        ssd.putString("0000", NULL, 4);
 
         // start timers
         uint32_t timerPrescaler = SystemCoreClock/4000 - 1;
@@ -325,8 +356,16 @@ public:
     
     void handleSeconds ()
     {
-        float v = adc.getVoltage();
-        USART_DEBUG(rtc.getLocalTime() << ": ADC=" << (int)(v*100.0));
+        time_t total_secs = rtc.getTimeSec();
+        struct tm * now = ::gmtime(&total_secs);
+        sprintf(localTime, "%02d%02d", now->tm_min, now->tm_sec);
+        //float v = adc.getVoltage();
+        //USART_DEBUG(localTime);
+        ssd.putString(localTime, NULL, 4);
+        if (rtc.getTimeSec() > 1000 && !streamer.isActive())
+        {
+            onButtonPressed(&playButton, 1);
+        }
     }
 
     void handleHeartbeat ()
@@ -534,6 +573,19 @@ void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
     if (channel->Instance == USART2)
     {
         appPtr->getEsp().processErrorCallback();
+    }
+}
+
+void SPI1_IRQHandler (void)
+{
+    appPtr->getSpi().processInterrupt();
+}
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if (hspi->Instance == SPI1)
+    {
+        appPtr->getSpi().processTxCpltCallback();
     }
 }
 

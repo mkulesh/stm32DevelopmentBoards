@@ -98,7 +98,7 @@ void Lcd_DOGM162_SPI::putString (const char * pData, uint16_t pSize)
     pinRs.setHigh();
     pinCs.setLow();
     HAL_Delay(1);
-    spi.writeBuffer((uint8_t *)pData, pSize);
+    spi.transmit((uint8_t *)pData, pSize);
     HAL_Delay(1);
     pinCs.setHigh();
 }

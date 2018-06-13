@@ -286,6 +286,25 @@ public:
 };
 
 
+class Spi1 : public HardwareLayout::Spi
+{
+public:
+    explicit Spi1 (HardwareLayout::Port * port, uint32_t pins, HardwareLayout::Interrupt && txRxIrq):
+        Spi{1, SPI1, port, pins, GPIO_AF5_SPI1, std::move(txRxIrq)}
+    {
+        disableClock();
+    }
+    virtual void enableClock () const
+    {
+        __HAL_RCC_SPI1_CLK_ENABLE();
+    }
+    virtual void disableClock () const
+    {
+        __HAL_RCC_SPI1_CLK_DISABLE();
+    }
+};
+
+
 class I2S : public HardwareLayout::I2S
 {
 public:

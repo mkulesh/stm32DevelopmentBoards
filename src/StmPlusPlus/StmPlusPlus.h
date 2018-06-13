@@ -689,26 +689,18 @@ public:
 
     const uint32_t TIMEOUT = 5000;
 
-    enum class DeviceName
-    {
-        SPI_1 = 0,
-        SPI_2 = 1,
-        SPI_3 = 2,
-    };
-
     /**
      * @brief Default constructor.
      */
-    Spi (DeviceName _device,
-         IOPort::PortName sckPort, uint32_t sckPin,
-         IOPort::PortName misoPort, uint32_t misoPin,
-         IOPort::PortName mosiPort, uint32_t mosiPin,
-         uint32_t pull = GPIO_NOPULL);
+    Spi (const HardwareLayout::Spi * _device, uint32_t pull = GPIO_NOPULL);
 
     HAL_StatusTypeDef start (uint32_t direction, uint32_t prescaler, uint32_t dataSize = SPI_DATASIZE_8BIT, uint32_t CLKPhase = SPI_PHASE_1EDGE);
 
-    HAL_StatusTypeDef stop ();
+    void stop ();
 
+    /**
+     * @brief Send an amount of data in blocking mode.
+     */
     inline void putChar (uint8_t data)
     {
         /* Transmit data in 8 Bit mode */
@@ -723,20 +715,55 @@ public:
         while (!__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE));
     }
 
-    inline HAL_StatusTypeDef writeBuffer (uint8_t *pData, uint16_t pSize)
+    inline HAL_StatusTypeDef transmit (uint8_t *pData, uint16_t pSize)
     {
         return HAL_SPI_Transmit(hspi, pData, pSize, TIMEOUT);
     }
 
+    /**
+     * @brief Send an amount of data in interrupt mode.
+     */
+    inline HAL_StatusTypeDef transmitIt (uint8_t *buffer, size_t n)
+    {
+        irqStatus = RESET;
+        return HAL_SPI_Transmit_IT(hspi, buffer, n);
+    }
+
+    /**
+     * @brief Interrupt handling.
+     */
+    inline void startInterrupt ()
+    {
+        device->txRxIrq.start();
+    }
+
+    inline void stopInterrupt ()
+    {
+        device->txRxIrq.stop();
+    }
+
+    inline void processInterrupt ()
+    {
+        HAL_SPI_IRQHandler(hspi);
+    }
+
+    inline void processTxCpltCallback ()
+    {
+        irqStatus = SET;
+    }
+
+    inline bool isFinished () const
+    {
+        return irqStatus == SET;
+    }
+
 private:
 
-    DeviceName device;
-    IOPin sck, miso, mosi;
+    const HardwareLayout::Spi * device;
+    IOPort pins;
     SPI_HandleTypeDef *hspi;
     SPI_HandleTypeDef spiParams;
-
-    void enableClock();
-    void disableClock();
+    __IO ITStatus irqStatus;
 };
 
 

@@ -223,7 +223,7 @@ Usart::Usart (const HardwareLayout::Usart * _device):
     device{_device},
     txPin(_device->txPin, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_HIGH),
     rxPin(_device->rxPin, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_HIGH),
-    irqStatus{RESET}
+    irqStatus{SET}
 {
     usartParameters.Instance = device->instance;
     usartParameters.Init.HwFlowCtl = UART_HWCONTROL_NONE;
@@ -618,45 +618,13 @@ void RealTimeClock::decodeNtpMessage (RealTimeClock::NtpPacket & ntpPacket)
  * Class Spi
  ************************************************************************/
 
-Spi::Spi (DeviceName _device,
-          IOPort::PortName sckPort,  uint32_t sckPin,
-          IOPort::PortName misoPort, uint32_t misoPin,
-          IOPort::PortName mosiPort, uint32_t mosiPin,
-          uint32_t pull):
-    device(_device),
-    sck(sckPort,   sckPin,  GPIO_MODE_AF_PP, pull, GPIO_SPEED_HIGH, false),
-    miso(misoPort, misoPin, GPIO_MODE_AF_PP, pull, GPIO_SPEED_HIGH, false),
-    mosi(mosiPort, mosiPin, GPIO_MODE_AF_PP, pull, GPIO_SPEED_HIGH, false),
-    hspi(NULL)
+Spi::Spi (const HardwareLayout::Spi * _device, uint32_t pull):
+    device{_device},
+    pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW},
+    hspi{NULL},
+    irqStatus{SET}
 {
-    switch (device)
-    {
-    case DeviceName::SPI_1:
-        #ifdef SPI1
-        sck.setAlternate(GPIO_AF5_SPI1);
-        miso.setAlternate(GPIO_AF5_SPI1);
-        mosi.setAlternate(GPIO_AF5_SPI1);
-        spiParams.Instance = SPI1;
-        #endif
-        break;
-    case DeviceName::SPI_2:
-        #ifdef SPI2
-        sck.setAlternate(GPIO_AF5_SPI2);
-        miso.setAlternate(GPIO_AF5_SPI2);
-        mosi.setAlternate(GPIO_AF5_SPI2);
-        spiParams.Instance = SPI2;
-        #endif
-        break;
-    case DeviceName::SPI_3:
-        #ifdef SPI3
-        sck.setAlternate(GPIO_AF6_SPI3);
-        miso.setAlternate(GPIO_AF6_SPI3);
-        mosi.setAlternate(GPIO_AF6_SPI3);
-        spiParams.Instance = SPI3;
-        #endif
-        break;
-    }
-
+    spiParams.Instance = device->instance;
     spiParams.Init.Mode = SPI_MODE_MASTER;
     spiParams.Init.DataSize = SPI_DATASIZE_8BIT;
     spiParams.Init.CLKPolarity = SPI_POLARITY_HIGH;
@@ -673,52 +641,12 @@ Spi::Spi (DeviceName _device,
 }
 
 
-void Spi::enableClock()
-{
-    switch (device)
-    {
-    case DeviceName::SPI_1:
-        __HAL_RCC_SPI1_CLK_ENABLE();
-        break;
-    case DeviceName::SPI_2:
-        #ifdef SPI2
-        __HAL_RCC_SPI2_CLK_ENABLE();
-        #endif
-        break;
-    case DeviceName::SPI_3:
-        #ifdef SPI3
-        __HAL_RCC_SPI3_CLK_ENABLE();
-        #endif
-        break;
-    }
-}
-
-
-void Spi::disableClock()
-{
-    switch (device)
-    {
-    case DeviceName::SPI_1:
-        __HAL_RCC_SPI1_CLK_DISABLE();
-        break;
-    case DeviceName::SPI_2:
-        #ifdef SPI2
-        __HAL_RCC_SPI2_CLK_DISABLE();
-        #endif
-        break;
-    case DeviceName::SPI_3:
-        #ifdef SPI3
-        __HAL_RCC_SPI3_CLK_DISABLE();
-        #endif
-        break;
-    }
-}
-
-
 HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t dataSize, uint32_t CLKPhase)
 {
     hspi = &spiParams;
-    enableClock();
+    pins.setMode(GPIO_MODE_AF_PP);
+
+    device->enableClock();
 
     spiParams.Init.Direction = direction;
     spiParams.Init.BaudRatePrescaler = prescaler;
@@ -727,7 +655,7 @@ HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t d
     HAL_StatusTypeDef status = HAL_SPI_Init(hspi);
     if (status != HAL_OK)
     {
-        USART_DEBUG("Can not initialize SPI " << (size_t)device << ": " << status);
+        USART_DEBUG("Can not initialize SPI " << device->id << ": " << status);
         return status;
     }
 
@@ -744,7 +672,7 @@ HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t d
         __HAL_SPI_ENABLE(hspi);
     }
 
-    USART_DEBUG("Started SPI " << (size_t)device
+    USART_DEBUG("Started SPI " << device->id
              << ": BaudRatePrescaler = " << spiParams.Init.BaudRatePrescaler
              << ", DataSize = " << spiParams.Init.DataSize
              << ", CLKPhase = " << spiParams.Init.CLKPhase
@@ -754,13 +682,13 @@ HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t d
 }
 
 
-HAL_StatusTypeDef Spi::stop ()
+void Spi::stop ()
 {
-    USART_DEBUG("Stopping SPI " << (size_t)device);
-    HAL_StatusTypeDef retValue = HAL_SPI_DeInit(&spiParams);
-    disableClock();
+    USART_DEBUG("Stopping SPI " << device->id);
+    HAL_SPI_DeInit(&spiParams);
+    device->disableClock();
+    pins.setMode(GPIO_MODE_INPUT);
     hspi = NULL;
-    return retValue;
 }
 
 

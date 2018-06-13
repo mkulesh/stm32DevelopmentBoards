@@ -370,6 +370,40 @@ public:
 
 
 /**
+ * @brief Parameters of SPI device.
+ */
+class Spi : public HalDevice
+{
+public:
+
+    /**
+     * @brief SPI registers base address
+     */
+    SPI_TypeDef * instance;
+
+    /**
+     * @brief Pins from corresponding ports
+     */
+    Pins pins;
+
+    /**
+     * @brief Interrupt Number Definition
+     */
+    Interrupt txRxIrq;
+
+    explicit Spi (size_t _id, SPI_TypeDef *_instance,
+                  Port * _port, uint32_t _pins, uint32_t _alternate,
+                  Interrupt && _txRxIrq):
+         instance{_instance},
+         pins{_port, _pins, _alternate},
+         txRxIrq{std::move(_txRxIrq)}
+    {
+        id = _id;
+    }
+};
+
+
+/**
  * @brief Parameters of I2S device.
  */
 class I2S : public HalDevice
