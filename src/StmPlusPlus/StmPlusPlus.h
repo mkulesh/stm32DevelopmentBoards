@@ -705,19 +705,19 @@ public:
     {
         /* Transmit data in 8 Bit mode */
         spiParams.Instance->DR = data;
-        while (!__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE));
+        while (!__HAL_SPI_GET_FLAG(&spiParams, SPI_FLAG_TXE));
     }
 
     inline void putInt (uint16_t data)
     {
         /* Transmit data in 16 Bit mode */
         spiParams.Instance->DR = data;
-        while (!__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE));
+        while (!__HAL_SPI_GET_FLAG(&spiParams, SPI_FLAG_TXE));
     }
 
     inline HAL_StatusTypeDef transmit (uint8_t *pData, uint16_t pSize)
     {
-        return HAL_SPI_Transmit(hspi, pData, pSize, TIMEOUT);
+        return HAL_SPI_Transmit(&spiParams, pData, pSize, TIMEOUT);
     }
 
     /**
@@ -726,7 +726,7 @@ public:
     inline HAL_StatusTypeDef transmitIt (uint8_t *buffer, size_t n)
     {
         irqStatus = RESET;
-        return HAL_SPI_Transmit_IT(hspi, buffer, n);
+        return HAL_SPI_Transmit_IT(&spiParams, buffer, n);
     }
 
     /**
@@ -744,7 +744,7 @@ public:
 
     inline void processInterrupt ()
     {
-        HAL_SPI_IRQHandler(hspi);
+        HAL_SPI_IRQHandler(&spiParams);
     }
 
     inline void processTxCpltCallback ()
@@ -761,7 +761,6 @@ private:
 
     const HardwareLayout::Spi * device;
     IOPort pins;
-    SPI_HandleTypeDef *hspi;
     SPI_HandleTypeDef spiParams;
     __IO ITStatus irqStatus;
 };

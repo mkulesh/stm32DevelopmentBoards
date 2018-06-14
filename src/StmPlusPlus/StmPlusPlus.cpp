@@ -621,7 +621,6 @@ void RealTimeClock::decodeNtpMessage (RealTimeClock::NtpPacket & ntpPacket)
 Spi::Spi (const HardwareLayout::Spi * _device, uint32_t pull):
     device{_device},
     pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW},
-    hspi{NULL},
     irqStatus{SET}
 {
     spiParams.Instance = device->instance;
@@ -643,7 +642,6 @@ Spi::Spi (const HardwareLayout::Spi * _device, uint32_t pull):
 
 HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t dataSize, uint32_t CLKPhase)
 {
-    hspi = &spiParams;
     pins.setMode(GPIO_MODE_AF_PP);
 
     device->enableClock();
@@ -652,7 +650,7 @@ HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t d
     spiParams.Init.BaudRatePrescaler = prescaler;
     spiParams.Init.DataSize = dataSize;
     spiParams.Init.CLKPhase = CLKPhase;
-    HAL_StatusTypeDef status = HAL_SPI_Init(hspi);
+    HAL_StatusTypeDef status = HAL_SPI_Init(&spiParams);
     if (status != HAL_OK)
     {
         USART_DEBUG("Can not initialize SPI " << device->id << ": " << status);
@@ -662,14 +660,14 @@ HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t d
     /* Configure communication direction : 1Line */
     if (spiParams.Init.Direction == SPI_DIRECTION_1LINE)
     {
-        SPI_1LINE_TX(hspi);
+        SPI_1LINE_TX(&spiParams);
     }
 
     /* Check if the SPI is already enabled */
     if ((spiParams.Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
     {
         /* Enable SPI peripheral */
-        __HAL_SPI_ENABLE(hspi);
+        __HAL_SPI_ENABLE(&spiParams);
     }
 
     USART_DEBUG("Started SPI " << device->id
@@ -688,7 +686,6 @@ void Spi::stop ()
     HAL_SPI_DeInit(&spiParams);
     device->disableClock();
     pins.setMode(GPIO_MODE_INPUT);
-    hspi = NULL;
 }
 
 
