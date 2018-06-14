@@ -65,7 +65,8 @@ MyHardware::Usart2 devUsart2 (
     HardwareLayout::Interrupt(USART2_IRQn, 8, 0));
 
 MyHardware::Spi1 devSpi1(&portA, GPIO_PIN_5 | GPIO_PIN_7,
-    HardwareLayout::Interrupt(SPI1_IRQn, 9, 0));
+    HardwareLayout::Interrupt(DMA2_Stream5_IRQn, 9, 0),
+    HardwareLayout::DmaStream(DMA2_Stream5, DMA_CHANNEL_3));
 
 MyHardware::Timer3 devTimer3(HardwareLayout::Interrupt(TIM3_IRQn, 10, 0));
 MyHardware::Timer5 devTimer5(HardwareLayout::Interrupt(TIM5_IRQn, 11, 0));
@@ -195,7 +196,7 @@ public:
 
             // SSD
             spi(&devSpi1, GPIO_PULLUP),
-            pinSsdCs(IOPort::A, GPIO_PIN_4, GPIO_MODE_OUTPUT_PP, GPIO_PULLUP, GPIO_SPEED_HIGH, true, true),
+            pinSsdCs(IOPort::A, GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_PULLUP, GPIO_SPEED_HIGH, true, true),
             ssd(spi, pinSsdCs, true)
     {
         mco.activateClockOutput(RCC_MCO1SOURCE_PLLCLK, RCC_MCODIV_5);
@@ -286,7 +287,6 @@ public:
 
         // SPI and SSD
         spi.start(SPI_DIRECTION_1LINE, SPI_BAUDRATEPRESCALER_64, SPI_DATASIZE_8BIT, SPI_PHASE_2EDGE);
-        spi.startInterrupt();
         ssd.putString("0000", NULL, 4);
 
         // start timers
@@ -360,6 +360,7 @@ public:
         sprintf(localTime, "%02d%02d", now->tm_min, now->tm_sec);
         //float v = adc.getVoltage();
         //USART_DEBUG(localTime);
+        while (spi.isUsed());
         ssd.putString(localTime, NULL, 4);
         if (rtc.getTimeSec() > 1000 && !streamer.isActive())
         {
@@ -578,9 +579,9 @@ void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
     }
 }
 
-void SPI1_IRQHandler (void)
+void DMA2_Stream5_IRQHandler (void)
 {
-    appPtr->getSpi().processInterrupt();
+    appPtr->getSpi().processDmaTxInterrupt();
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)

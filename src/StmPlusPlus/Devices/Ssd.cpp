@@ -127,10 +127,8 @@ void Ssd_74HC595_SPI::putString (const char * str, const bool * dots, uint16_t s
             segData[i] = ~segData[i];
         }
     }
-    while (!spi.isFinished());
     pinCs.setLow();
-    spi.transmitIt(&segData[0], segNumbers);
-    pinCs.setHigh();
+    spi.transmitDma(this, &segData[0], segNumbers);
 }
 
 
@@ -152,8 +150,14 @@ void Ssd_74HC595_SPI::putDots (const bool * dots, uint16_t segNumbers)
             setBitToFalse(segData[i], sm.dot);
         }
     }
-    while (!spi.isFinished());
     pinCs.setLow();
-    spi.transmitIt(&segData[0], segNumbers);
+    spi.transmitDma(this, &segData[0], segNumbers);
+}
+
+
+bool Ssd_74HC595_SPI::onTransmissionFinished ()
+{
+    HAL_Delay(1);
     pinCs.setHigh();
+    return true;
 }

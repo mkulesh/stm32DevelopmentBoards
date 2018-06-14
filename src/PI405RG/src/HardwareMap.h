@@ -287,8 +287,8 @@ public:
 class Spi1 : public HardwareLayout::Spi
 {
 public:
-    explicit Spi1 (HardwareLayout::Port * port, uint32_t pins, HardwareLayout::Interrupt && txRxIrq):
-        Spi{1, SPI1, port, pins, GPIO_AF5_SPI1, std::move(txRxIrq)}
+    explicit Spi1 (HardwareLayout::Port * port, uint32_t pins, HardwareLayout::Interrupt && txIrq, HardwareLayout::DmaStream && txDma):
+        Spi{1, SPI1, port, pins, GPIO_AF5_SPI1, std::move(txIrq), std::move(txDma)}
     {
         disableClock();
     }

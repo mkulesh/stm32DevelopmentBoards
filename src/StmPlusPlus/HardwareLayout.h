@@ -389,14 +389,20 @@ public:
     /**
      * @brief Interrupt Number Definition
      */
-    Interrupt txRxIrq;
+    Interrupt txIrq;
+
+    /**
+     * @brief DMA used for transmission
+     */
+    DmaStream txDma;
 
     explicit Spi (size_t _id, SPI_TypeDef *_instance,
                   Port * _port, uint32_t _pins, uint32_t _alternate,
-                  Interrupt && _txRxIrq):
+                  Interrupt && _txIrq, DmaStream && _txDma):
          instance{_instance},
          pins{_port, _pins, _alternate},
-         txRxIrq{std::move(_txRxIrq)}
+         txIrq{std::move(_txIrq)},
+         txDma{std::move(_txDma)}
     {
         id = _id;
     }

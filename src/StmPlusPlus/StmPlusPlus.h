@@ -687,6 +687,13 @@ class Spi
 {
 public:
 
+    class Client
+    {
+    public:
+
+        virtual bool onTransmissionFinished () =0;
+    };
+
     const uint32_t TIMEOUT = 5000;
 
     /**
@@ -723,38 +730,28 @@ public:
     /**
      * @brief Send an amount of data in interrupt mode.
      */
-    inline HAL_StatusTypeDef transmitIt (uint8_t *buffer, size_t n)
+    inline HAL_StatusTypeDef transmitDma (Client * _client, uint8_t *buffer, size_t n)
     {
-        irqStatus = RESET;
-        return HAL_SPI_Transmit_IT(&spiParams, buffer, n);
+        client = _client;
+        return HAL_SPI_Transmit_DMA(&spiParams, buffer, n);
     }
 
-    /**
-     * @brief Interrupt handling.
-     */
-    inline void startInterrupt ()
+    inline void processDmaTxInterrupt ()
     {
-        device->txRxIrq.start();
-    }
-
-    inline void stopInterrupt ()
-    {
-        device->txRxIrq.stop();
-    }
-
-    inline void processInterrupt ()
-    {
-        HAL_SPI_IRQHandler(&spiParams);
+        HAL_DMA_IRQHandler(&txDma);
     }
 
     inline void processTxCpltCallback ()
     {
-        irqStatus = SET;
+        if (client != NULL && client->onTransmissionFinished())
+        {
+            client = NULL;
+        }
     }
 
-    inline bool isFinished () const
+    inline bool isUsed () const
     {
-        return irqStatus == SET;
+        return client != NULL;
     }
 
 private:
@@ -762,7 +759,8 @@ private:
     const HardwareLayout::Spi * device;
     IOPort pins;
     SPI_HandleTypeDef spiParams;
-    __IO ITStatus irqStatus;
+    DMA_HandleTypeDef txDma;
+    Client * client;
 };
 
 

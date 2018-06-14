@@ -621,7 +621,7 @@ void RealTimeClock::decodeNtpMessage (RealTimeClock::NtpPacket & ntpPacket)
 Spi::Spi (const HardwareLayout::Spi * _device, uint32_t pull):
     device{_device},
     pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW},
-    irqStatus{SET}
+    client{NULL}
 {
     spiParams.Instance = device->instance;
     spiParams.Init.Mode = SPI_MODE_MASTER;
@@ -637,6 +637,20 @@ Spi::Spi (const HardwareLayout::Spi * _device, uint32_t pull):
     spiParams.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
     spiParams.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
     #endif
+
+    txDma.Instance = device->txDma.instance;
+    txDma.Init.Channel = device->txDma.channel;
+    txDma.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    txDma.Init.PeriphInc = DMA_PINC_DISABLE;
+    txDma.Init.MemInc = DMA_MINC_ENABLE;
+    txDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    txDma.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    txDma.Init.Mode = DMA_NORMAL;
+    txDma.Init.Priority = DMA_PRIORITY_LOW;
+    txDma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    txDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+    txDma.Init.MemBurst = DMA_PBURST_SINGLE;
+    txDma.Init.PeriphBurst = DMA_PBURST_SINGLE;
 }
 
 
@@ -670,6 +684,15 @@ HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t d
         __HAL_SPI_ENABLE(&spiParams);
     }
 
+    __HAL_LINKDMA(&spiParams, hdmatx, txDma);
+    status = HAL_DMA_Init(&txDma);
+    if (status != HAL_OK)
+    {
+        USART_DEBUG("Can not initialize SPI DMA/TX channel: " << status);
+        return HAL_ERROR;
+    }
+    device->txIrq.start();
+
     USART_DEBUG("Started SPI " << device->id
              << ": BaudRatePrescaler = " << spiParams.Init.BaudRatePrescaler
              << ", DataSize = " << spiParams.Init.DataSize
@@ -683,9 +706,12 @@ HAL_StatusTypeDef Spi::start (uint32_t direction, uint32_t prescaler, uint32_t d
 void Spi::stop ()
 {
     USART_DEBUG("Stopping SPI " << device->id);
+    device->txIrq.stop();
+    HAL_DMA_DeInit(&txDma);
     HAL_SPI_DeInit(&spiParams);
     device->disableClock();
     pins.setMode(GPIO_MODE_INPUT);
+    client = NULL;
 }
 
 

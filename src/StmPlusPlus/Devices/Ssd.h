@@ -29,7 +29,7 @@ namespace Devices {
 /** 
  * @brief Class that describes a seven segment digit
  */
-class Ssd
+class Ssd : public Spi::Client
 {
 public:
 
@@ -47,6 +47,11 @@ public:
         SegmentsMask ();
     };
     
+    virtual ~Ssd ()
+    {
+        // empty
+    }
+
 protected:
 
     SegmentsMask sm;
@@ -82,6 +87,8 @@ public:
     void putString (const char * str, const bool * dots, uint16_t segNumbers);
 
     void putDots (const bool * dots, uint16_t segNumbers);
+
+    virtual bool onTransmissionFinished ();
 
 private:
 
