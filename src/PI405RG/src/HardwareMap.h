@@ -276,12 +276,10 @@ public:
     virtual void enableClock () const
     {
         __HAL_RCC_SDIO_CLK_ENABLE();
-        __HAL_RCC_DMA2_CLK_ENABLE();
     }
     virtual void disableClock () const
     {
         __HAL_RCC_SDIO_CLK_DISABLE();
-        __HAL_RCC_DMA2_CLK_DISABLE();
     }
 };
 
@@ -309,21 +307,18 @@ class I2S : public HardwareLayout::I2S
 {
 public:
     explicit I2S (HardwareLayout::Port * port, uint32_t pins,
-                  HardwareLayout::Interrupt && i2sIrq,
                   HardwareLayout::Interrupt && txIrq, HardwareLayout::DmaStream && txDma):
-        HardwareLayout::I2S{SPI2, port, pins, GPIO_AF5_SPI2, std::move(i2sIrq), std::move(txIrq), std::move(txDma)}
+        HardwareLayout::I2S{SPI2, port, pins, GPIO_AF5_SPI2, std::move(txIrq), std::move(txDma)}
     {
         // empty
     }
     virtual void enableClock () const
     {
         __HAL_RCC_SPI2_CLK_ENABLE();
-        __HAL_RCC_DMA1_CLK_ENABLE();
     }
     virtual void disableClock () const
     {
         __HAL_RCC_SPI2_CLK_DISABLE();
-        __HAL_RCC_DMA1_CLK_DISABLE();
     }
 };
 

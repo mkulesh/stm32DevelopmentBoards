@@ -826,14 +826,9 @@ public:
     HAL_StatusTypeDef start (uint32_t standard, uint32_t audioFreq, uint32_t dataFormat);
     void stop ();
 
-    inline HAL_StatusTypeDef transmit (uint16_t * pData, uint16_t size)
+    inline HAL_StatusTypeDef transmitDma (uint16_t * pData, uint16_t size)
     {
         return HAL_I2S_Transmit_DMA(&i2s, pData, size);
-    }
-
-    inline void processI2SInterrupt ()
-    {
-        HAL_I2S_IRQHandler(&i2s);
     }
 
     inline void processDmaTxInterrupt ()

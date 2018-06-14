@@ -423,7 +423,7 @@ public:
     /**
      * @brief Interrupts used for transmission
      */
-    Interrupt i2sIrq, txIrq;
+    Interrupt txIrq;
 
     /**
      * @brief DMA used for transmission
@@ -433,11 +433,9 @@ public:
     explicit I2S (SPI_TypeDef *_instance,
                   Port * _port, uint32_t _pins,
                   uint32_t _alternate,
-                  Interrupt && _i2sIrq,
                   Interrupt && _txIrq, DmaStream && _txDma):
          instance{_instance},
          pins{_port, _pins, _alternate},
-         i2sIrq{std::move(_i2sIrq)},
          txIrq{std::move(_txIrq)},
          txDma{std::move(_txDma)}
     {

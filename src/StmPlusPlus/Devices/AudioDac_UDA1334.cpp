@@ -115,12 +115,12 @@ void AudioDac_UDA1334::onBlockTransmissionFinished ()
     if (currDataBuffer == dataPtr1)
     {
         currDataBuffer = dataPtr2;
-        status = i2s.transmit(dataPtr2, BLOCK_SIZE2);
+        status = i2s.transmitDma(dataPtr2, BLOCK_SIZE2);
     }
     else
     {
         currDataBuffer = dataPtr1;
-        status = i2s.transmit(dataPtr1, BLOCK_SIZE2);
+        status = i2s.transmitDma(dataPtr1, BLOCK_SIZE2);
     }
     if (status != HAL_OK)
     {

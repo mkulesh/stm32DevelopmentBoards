@@ -51,7 +51,6 @@ MyHardware::Sdio devSdio (
 
 MyHardware::I2S devI2S (
     &portB, /*I2S2_CK*/GPIO_PIN_10 | /*I2S2_WS*/GPIO_PIN_12 | /*I2S2_SD*/GPIO_PIN_15,
-    HardwareLayout::Interrupt(SPI2_IRQn, 6, 0),
     HardwareLayout::Interrupt(DMA1_Stream4_IRQn, 7, 0),
     HardwareLayout::DmaStream(DMA1_Stream4, DMA_CHANNEL_0));
 
@@ -494,6 +493,9 @@ int main (void)
     while (sys.getMcuFreq() != 168000000L);
     sys.initInstance();
     
+    __HAL_RCC_DMA1_CLK_ENABLE();
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
     MyApplication app;
     appPtr = &app;
     
@@ -587,11 +589,6 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
     {
         appPtr->getSpi().processTxCpltCallback();
     }
-}
-
-void SPI2_IRQHandler(void)
-{
-    appPtr->getI2S().processI2SInterrupt();
 }
 
 void DMA1_Stream4_IRQHandler(void)

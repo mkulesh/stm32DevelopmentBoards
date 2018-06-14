@@ -885,9 +885,6 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
         USART_DEBUG("Can not initialize I2S DMA/TX channel: " << status);
         return HAL_ERROR;
     }
-
-    device->i2sIrq.start();
-    HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
     device->txIrq.start();
 
     return HAL_OK;
@@ -896,7 +893,6 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
 
 void I2S::stop ()
 {
-    device->i2sIrq.stop();
     device->txIrq.stop();
     HAL_DMA_DeInit(&txDma);
     HAL_I2S_DeInit(&i2s);
