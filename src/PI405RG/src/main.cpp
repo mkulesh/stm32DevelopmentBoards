@@ -51,7 +51,7 @@ MyHardware::Sdio devSdio (
 
 MyHardware::I2S devI2S (
     &portB, /*I2S2_CK*/GPIO_PIN_10 | /*I2S2_WS*/GPIO_PIN_12 | /*I2S2_SD*/GPIO_PIN_15,
-    HardwareLayout::Interrupt(DMA1_Stream4_IRQn, 7, 0),
+    HardwareLayout::Interrupt(DMA1_Stream4_IRQn, 6, 0),
     HardwareLayout::DmaStream(DMA1_Stream4, DMA_CHANNEL_0));
 
 MyHardware::Usart1 devUsart1 (
@@ -550,6 +550,14 @@ void SDIO_IRQHandler (void)
     Devices::SdCard::getInstance()->processSdIOInterrupt();
 }
 
+void USART1_IRQHandler(void)
+{
+    if (IS_USART_DEBUG_ACTIVE())
+    {
+        UsartLogger::getInstance()->processInterrupt();
+    }
+}
+
 void USART2_IRQHandler (void)
 {
     appPtr->getEsp().processInterrupt();
@@ -557,7 +565,11 @@ void USART2_IRQHandler (void)
 
 void HAL_UART_TxCpltCallback (UART_HandleTypeDef * channel)
 {
-    if (channel->Instance == USART2)
+    if (channel->Instance == USART1 && IS_USART_DEBUG_ACTIVE())
+    {
+        UsartLogger::getInstance()->processRxTxCpltCallback();
+    }
+    else if (channel->Instance == USART2)
     {
         appPtr->getEsp().processTxCpltCallback();
     }
@@ -565,7 +577,11 @@ void HAL_UART_TxCpltCallback (UART_HandleTypeDef * channel)
 
 void HAL_UART_RxCpltCallback (UART_HandleTypeDef * channel)
 {
-    if (channel->Instance == USART2)
+    if (channel->Instance == USART1 && IS_USART_DEBUG_ACTIVE())
+    {
+        UsartLogger::getInstance()->processRxTxCpltCallback();
+    }
+    else if (channel->Instance == USART2)
     {
         appPtr->getEsp().processRxCpltCallback();
     }
@@ -573,7 +589,11 @@ void HAL_UART_RxCpltCallback (UART_HandleTypeDef * channel)
 
 void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
 {
-    if (channel->Instance == USART2)
+    if (channel->Instance == USART1 && IS_USART_DEBUG_ACTIVE())
+    {
+        UsartLogger::getInstance()->processRxTxCpltCallback();
+    }
+    else if (channel->Instance == USART2)
     {
         appPtr->getEsp().processErrorCallback();
     }

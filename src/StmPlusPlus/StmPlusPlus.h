@@ -754,6 +754,11 @@ public:
         return client != NULL;
     }
 
+    inline bool isBusy () const
+    {
+        return (((spiParams.Instance->SR) & (SPI_FLAG_BSY)) == (SPI_FLAG_BSY));
+    }
+
 private:
 
     const HardwareLayout::Spi * device;

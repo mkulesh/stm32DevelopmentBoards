@@ -157,7 +157,7 @@ void Ssd_74HC595_SPI::putDots (const bool * dots, uint16_t segNumbers)
 
 bool Ssd_74HC595_SPI::onTransmissionFinished ()
 {
-    HAL_Delay(1);
+    while (spi.isBusy());
     pinCs.setHigh();
     return true;
 }

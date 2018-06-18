@@ -279,11 +279,17 @@ void UsartLogger::initInstance ()
     instance = this;
     start(UART_MODE_TX, baudRate, UART_WORDLENGTH_8B, UART_STOPBITS_1, UART_PARITY_NONE);
     while (HAL_UART_GetState(&usartParameters) != HAL_UART_STATE_READY);
+    startInterrupt();
 }
 
 UsartLogger & UsartLogger::operator << (const char * buffer)
 {
-    transmit(buffer);
+    size_t bSize = ::strlen(buffer);
+    if (bSize > 0)
+    {
+        while (!isFinished());
+        transmitIt(buffer, bSize);
+    }
     return *this;
 }
 
@@ -291,13 +297,19 @@ UsartLogger & UsartLogger::operator << (int n)
 {
     char buffer[1024];
     ::__itoa(n, buffer, 10);
-    transmit(buffer);
+    size_t bSize = ::strlen(buffer);
+    if (bSize > 0)
+    {
+        while (!isFinished());
+        transmitIt(buffer, bSize);
+    }
     return *this;
 }
 
 UsartLogger & UsartLogger::operator << (Manupulator /*m*/)
 {
-    transmit("\n\r");
+    while (!isFinished());
+    transmitIt("\n\r", 2);
     return *this;
 }
 
