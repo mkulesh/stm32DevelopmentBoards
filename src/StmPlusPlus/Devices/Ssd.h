@@ -29,7 +29,7 @@ namespace Devices {
 /** 
  * @brief Class that describes a seven segment digit
  */
-class Ssd : public Spi::Client
+class Ssd : public DeviceClient
 {
 public:
 

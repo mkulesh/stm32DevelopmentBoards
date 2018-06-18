@@ -28,7 +28,7 @@ namespace StmPlusPlus
 namespace Devices
 {
 
-class AudioDac_UDA1334
+class AudioDac_UDA1334 : public DeviceClient
 {
 public:
     
@@ -50,7 +50,7 @@ public:
     bool start (SourceType s, uint32_t standard, uint32_t audioFreq, uint32_t dataFormat);
     void stop ();
 
-    void onBlockTransmissionFinished ();
+    virtual bool onTransmissionFinished ();
 
     inline void setTestPin (IOPin * pin)
     {

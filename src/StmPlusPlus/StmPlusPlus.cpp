@@ -287,7 +287,7 @@ UsartLogger & UsartLogger::operator << (const char * buffer)
     size_t bSize = ::strlen(buffer);
     if (bSize > 0)
     {
-        while (!isFinished());
+        waitForRelease();
         transmitIt(buffer, bSize);
     }
     return *this;
@@ -300,7 +300,7 @@ UsartLogger & UsartLogger::operator << (int n)
     size_t bSize = ::strlen(buffer);
     if (bSize > 0)
     {
-        while (!isFinished());
+        waitForRelease();
         transmitIt(buffer, bSize);
     }
     return *this;
@@ -308,10 +308,24 @@ UsartLogger & UsartLogger::operator << (int n)
 
 UsartLogger & UsartLogger::operator << (Manupulator /*m*/)
 {
-    while (!isFinished());
+    waitForRelease();
     transmitIt("\n\r", 2);
     return *this;
 }
+
+void UsartLogger::waitForRelease ()
+{
+    uint32_t t1 = HAL_GetTick();
+    while (!isFinished())
+    {
+        uint32_t t2 = HAL_GetTick();
+        if (t2 - t1 > TIMEOUT)
+        {
+            break;
+        }
+    }
+}
+
 
 /************************************************************************
  * Class TimerBase
@@ -626,14 +640,31 @@ void RealTimeClock::decodeNtpMessage (RealTimeClock::NtpPacket & ntpPacket)
     USART_DEBUG("NTP time: " << getLocalTime());
 }
 
+
+/************************************************************************
+ * Class SharedDevice
+ ************************************************************************/
+void SharedDevice::waitForRelease ()
+{
+    uint32_t t1 = HAL_GetTick();
+    while (isUsed())
+    {
+        uint32_t t2 = HAL_GetTick();
+        if (t2 - t1 > TIMEOUT)
+        {
+            break;
+        }
+    }
+}
+
+
 /************************************************************************
  * Class Spi
  ************************************************************************/
 
 Spi::Spi (const HardwareLayout::Spi * _device, uint32_t pull):
     device{_device},
-    pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW},
-    client{NULL}
+    pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW}
 {
     spiParams.Instance = device->instance;
     spiParams.Init.Mode = SPI_MODE_MASTER;

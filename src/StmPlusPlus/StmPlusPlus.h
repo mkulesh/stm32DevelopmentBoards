@@ -439,6 +439,8 @@ class UsartLogger : public Usart
 {
 public:
 
+    const uint32_t TIMEOUT = 1000;
+
     enum Manupulator
     {
         ENDL = 0
@@ -477,6 +479,8 @@ private:
 
     static UsartLogger * instance;
     uint32_t baudRate;
+
+    void waitForRelease ();
 };
 
 
@@ -680,21 +684,49 @@ private:
 };
 
 
-/**
- * @brief Class that implements SPI interface.
- */
-class Spi
+class DeviceClient
 {
 public:
 
-    class Client
+    virtual ~DeviceClient ()
     {
-    public:
+        // empty
+    }
 
-        virtual bool onTransmissionFinished () =0;
-    };
+    virtual bool onTransmissionFinished () =0;
+};
 
-    const uint32_t TIMEOUT = 5000;
+
+class SharedDevice
+{
+public:
+
+    const uint32_t TIMEOUT = 1000;
+
+    SharedDevice () : client{NULL}
+    {
+        // empty
+    }
+
+    inline bool isUsed () const
+    {
+        return client != NULL;
+    }
+
+    void waitForRelease ();
+
+protected:
+
+    DeviceClient * client;
+};
+
+
+/**
+ * @brief Class that implements SPI interface.
+ */
+class Spi : public SharedDevice
+{
+public:
 
     /**
      * @brief Default constructor.
@@ -730,7 +762,7 @@ public:
     /**
      * @brief Send an amount of data in interrupt mode.
      */
-    inline HAL_StatusTypeDef transmitDma (Client * _client, uint8_t *buffer, size_t n)
+    inline HAL_StatusTypeDef transmitDma (DeviceClient * _client, uint8_t *buffer, size_t n)
     {
         client = _client;
         return HAL_SPI_Transmit_DMA(&spiParams, buffer, n);
@@ -749,11 +781,6 @@ public:
         }
     }
 
-    inline bool isUsed () const
-    {
-        return client != NULL;
-    }
-
     inline bool isBusy () const
     {
         return (((spiParams.Instance->SR) & (SPI_FLAG_BSY)) == (SPI_FLAG_BSY));
@@ -765,7 +792,6 @@ private:
     IOPort pins;
     SPI_HandleTypeDef spiParams;
     DMA_HandleTypeDef txDma;
-    Client * client;
 };
 
 
@@ -820,7 +846,7 @@ private:
 /**
  * @brief Class that implements I2S interface
  */
-class I2S
+class I2S : public SharedDevice
 {
 public:
 
@@ -828,14 +854,23 @@ public:
     HAL_StatusTypeDef start (uint32_t standard, uint32_t audioFreq, uint32_t dataFormat);
     void stop ();
 
-    inline HAL_StatusTypeDef transmitDma (uint16_t * pData, uint16_t size)
+    inline HAL_StatusTypeDef transmitDma (DeviceClient * _client, uint16_t * pData, uint16_t size)
     {
+        client = _client;
         return HAL_I2S_Transmit_DMA(&i2s, pData, size);
     }
 
     inline void processDmaTxInterrupt ()
     {
         HAL_DMA_IRQHandler(&txDma);
+    }
+
+    inline void processTxCpltCallback ()
+    {
+        if (client != NULL && client->onTransmissionFinished())
+        {
+            client = NULL;
+        }
     }
 
 private:

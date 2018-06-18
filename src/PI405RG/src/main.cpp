@@ -360,7 +360,7 @@ public:
         sprintf(localTime, "%02d%02d", now->tm_min, now->tm_sec);
         //float v = adc.getVoltage();
         //USART_DEBUG(localTime);
-        while (spi.isUsed());
+        spi.waitForRelease();
         ssd.putString(localTime, NULL, 4);
         if (rtc.getTimeSec() > 1000 && !streamer.isActive())
         {
@@ -427,11 +427,6 @@ public:
         ::strcat(messageBuffer, "</p>");
         ::strcat(messageBuffer, "</message>");
         return &messageBuffer[0];
-    }
-
-    inline void processDmaTxCpltCallback (I2S_HandleTypeDef * /*channel*/)
-    {
-        audioDac.onBlockTransmissionFinished();
     }
 
     virtual bool onStartSteaming (Devices::AudioDac_UDA1334::SourceType s)
@@ -619,7 +614,7 @@ void DMA1_Stream4_IRQHandler(void)
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *channel)
 {
-    appPtr->processDmaTxCpltCallback(channel);
+    appPtr->getI2S().processTxCpltCallback();
 }
 
 }

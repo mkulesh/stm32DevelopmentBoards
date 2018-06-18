@@ -33,9 +33,9 @@ AudioDac_UDA1334::AudioDac_UDA1334 (I2S & _i2s,
                                     IOPort::PortName mutePort, uint32_t mutePin,
                                     IOPort::PortName smplFreqPort, uint32_t smplFreqPin) :
         i2s(_i2s),
-        power(powerPort, powerPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_LOW, true, false),
-        mute(mutePort, mutePin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_LOW, true, false),
-        smplFreq(smplFreqPort, smplFreqPin, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_LOW, true, false),
+        power(powerPort, powerPin, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_LOW, true, false),
+        mute(mutePort, mutePin, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_LOW, true, false),
+        smplFreq(smplFreqPort, smplFreqPin, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN, GPIO_SPEED_LOW, true, false),
         sourceType(SourceType::STREAM),
         dataPtr1(NULL),
         dataPtr2(NULL),
@@ -76,15 +76,16 @@ bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s, uint32_t standard,
         return false;
     }
     
-    power.putBit(true);
     mute.putBit(true);
-    smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
-    currDataBuffer = dataPtr2;
+    power.putBit(true);
     if (START_DELAY > 0)
     {
         HAL_Delay(START_DELAY);
     }
-    onBlockTransmissionFinished();
+
+    smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
+    currDataBuffer = dataPtr2;
+    onTransmissionFinished();
     mute.putBit(false);
     
     return true;
@@ -101,11 +102,11 @@ void AudioDac_UDA1334::stop ()
     blockRequested = false;
 }
 
-void AudioDac_UDA1334::onBlockTransmissionFinished ()
+bool AudioDac_UDA1334::onTransmissionFinished ()
 {
     if (currDataBuffer == NULL)
     {
-        return;
+        return true;
     }
     if (testPin != NULL)
     {
@@ -115,12 +116,12 @@ void AudioDac_UDA1334::onBlockTransmissionFinished ()
     if (currDataBuffer == dataPtr1)
     {
         currDataBuffer = dataPtr2;
-        status = i2s.transmitDma(dataPtr2, BLOCK_SIZE2);
+        status = i2s.transmitDma(this, dataPtr2, BLOCK_SIZE2);
     }
     else
     {
         currDataBuffer = dataPtr1;
-        status = i2s.transmitDma(dataPtr1, BLOCK_SIZE2);
+        status = i2s.transmitDma(this, dataPtr1, BLOCK_SIZE2);
     }
     if (status != HAL_OK)
     {
@@ -130,6 +131,7 @@ void AudioDac_UDA1334::onBlockTransmissionFinished ()
     {
         blockRequested = true;
     }
+    return false;
 }
 
 void AudioDac_UDA1334::makeTestSignalLin ()
