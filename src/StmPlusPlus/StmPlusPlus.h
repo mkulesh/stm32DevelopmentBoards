@@ -825,21 +825,37 @@ class AnalogToDigitConverter : public IOPin
 public:
 
     const uint32_t INVALID_VALUE = __UINT32_MAX__;
+    static const size_t ADC_BUFFER_LENGTH = 100;
 
     AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, float _vRef);
 
     HAL_StatusTypeDef start ();
     void stop ();
-    uint32_t getValue ();
-    float getVoltage ();
+    
+    float read ();
+    HAL_StatusTypeDef readDma ();
+    
+    inline float getVoltage ()
+    {
+        return vMeasured;
+    }
+
+    inline void processDmaInterrupt ()
+    {
+        HAL_DMA_IRQHandler(&adcDma);
+    }
+
+    bool processConvCpltCallback ();
 
 private:
 
     const HardwareLayout::Adc * device;
-    ADC_HandleTypeDef * hadc;
     ADC_HandleTypeDef adcParams;
     ADC_ChannelConfTypeDef adcChannel;
-    float vRef;
+    DMA_HandleTypeDef adcDma;
+    float vRef, vMeasured;
+    size_t nrReadings;
+    std::array<uint32_t, ADC_BUFFER_LENGTH> adcBuffer;
 };
 
 

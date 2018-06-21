@@ -467,9 +467,22 @@ public:
      */
     Pins pins;
 
-    explicit Adc (size_t _id, ADC_TypeDef *_instance, Port * _port, uint32_t _pins):
+    /**
+     * @brief Interrupts used for transmission
+     */
+    Interrupt rxIrq;
+
+    /**
+     * @brief DMA used for transmission
+     */
+    DmaStream rxDma;
+
+    explicit Adc (size_t _id, ADC_TypeDef *_instance, Port * _port, uint32_t _pins,
+                  Interrupt && _rxIrq, DmaStream && _rxDma):
          instance{_instance},
-         pins{_port, _pins, 0}
+         pins{_port, _pins, 0},
+         rxIrq{std::move(_rxIrq)},
+         rxDma{std::move(_rxDma)}
     {
         id = _id;
     }

@@ -57,7 +57,7 @@ MyHardware::I2S devI2S (
 MyHardware::Usart1 devUsart1 (
     &portB, GPIO_PIN_6,
     &portB, GPIO_PIN_7,
-    HardwareLayout::Interrupt(USART1_IRQn, UNDEFINED_PRIO, UNDEFINED_PRIO));
+    HardwareLayout::Interrupt(USART1_IRQn, 15, 0));
 
 MyHardware::Usart2 devUsart2 (
     &portA, GPIO_PIN_2,
@@ -71,8 +71,9 @@ MyHardware::Spi1 devSpi1(&portA, GPIO_PIN_5 | GPIO_PIN_7,
 MyHardware::Timer3 devTimer3(HardwareLayout::Interrupt(TIM3_IRQn, 10, 0));
 MyHardware::Timer5 devTimer5(HardwareLayout::Interrupt(TIM5_IRQn, 11, 0));
 
-MyHardware::Adc1 adc1(&portA, GPIO_PIN_0);
-MyHardware::Adc2 adc2(&portA, GPIO_PIN_0);
+MyHardware::Adc1 adc1(&portA, GPIO_PIN_0,
+    HardwareLayout::Interrupt(DMA2_Stream0_IRQn, 12, 0),
+    HardwareLayout::DmaStream(DMA2_Stream0, DMA_CHANNEL_0));
 
 
 class MyApplication : public WavStreamer::EventHandler, Devices::Button::EventHandler
@@ -88,7 +89,8 @@ public:
     {
         SECOND_INTERRUPT = 0,
         HEARTBEAT_INTERRUPT = 1,
-        NTP_REQUEST = 2
+        NTP_REQUEST = 2,
+        ADC1_READY = 3
     };
 
 private:
@@ -247,6 +249,11 @@ public:
         return spi;
     }
 
+    inline AnalogToDigitConverter & getAdc ()
+    {
+        return adc;
+    }
+
     void run ()
     {
         log.initInstance();
@@ -315,6 +322,9 @@ public:
                     ntpRequestActive = true;
                     handleNtpRequest();
                     break;
+                case EventType::ADC1_READY:
+                    USART_DEBUG("ADC1: " << (int)(adc.getVoltage() * 100));
+                    break;
                 }
             }
             updateSdCardState();
@@ -358,13 +368,14 @@ public:
         time_t total_secs = rtc.getTimeSec();
         struct tm * now = ::gmtime(&total_secs);
         sprintf(localTime, "%02d%02d", now->tm_min, now->tm_sec);
-        //float v = adc.getVoltage();
-        //USART_DEBUG(localTime);
         spi.waitForRelease();
         ssd.putString(localTime, NULL, 4);
-        if (rtc.getTimeSec() > 1000 && !streamer.isActive())
+        if (rtc.getTimeSec() > 1000)
         {
-            onButtonPressed(&playButton, 1);
+            if (!streamer.isActive())
+            {
+                onButtonPressed(&playButton, 1);
+            }
         }
     }
 
@@ -459,7 +470,7 @@ public:
                 USART_DEBUG("    Stopping WAV");
                 streamer.stop();
             }
-            else
+            else if (sdCard.isCardInserted())
             {
                 USART_DEBUG("    Starting WAV");
                 streamer.start(AudioDac_UDA1334::SourceType:: STREAM, config.getWavFile());
@@ -500,6 +511,7 @@ int main (void)
 
 extern "C"
 {
+// System and RTC
 void SysTick_Handler (void)
 {
     HAL_IncTick();
@@ -518,6 +530,7 @@ void RTC_WKUP_IRQHandler ()
     appPtr->scheduleEvent(MyApplication::EventType::SECOND_INTERRUPT);
 }
 
+// Timers
 void TIM3_IRQHandler ()
 {
     appPtr->getNtpRequestTimer().processInterrupt();
@@ -530,6 +543,7 @@ void TIM5_IRQHandler ()
     appPtr->scheduleEvent(MyApplication::EventType::HEARTBEAT_INTERRUPT);
 }
 
+// SD card
 void DMA2_Stream3_IRQHandler (void)
 {
     Devices::SdCard::getInstance()->processDmaRxInterrupt();
@@ -545,6 +559,7 @@ void SDIO_IRQHandler (void)
     Devices::SdCard::getInstance()->processSdIOInterrupt();
 }
 
+// UART
 void USART1_IRQHandler(void)
 {
     if (IS_USART_DEBUG_ACTIVE())
@@ -594,6 +609,7 @@ void HAL_UART_ErrorCallback (UART_HandleTypeDef * channel)
     }
 }
 
+// SPI
 void DMA2_Stream5_IRQHandler (void)
 {
     appPtr->getSpi().processDmaTxInterrupt();
@@ -607,6 +623,7 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
     }
 }
 
+// I2S
 void DMA1_Stream4_IRQHandler(void)
 {
     appPtr->getI2S().processDmaTxInterrupt();
@@ -615,6 +632,20 @@ void DMA1_Stream4_IRQHandler(void)
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *channel)
 {
     appPtr->getI2S().processTxCpltCallback();
+}
+
+// ADC
+void DMA2_Stream0_IRQHandler()
+{
+    appPtr->getAdc().processDmaInterrupt();
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* channel)
+{
+    if (appPtr->getAdc().processConvCpltCallback())
+    {
+        appPtr->scheduleEvent(MyApplication::EventType::ADC1_READY);
+    }
 }
 
 }

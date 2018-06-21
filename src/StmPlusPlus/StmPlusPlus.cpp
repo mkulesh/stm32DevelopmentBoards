@@ -20,6 +20,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include <algorithm>
 
 #include "StmPlusPlus.h"
 
@@ -805,8 +806,9 @@ bool PeriodicalEvent::isOccured ()
 AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, float _vRef):
     IOPin(_device->pins, GPIO_MODE_ANALOG, GPIO_NOPULL),
     device(_device),
-    hadc(NULL),
-    vRef(_vRef)
+    vRef(_vRef),
+    vMeasured(0.0),
+    nrReadings(0)
 {
     adcParams.Instance = device->instance;
 
@@ -814,20 +816,34 @@ AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _dev
     adcParams.Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV2;
     adcParams.Init.Resolution = ADC_RESOLUTION_12B;
     adcParams.Init.ScanConvMode = DISABLE;
-    adcParams.Init.ContinuousConvMode = DISABLE;
-    adcParams.Init.DiscontinuousConvMode = DISABLE; // enable if multi-channel conversion needed
+    adcParams.Init.ContinuousConvMode = ENABLE;
+    adcParams.Init.DiscontinuousConvMode = DISABLE;
     adcParams.Init.NbrOfDiscConversion = 0;
     adcParams.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
     adcParams.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_CC1;
     adcParams.Init.DataAlign = ADC_DATAALIGN_RIGHT;
     adcParams.Init.NbrOfConversion = 1;
-    adcParams.Init.DMAContinuousRequests = DISABLE;
+    adcParams.Init.DMAContinuousRequests = ENABLE;
     adcParams.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
 
     adcChannel.Channel = channel; // each channel is connected to the specific pin, see pin descriptions
     adcChannel.Rank = 1;
     adcChannel.SamplingTime = ADC_SAMPLETIME_56CYCLES;
     adcChannel.Offset = 0;
+
+    adcDma.Instance = device->rxDma.instance;
+    adcDma.Init.Channel  = device->rxDma.channel;
+    adcDma.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    adcDma.Init.PeriphInc = DMA_PINC_DISABLE;
+    adcDma.Init.MemInc = DMA_MINC_ENABLE;
+    adcDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    adcDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    adcDma.Init.Mode = DMA_CIRCULAR;
+    adcDma.Init.Priority = DMA_PRIORITY_LOW;
+    adcDma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    adcDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_HALFFULL;
+    adcDma.Init.MemBurst = DMA_MBURST_SINGLE;
+    adcDma.Init.PeriphBurst = DMA_PBURST_SINGLE;
     #endif
 
     // for Multichannel ADC reading, see
@@ -837,26 +853,36 @@ AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _dev
 
 HAL_StatusTypeDef AnalogToDigitConverter::start ()
 {
-    hadc = &adcParams;
     device->enableClock();
 
-    HAL_StatusTypeDef status = HAL_ADC_Init(hadc);
+    HAL_StatusTypeDef status = HAL_ADC_Init(&adcParams);
     if (status != HAL_OK)
     {
         USART_DEBUG("Can not initialize ACD " << device->id << ": " << status);
         return status;
     }
 
-    status = HAL_ADC_ConfigChannel(hadc, &adcChannel);
+    status = HAL_ADC_ConfigChannel(&adcParams, &adcChannel);
     if (status != HAL_OK)
     {
         USART_DEBUG("Can not configure ACD channel " << adcChannel.Channel << ": " << status);
         return status;
     }
 
+    status = HAL_DMA_Init(&adcDma);
+    if (status != HAL_OK)
+    {
+        USART_DEBUG("Can not configure ACD/DMA channel " << adcChannel.Channel << ": " << status);
+        return status;
+    }
+    __HAL_LINKDMA(&adcParams, DMA_Handle, adcDma);
+
     USART_DEBUG("Started ACD " << device->id
              << ": channel = " << adcChannel.Channel
+             << ", irqPrio = " << device->rxIrq.prio << "," << device->rxIrq.subPrio
              << ", Status = " << status);
+
+    device->rxIrq.start();
 
     return status;
 }
@@ -865,35 +891,53 @@ HAL_StatusTypeDef AnalogToDigitConverter::start ()
 void AnalogToDigitConverter::stop ()
 {
     USART_DEBUG("Stopping ADC " << device->id);
+    device->rxIrq.stop();
+    HAL_DMA_DeInit(&adcDma);
     HAL_ADC_DeInit(&adcParams);
     device->disableClock();
-    hadc = NULL;
 }
 
 
-uint32_t AnalogToDigitConverter::getValue ()
+float AnalogToDigitConverter::read ()
 {
     uint32_t value = INVALID_VALUE;
-    if (hadc == NULL)
+    if (HAL_ADC_Start(&adcParams) == HAL_OK)
     {
-        return value;
-    }
-    if (HAL_ADC_Start(hadc) == HAL_OK)
-    {
-        if (HAL_ADC_PollForConversion(hadc, 10000) == HAL_OK)
+        if (HAL_ADC_PollForConversion(&adcParams, 10000) == HAL_OK)
         {
-            value = HAL_ADC_GetValue(hadc);
+            value = HAL_ADC_GetValue(&adcParams);
         }
     }
-    HAL_ADC_Stop(hadc);
-    return value;
+    HAL_ADC_Stop(&adcParams);
+    return (vRef * (float)value)/4095.0;
 }
 
 
-float AnalogToDigitConverter::getVoltage ()
+HAL_StatusTypeDef AnalogToDigitConverter::readDma ()
 {
-    return (vRef * (float)getValue())/4095.0;
+    nrReadings = 0;
+    vMeasured = 0;
+    adcBuffer.fill(0);
+    device->rxIrq.start();
+    return HAL_ADC_Start_DMA(&adcParams, adcBuffer.data(), ADC_BUFFER_LENGTH - 1);
 }
+
+
+bool AnalogToDigitConverter::processConvCpltCallback ()
+{
+    ++nrReadings;
+    if (nrReadings + 1 < ADC_BUFFER_LENGTH)
+    {
+        return false;
+    }
+
+    device->rxIrq.stop();
+    HAL_ADC_Stop_DMA(&adcParams);
+    std::sort(adcBuffer.begin(), adcBuffer.end());
+    vMeasured = (vRef * (float)adcBuffer[ADC_BUFFER_LENGTH/2])/4095.0;
+    return true;
+}
+
 
 /************************************************************************
  * Class I2S
