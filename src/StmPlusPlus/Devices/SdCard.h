@@ -35,7 +35,7 @@ namespace Devices {
 /**
  * @brief Class that implements SD card interface.
  */
-class SdCard
+class SdCard : public SharedDevice
 {
 public:
 
@@ -66,16 +66,6 @@ public:
     inline void initInstance ()
     {
         instance = this;
-    }
-
-    inline void processDmaRxInterrupt ()
-    {
-        HAL_DMA_IRQHandler(&rxDma);
-    }
-
-    inline void processDmaTxInterrupt ()
-    {
-        HAL_DMA_IRQHandler(&txDma);
     }
 
     inline void processSdIOInterrupt ()
@@ -118,8 +108,6 @@ private:
     IOPort pins2;
     SD_HandleTypeDef sdParams;
     HAL_SD_CardInfoTypedef sdCardInfo;
-    DMA_HandleTypeDef rxDma;
-    DMA_HandleTypeDef txDma;
 
     // FAT FS
     static Diskio_drvTypeDef fatFsDriver;

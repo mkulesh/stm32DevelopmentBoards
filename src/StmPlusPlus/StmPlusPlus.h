@@ -713,11 +713,39 @@ public:
         return client != NULL;
     }
 
+    inline void processDmaTxInterrupt ()
+    {
+        HAL_DMA_IRQHandler(&txDma);
+    }
+
+    inline void processTxCpltCallback ()
+    {
+        if (client != NULL && client->onTransmissionFinished())
+        {
+            client = NULL;
+        }
+    }
+
+    inline void processDmaRxInterrupt ()
+    {
+        HAL_DMA_IRQHandler(&rxDma);
+    }
+
+    inline void processRxCpltCallback ()
+    {
+        if (client != NULL && client->onTransmissionFinished())
+        {
+            client = NULL;
+        }
+    }
+
     void waitForRelease ();
 
 protected:
 
     DeviceClient * client;
+    DMA_HandleTypeDef txDma;
+    DMA_HandleTypeDef rxDma;
 };
 
 
@@ -768,19 +796,6 @@ public:
         return HAL_SPI_Transmit_DMA(&spiParams, buffer, n);
     }
 
-    inline void processDmaTxInterrupt ()
-    {
-        HAL_DMA_IRQHandler(&txDma);
-    }
-
-    inline void processTxCpltCallback ()
-    {
-        if (client != NULL && client->onTransmissionFinished())
-        {
-            client = NULL;
-        }
-    }
-
     inline bool isBusy () const
     {
         return (((spiParams.Instance->SR) & (SPI_FLAG_BSY)) == (SPI_FLAG_BSY));
@@ -791,7 +806,6 @@ private:
     const HardwareLayout::Spi * device;
     IOPort pins;
     SPI_HandleTypeDef spiParams;
-    DMA_HandleTypeDef txDma;
 };
 
 
@@ -820,7 +834,7 @@ public:
 /**
  * @brief Class that implements analog-to-digit converter
  */
-class AnalogToDigitConverter : public IOPin
+class AnalogToDigitConverter : public SharedDevice
 {
 public:
 
@@ -840,19 +854,14 @@ public:
         return vMeasured;
     }
 
-    inline void processDmaInterrupt ()
-    {
-        HAL_DMA_IRQHandler(&adcDma);
-    }
-
     bool processConvCpltCallback ();
 
 private:
 
     const HardwareLayout::Adc * device;
+    IOPin pin;
     ADC_HandleTypeDef adcParams;
     ADC_ChannelConfTypeDef adcChannel;
-    DMA_HandleTypeDef adcDma;
     float vRef, vMeasured;
     size_t nrReadings;
     std::array<uint32_t, ADC_BUFFER_LENGTH> adcBuffer;
@@ -876,25 +885,11 @@ public:
         return HAL_I2S_Transmit_DMA(&i2s, pData, size);
     }
 
-    inline void processDmaTxInterrupt ()
-    {
-        HAL_DMA_IRQHandler(&txDma);
-    }
-
-    inline void processTxCpltCallback ()
-    {
-        if (client != NULL && client->onTransmissionFinished())
-        {
-            client = NULL;
-        }
-    }
-
 private:
 
     const HardwareLayout::I2S * device;
     IOPort pins;
     I2S_HandleTypeDef i2s;
-    DMA_HandleTypeDef txDma;
 };
 
 } // end namespace

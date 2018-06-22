@@ -804,11 +804,11 @@ bool PeriodicalEvent::isOccured ()
  ************************************************************************/
 
 AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, float _vRef):
-    IOPin(_device->pins, GPIO_MODE_ANALOG, GPIO_NOPULL),
-    device(_device),
-    vRef(_vRef),
-    vMeasured(0.0),
-    nrReadings(0)
+    device{_device},
+    pin{_device->pins, GPIO_MODE_ANALOG, GPIO_NOPULL},
+    vRef{_vRef},
+    vMeasured{0.0},
+    nrReadings{0}
 {
     adcParams.Instance = device->instance;
 
@@ -831,19 +831,19 @@ AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _dev
     adcChannel.SamplingTime = ADC_SAMPLETIME_56CYCLES;
     adcChannel.Offset = 0;
 
-    adcDma.Instance = device->rxDma.instance;
-    adcDma.Init.Channel  = device->rxDma.channel;
-    adcDma.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    adcDma.Init.PeriphInc = DMA_PINC_DISABLE;
-    adcDma.Init.MemInc = DMA_MINC_ENABLE;
-    adcDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    adcDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    adcDma.Init.Mode = DMA_CIRCULAR;
-    adcDma.Init.Priority = DMA_PRIORITY_LOW;
-    adcDma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    adcDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_HALFFULL;
-    adcDma.Init.MemBurst = DMA_MBURST_SINGLE;
-    adcDma.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    rxDma.Instance = device->rxDma.instance;
+    rxDma.Init.Channel  = device->rxDma.channel;
+    rxDma.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    rxDma.Init.PeriphInc = DMA_PINC_DISABLE;
+    rxDma.Init.MemInc = DMA_MINC_ENABLE;
+    rxDma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    rxDma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    rxDma.Init.Mode = DMA_CIRCULAR;
+    rxDma.Init.Priority = DMA_PRIORITY_LOW;
+    rxDma.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    rxDma.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_HALFFULL;
+    rxDma.Init.MemBurst = DMA_MBURST_SINGLE;
+    rxDma.Init.PeriphBurst = DMA_PBURST_SINGLE;
     #endif
 
     // for Multichannel ADC reading, see
@@ -869,13 +869,13 @@ HAL_StatusTypeDef AnalogToDigitConverter::start ()
         return status;
     }
 
-    status = HAL_DMA_Init(&adcDma);
+    status = HAL_DMA_Init(&rxDma);
     if (status != HAL_OK)
     {
         USART_DEBUG("Can not configure ACD/DMA channel " << adcChannel.Channel << ": " << status);
         return status;
     }
-    __HAL_LINKDMA(&adcParams, DMA_Handle, adcDma);
+    __HAL_LINKDMA(&adcParams, DMA_Handle, rxDma);
 
     USART_DEBUG("Started ACD " << device->id
              << ": channel = " << adcChannel.Channel
@@ -892,7 +892,7 @@ void AnalogToDigitConverter::stop ()
 {
     USART_DEBUG("Stopping ADC " << device->id);
     device->rxIrq.stop();
-    HAL_DMA_DeInit(&adcDma);
+    HAL_DMA_DeInit(&rxDma);
     HAL_ADC_DeInit(&adcParams);
     device->disableClock();
 }
@@ -943,8 +943,8 @@ bool AnalogToDigitConverter::processConvCpltCallback ()
  * Class I2S
  ************************************************************************/
 I2S::I2S (const HardwareLayout::I2S * _device):
-        device{_device},
-        pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW}
+    device{_device},
+    pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW}
 {
     i2s.Instance = device->instance;
     i2s.Init.Mode = I2S_MODE_MASTER_TX;

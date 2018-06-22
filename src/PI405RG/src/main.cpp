@@ -194,7 +194,7 @@ public:
             ntpRequestActive(false),
 
             // ADC
-            adc(&adc1, 0, 3.33),
+            adc(&adc1, 0, 3.21),
 
             // SSD
             spi(&devSpi1, GPIO_PULLUP),
@@ -323,7 +323,7 @@ public:
                     handleNtpRequest();
                     break;
                 case EventType::ADC1_READY:
-                    USART_DEBUG("ADC1: " << (int)(adc.getVoltage() * 100));
+                    USART_DEBUG("ADC1: " << (int)(adc.getVoltage() * 1000));
                     break;
                 }
             }
@@ -376,6 +376,7 @@ public:
             {
                 onButtonPressed(&playButton, 1);
             }
+            adc.readDma();
         }
     }
 
@@ -637,7 +638,7 @@ void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *channel)
 // ADC
 void DMA2_Stream0_IRQHandler()
 {
-    appPtr->getAdc().processDmaInterrupt();
+    appPtr->getAdc().processDmaRxInterrupt();
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* channel)
