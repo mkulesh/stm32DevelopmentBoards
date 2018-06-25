@@ -944,8 +944,9 @@ bool AnalogToDigitConverter::processConvCpltCallback ()
  ************************************************************************/
 I2S::I2S (const HardwareLayout::I2S * _device):
     device{_device},
-    pins{_device->pins, GPIO_MODE_INPUT, GPIO_PULLDOWN, GPIO_SPEED_FREQ_LOW}
+    pins{_device->pins, GPIO_MODE_INPUT, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW}
 {
+    pins.setMode(GPIO_MODE_AF_PP);
     i2s.Instance = device->instance;
     i2s.Init.Mode = I2S_MODE_MASTER_TX;
     i2s.Init.Standard = I2S_STANDARD_PHILIPS; // will be re-defined at communication start
@@ -978,8 +979,6 @@ HAL_StatusTypeDef I2S::start (uint32_t standard, uint32_t audioFreq, uint32_t da
     i2s.Init.AudioFreq = audioFreq;
     i2s.Init.DataFormat = dataFormat;
 
-    pins.setMode(GPIO_MODE_AF_PP);
-
     device->enableClock();
     HAL_StatusTypeDef status = HAL_I2S_Init(&i2s);
     if (status != HAL_OK)
@@ -1007,7 +1006,6 @@ void I2S::stop ()
     HAL_DMA_DeInit(&txDma);
     HAL_I2S_DeInit(&i2s);
     device->disableClock();
-    pins.setMode(GPIO_MODE_INPUT);
 }
 
 

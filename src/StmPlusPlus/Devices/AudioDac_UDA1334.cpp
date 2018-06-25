@@ -68,19 +68,19 @@ bool AudioDac_UDA1334::start (AudioDac_UDA1334::SourceType s, uint32_t standard,
         makeTestSignalSin();
         break;
     }
-    
-    HAL_StatusTypeDef status = i2s.start(standard, audioFreq, dataFormat);
-    USART_DEBUG("I2S start status: " << status);
-    if (status != HAL_OK)
-    {
-        return false;
-    }
-    
+
     mute.putBit(true);
     power.putBit(true);
     if (START_DELAY > 0)
     {
         HAL_Delay(START_DELAY);
+    }
+
+    HAL_StatusTypeDef status = i2s.start(standard, audioFreq, dataFormat);
+    USART_DEBUG("I2S start status: " << status);
+    if (status != HAL_OK)
+    {
+        return false;
     }
 
     smplFreq.putBit(audioFreq > I2S_AUDIOFREQ_48K);
