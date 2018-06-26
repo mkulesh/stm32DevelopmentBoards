@@ -841,7 +841,7 @@ public:
     const uint32_t INVALID_VALUE = __UINT32_MAX__;
     static const size_t ADC_BUFFER_LENGTH = 100;
 
-    AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, float _vRef);
+    AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, uint32_t samplingTime, float _vRef);
 
     HAL_StatusTypeDef start ();
     void stop ();
@@ -852,6 +852,11 @@ public:
     inline float getVoltage ()
     {
         return vMeasured;
+    }
+
+    inline int getMV ()
+    {
+        return (int)(vMeasured * 1000);
     }
 
     bool processConvCpltCallback ();

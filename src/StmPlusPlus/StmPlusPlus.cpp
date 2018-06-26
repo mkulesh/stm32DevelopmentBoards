@@ -803,7 +803,7 @@ bool PeriodicalEvent::isOccured ()
  * Class AnalogToDigitConverter
  ************************************************************************/
 
-AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, float _vRef):
+AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _device, uint32_t channel, uint32_t samplingTime, float _vRef):
     device{_device},
     pin{_device->pins, GPIO_MODE_ANALOG, GPIO_NOPULL},
     vRef{_vRef},
@@ -828,7 +828,7 @@ AnalogToDigitConverter::AnalogToDigitConverter (const HardwareLayout::Adc * _dev
 
     adcChannel.Channel = channel; // each channel is connected to the specific pin, see pin descriptions
     adcChannel.Rank = 1;
-    adcChannel.SamplingTime = ADC_SAMPLETIME_56CYCLES;
+    adcChannel.SamplingTime = samplingTime;
     adcChannel.Offset = 0;
 
     rxDma.Instance = device->rxDma.instance;

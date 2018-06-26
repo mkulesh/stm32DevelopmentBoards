@@ -26,6 +26,7 @@
 #include "EventQueue.h"
 
 #include <array>
+#include <cmath>
 
 using namespace StmPlusPlus;
 using namespace StmPlusPlus::Devices;
@@ -194,7 +195,7 @@ public:
             ntpRequestActive(false),
 
             // ADC
-            adc(&adc1, 0, 3.21),
+            adc(&adc1, 0, ADC_SAMPLETIME_56CYCLES, 3.06),
 
             // SSD
             spi(&devSpi1, GPIO_PULLUP),
@@ -323,7 +324,7 @@ public:
                     handleNtpRequest();
                     break;
                 case EventType::ADC1_READY:
-                    USART_DEBUG("ADC1: " << (int)(adc.getVoltage() * 1000));
+                    USART_DEBUG("ADC1: " << adc.getMV() << ", " << (int)(lmt86Temperature(adc.getMV())*10.0));
                     break;
                 }
             }
@@ -374,7 +375,7 @@ public:
         {
             if (!streamer.isActive())
             {
-                onButtonPressed(&playButton, 1);
+                //onButtonPressed(&playButton, 1);
             }
             adc.readDma();
         }
@@ -477,6 +478,11 @@ public:
                 streamer.start(AudioDac_UDA1334::SourceType:: STREAM, config.getWavFile());
             }
         }
+    }
+
+    float lmt86Temperature (int mv)
+    {
+        return 30.0 + (10.888 - ::sqrt(10.888*10.888 + 4.0*0.00347*(1777.3 - (float)mv)))/(-2.0*0.00347);
     }
 };
 
