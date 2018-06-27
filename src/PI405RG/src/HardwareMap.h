@@ -26,38 +26,6 @@
 namespace MyHardware {
 
 
-class SystemClock : public HardwareLayout::SystemClock
-{
-public:
-    explicit SystemClock (IRQn_Type irqn, uint32_t prio, uint32_t subPrio): HardwareLayout::SystemClock{irqn, prio, subPrio}
-    {
-        // Set system frequency to 168MHz
-        PLLM = 16;
-        PLLN = 336;
-        PLLP = 2;
-        PLLQ = 7;
-        AHBCLKDivider = RCC_SYSCLK_DIV1;
-        APB1CLKDivider = RCC_HCLK_DIV8;
-        APB2CLKDivider = RCC_HCLK_DIV8;
-        PLLI2SN = 192;
-        PLLI2SR = 2;
-    }
-    virtual void enableClock () const
-    {
-        __HAL_RCC_PWR_CLK_ENABLE();
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-        __HAL_RCC_GPIOH_CLK_ENABLE();
-        __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-    }
-    virtual void disableClock () const
-    {
-        __HAL_RCC_PWR_CLK_DISABLE();
-        __HAL_RCC_GPIOC_CLK_DISABLE();
-        __HAL_RCC_GPIOH_CLK_DISABLE();
-    }
-};
-
-
 class Rtc : public HardwareLayout::Rtc
 {
 public:

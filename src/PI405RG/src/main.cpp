@@ -38,7 +38,6 @@ MyHardware::PortA portA;
 MyHardware::PortB portB;
 MyHardware::PortC portC;
 MyHardware::PortD portD;
-MyHardware::SystemClock devSystemClock (SysTick_IRQn, 0, 0);
 MyHardware::Rtc devRtc (RTC_WKUP_IRQn, 2, 0);
 
 MyHardware::Sdio devSdio (
@@ -261,7 +260,7 @@ public:
         rtc.initInstance();
 
         USART_DEBUG("--------------------------------------------------------");
-        USART_DEBUG("Oscillator frequency: " << System::getInstance()->getExternalOscillatorFreq()
+        USART_DEBUG("Oscillator frequency: " << System::getInstance()->getHSEFreq()
                     << ", MCU frequency: " << System::getInstance()->getMcuFreq());
         
         HAL_StatusTypeDef status = HAL_TIMEOUT;
@@ -499,10 +498,17 @@ int main (void)
     IOPort defaultPortB(IOPort::PortName::B, GPIO_MODE_INPUT, GPIO_PULLDOWN);
     IOPort defaultPortC(IOPort::PortName::C, GPIO_MODE_INPUT, GPIO_PULLDOWN);
     
-    System sys(&devSystemClock);
+    // Set system frequency to 168MHz
+    System sys{HardwareLayout::Interrupt{SysTick_IRQn, 0, 0}};
+    sys.initHSE(/*external=*/ true);
+    sys.initPLL(16, 336, 2, 7);
+    sys.initLSE(/*external=*/ true);
+    sys.initAHB(RCC_SYSCLK_DIV1, RCC_HCLK_DIV8, RCC_HCLK_DIV8);
+    sys.initRTC();
+    sys.initI2S(192, 2);
     do
     {
-        sys.start(FLASH_LATENCY_3, System::RtcType::RTC_EXT);
+        sys.start(FLASH_LATENCY_3);
     }
     while (sys.getMcuFreq() != 168000000L);
     sys.initInstance();

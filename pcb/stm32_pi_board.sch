@@ -8825,6 +8825,7 @@ pull-up after reset</text>
 <junction x="172.72" y="167.64"/>
 <pinref part="C38" gate="G$1" pin="1"/>
 <wire x1="172.72" y1="149.86" x2="175.26" y2="149.86" width="0.1524" layer="91"/>
+<label x="170.18" y="170.18" size="1.27" layer="95"/>
 </segment>
 </net>
 <net name="VDD" class="0">

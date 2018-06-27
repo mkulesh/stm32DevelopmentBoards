@@ -351,8 +351,8 @@ UsedLibrary="stm32.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="308 76 1542 794"
-State=2
+Loc="2228 181 3462 899"
+State=1
 Number=0
 
 [Desktop]

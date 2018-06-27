@@ -34,88 +34,114 @@ using namespace StmPlusPlus;
 
 System * System::instance = NULL;
 
-System::System (const HardwareLayout::SystemClock * _device):
-    device{_device},
+System::System (HardwareLayout::Interrupt && _sysTickIrq):
+    sysTickIrq{std::move(_sysTickIrq)},
     mcuFreq{0}
 {
-    // empty
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_NONE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_OFF;
+    RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
+    RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
+    RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
 }
 
 
-void System::start (uint32_t FLatency, RtcType rtcType, int32_t msAdjustment)
+void System::initHSE (bool external)
 {
-    device->enableClock();
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
-
-    #ifdef STM32F3
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-    RCC_OscInitStruct.HSEPredivValue = device->PLLM;
-    RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
-    RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
-    RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL = device->PLLN;
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider =  device->AHBCLKDivider;
-    RCC_ClkInitStruct.APB1CLKDivider = device->APB1CLKDivider;
-    RCC_ClkInitStruct.APB2CLKDivider = device->APB2CLKDivider;
-    #endif
-
-    #ifdef STM32F4
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-    RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
-    RCC_OscInitStruct.LSEState = RCC_LSE_OFF;
-    RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = device->PLLM;
-    RCC_OscInitStruct.PLL.PLLN = device->PLLN;
-    RCC_OscInitStruct.PLL.PLLP = device->PLLP;
-    RCC_OscInitStruct.PLL.PLLQ = device->PLLQ;
-    #ifdef STM32F410Rx
-    RCC_OscInitStruct.PLL.PLLR = device->PLLR;
-    #endif
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider =  device->AHBCLKDivider;
-    RCC_ClkInitStruct.APB1CLKDivider = device->APB1CLKDivider;
-    RCC_ClkInitStruct.APB2CLKDivider = device->APB2CLKDivider;
-    #endif
-
-    RCC_PeriphCLKInitTypeDef PeriphClkInit;
-    switch (rtcType)
+    if (external)
     {
-    case RtcType::RTC_INT:
-        RCC_OscInitStruct.OscillatorType |= RCC_OSCILLATORTYPE_LSI;
-        RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-        PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
-        break;
-    case RtcType::RTC_EXT:
+        RCC_OscInitStruct.OscillatorType |= RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+    }
+    else
+    {
+        RCC_OscInitStruct.OscillatorType |= RCC_OSCILLATORTYPE_HSI;
+        RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+    }
+}
+
+void System::initLSE (bool external)
+{
+    if (external)
+    {
         RCC_OscInitStruct.OscillatorType |= RCC_OSCILLATORTYPE_LSE;
         RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-        PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-        break;
-    case RtcType::RTC_NONE:
-        // nothing to do
-        break;
     }
-
-    if (device->PLLI2SN != 0 && device->PLLI2SR != 0)
+    else
     {
-        PeriphClkInit.PeriphClockSelection |= RCC_PERIPHCLK_I2S;
-        PeriphClkInit.PLLI2S.PLLI2SN = device->PLLI2SN;
-        PeriphClkInit.PLLI2S.PLLI2SR = device->PLLI2SR;
+        RCC_OscInitStruct.OscillatorType |= RCC_OSCILLATORTYPE_LSI;
+        RCC_OscInitStruct.LSIState = RCC_LSI_ON;
     }
+}
+
+void System::initPLL (uint32_t PLLM, uint32_t PLLN, uint32_t PLLP, uint32_t PLLQ, uint32_t PLLR)
+{
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    if (RCC_OscInitStruct.HSEState == RCC_HSE_ON)
+    {
+
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    }
+    else
+    {
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+    }
+    RCC_OscInitStruct.PLL.PLLM = PLLM;
+    RCC_OscInitStruct.PLL.PLLN = PLLN;
+    RCC_OscInitStruct.PLL.PLLP = PLLP;
+    RCC_OscInitStruct.PLL.PLLQ = PLLQ;
+    #ifdef STM32F410Rx
+    RCC_OscInitStruct.PLL.PLLR = PLLR;
+    #endif
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+}
+
+void System::initAHB (uint32_t AHBCLKDivider, uint32_t APB1CLKDivider, uint32_t APB2CLKDivider)
+{
+    RCC_ClkInitStruct.AHBCLKDivider =  AHBCLKDivider;
+    RCC_ClkInitStruct.APB1CLKDivider = APB1CLKDivider;
+    RCC_ClkInitStruct.APB2CLKDivider = APB2CLKDivider;
+}
+
+void System::initRTC ()
+{
+    if (RCC_OscInitStruct.LSIState == RCC_LSI_ON)
+    {
+        PeriphClkInit.PeriphClockSelection |= RCC_PERIPHCLK_RTC;
+        PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+    }
+    if (RCC_OscInitStruct.LSEState == RCC_LSE_ON)
+    {
+        PeriphClkInit.PeriphClockSelection |= RCC_PERIPHCLK_RTC;
+        PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+    }
+}
+
+void System::initI2S (uint32_t PLLI2SN, uint32_t PLLI2SR)
+{
+    PeriphClkInit.PeriphClockSelection |= RCC_PERIPHCLK_I2S;
+    PeriphClkInit.PLLI2S.PLLI2SN = PLLI2SN;
+    PeriphClkInit.PLLI2S.PLLI2SR = PLLI2SR;
+}
+
+void System::start (uint32_t fLatency, int32_t msAdjustment)
+{
+    __HAL_RCC_PWR_CLK_ENABLE();
+    if (RCC_OscInitStruct.LSEState == RCC_LSE_ON)
+    {
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+    }
+    if (RCC_OscInitStruct.HSEState == RCC_HSE_ON)
+    {
+        __HAL_RCC_GPIOH_CLK_ENABLE();
+    }
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
-    HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLatency);
+    HAL_RCC_ClockConfig(&RCC_ClkInitStruct, fLatency);
 
     /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
     if (HAL_GetREVID() == 0x1001)
@@ -131,9 +157,8 @@ void System::start (uint32_t FLatency, RtcType rtcType, int32_t msAdjustment)
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
     /* SysTick_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(device->sysTickIrq.irqn, device->sysTickIrq.prio, device->sysTickIrq.subPrio);
+    HAL_NVIC_SetPriority(sysTickIrq.irqn, sysTickIrq.prio, sysTickIrq.subPrio);
 }
-
 
 /************************************************************************
  * Class IOPort

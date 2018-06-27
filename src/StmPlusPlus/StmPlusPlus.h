@@ -74,16 +74,7 @@ class System
 {
 public:
 
-    enum class RtcType
-    {
-        RTC_NONE = 0,
-        RTC_INT = 1,
-        RTC_EXT = 2
-    };
-
-    System (const HardwareLayout::SystemClock * _device);
-
-    void start (uint32_t FLatency, RtcType rtcType, int32_t msAdjustment = 0);
+    System (HardwareLayout::Interrupt && sysTickIrq);
 
     inline void initInstance ()
     {
@@ -95,9 +86,21 @@ public:
         return instance;
     }
 
-    inline uint32_t getExternalOscillatorFreq () const
+    void initHSE (bool external);
+    void initLSE (bool external);
+    void initPLL (uint32_t PLLM, uint32_t PLLN, uint32_t PLLP, uint32_t PLLQ, uint32_t PLLR = 0);
+    void initAHB (uint32_t AHBCLKDivider, uint32_t APB1CLKDivider, uint32_t APB2CLKDivider);
+    void initRTC ();
+    void initI2S (uint32_t PLLI2SN, uint32_t PLLI2SR);
+
+    inline uint32_t getHSEFreq () const
     {
         return HSE_VALUE;
+    }
+
+    inline uint32_t getHSIFreq () const
+    {
+        return HSI_VALUE;
     }
 
     inline uint32_t getMcuFreq () const
@@ -105,10 +108,15 @@ public:
         return mcuFreq;
     }
 
+    void start (uint32_t fLatency, int32_t msAdjustment = 0);
+
 private:
 
     static System * instance;
-    const HardwareLayout::SystemClock * device;
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_PeriphCLKInitTypeDef PeriphClkInit;
+    HardwareLayout::Interrupt sysTickIrq;
     uint32_t mcuFreq;
 };
 
