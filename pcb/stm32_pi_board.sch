@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
@@ -1476,6 +1476,23 @@ Source: http://ww1.microchip.com/downloads/en/DeviceDoc/21796H.pdf</description>
 <text x="-2.54" y="3.048" size="1.27" layer="25" ratio="10">&gt;NAME</text>
 <text x="-2.54" y="-3.302" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
 </package>
+<package name="CPOL2917">
+<description>&lt;b&gt;Chip Capacitor &lt;/b&gt; Polar tantalum capacitors with solid electrolyte&lt;p&gt;
+Siemens Matsushita Components B 45 194, B 45 197, B 45 198&lt;br&gt;
+Source: www.farnell.com/datasheets/247.pdf</description>
+<wire x1="-3.515" y1="2.15" x2="3.515" y2="2.15" width="0.1016" layer="21"/>
+<wire x1="3.515" y1="2.15" x2="3.515" y2="1.5" width="0.1016" layer="21"/>
+<wire x1="3.515" y1="-1.5" x2="3.515" y2="-2.15" width="0.1016" layer="21"/>
+<wire x1="3.515" y1="-2.15" x2="-3.515" y2="-2.15" width="0.1016" layer="21"/>
+<wire x1="-3.515" y1="-2.15" x2="-3.515" y2="-1.5" width="0.1016" layer="21"/>
+<wire x1="-3.515" y1="1.5" x2="-3.515" y2="2.15" width="0.1016" layer="21"/>
+<smd name="+" x="-3.15" y="0" dx="2.4" dy="2.8" layer="1"/>
+<smd name="-" x="3.15" y="0" dx="2.4" dy="2.8" layer="1" rot="R180"/>
+<text x="0" y="2.54" size="1.016" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-2.54" size="1.016" layer="27" rot="R180" align="bottom-center">&gt;VALUE</text>
+<wire x1="-4.992" y1="1.746" x2="-3.992" y2="1.746" width="0.127" layer="21"/>
+<wire x1="-4.492" y1="2.246" x2="-4.492" y2="1.246" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="LSP">
@@ -2308,6 +2325,17 @@ with SPI Interface</description>
 </technology>
 </technologies>
 </device>
+<device name="2917" package="CPOL2917">
+<connects>
+<connect gate="G$1" pin="+" pad="+"/>
+<connect gate="G$1" pin="-" pad="-"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="581-TPSE477K010R0200" constant="no"/>
+</technology>
+</technologies>
+</device>
 </devices>
 </deviceset>
 <deviceset name="C-US" prefix="C" uservalue="yes">
@@ -2805,7 +2833,9 @@ with SPI Interface</description>
 <connect gate="G$1" pin="VDD" pad="VDD"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="95-LMT86LP" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -7921,6 +7951,7 @@ Source: AVX .. aphvc.pdf</description>
 <part name="SUPPLY19" library="supply2" deviceset="GND" device=""/>
 <part name="C39" library="rcl" deviceset="C-EU" device="C1206" value="0.1 uF"/>
 <part name="SUPPLY20" library="supply2" deviceset="VCC" device=""/>
+<part name="C40" library="MyComponents" deviceset="CPOL-US" device="2917" value="470 uF"/>
 </parts>
 <sheets>
 <sheet>
@@ -8419,8 +8450,8 @@ pull-up after reset</text>
 <attribute name="VALUE" x="229.616" y="143.129" size="1.27" layer="96"/>
 </instance>
 <instance part="C38" gate="G$1" x="177.8" y="149.86" smashed="yes" rot="R90">
-<attribute name="NAME" x="177.165" y="150.495" size="1.27" layer="95" rot="R180" align="top-left"/>
-<attribute name="VALUE" x="180.34" y="149.225" size="1.27" layer="96" align="top-left"/>
+<attribute name="NAME" x="177" y="150.5" size="1.27" layer="95" rot="R180" align="top-left"/>
+<attribute name="VALUE" x="180" y="149.5" size="1.27" layer="96" align="top-left"/>
 </instance>
 <instance part="D1" gate="1" x="340.36" y="236.22" rot="R180"/>
 <instance part="R26" gate="G$1" x="322.58" y="236.22" smashed="yes" rot="R180">
@@ -8440,6 +8471,10 @@ pull-up after reset</text>
 <instance part="C39" gate="G$1" x="401.32" y="190.5"/>
 <instance part="SUPPLY20" gate="G$1" x="401.32" y="177.8" smashed="yes" rot="R180">
 <attribute name="VALUE" x="403.225" y="174.625" size="1.27" layer="96" rot="R180"/>
+</instance>
+<instance part="C40" gate="G$1" x="177.8" y="137.16" smashed="yes" rot="R90">
+<attribute name="NAME" x="177" y="138" size="1.27" layer="95" align="bottom-right"/>
+<attribute name="VALUE" x="180" y="136.5" size="1.27" layer="96" rot="R180" align="bottom-right"/>
 </instance>
 </instances>
 <busses>
@@ -8514,8 +8549,9 @@ pull-up after reset</text>
 <pinref part="IC10" gate="G$1" pin="GND"/>
 <wire x1="187.96" y1="154.94" x2="187.96" y2="149.86" width="0.1524" layer="91"/>
 <junction x="187.96" y="127"/>
-<wire x1="187.96" y1="149.86" x2="187.96" y2="127" width="0.1524" layer="91"/>
+<wire x1="187.96" y1="149.86" x2="187.96" y2="137.16" width="0.1524" layer="91"/>
 <pinref part="C7" gate="G$1" pin="-"/>
+<wire x1="187.96" y1="137.16" x2="187.96" y2="127" width="0.1524" layer="91"/>
 <wire x1="228.6" y1="142.24" x2="228.6" y2="137.16" width="0.1524" layer="91"/>
 <pinref part="C38" gate="G$1" pin="2"/>
 <wire x1="228.6" y1="137.16" x2="228.6" y2="127" width="0.1524" layer="91"/>
@@ -8525,6 +8561,9 @@ pull-up after reset</text>
 <wire x1="218.44" y1="142.24" x2="218.44" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="218.44" y1="137.16" x2="228.6" y2="137.16" width="0.1524" layer="91"/>
 <junction x="228.6" y="137.16"/>
+<pinref part="C40" gate="G$1" pin="-"/>
+<wire x1="182.88" y1="137.16" x2="187.96" y2="137.16" width="0.1524" layer="91"/>
+<junction x="187.96" y="137.16"/>
 </segment>
 <segment>
 <pinref part="R13" gate="G$1" pin="1"/>
@@ -8826,6 +8865,10 @@ pull-up after reset</text>
 <pinref part="C38" gate="G$1" pin="1"/>
 <wire x1="172.72" y1="149.86" x2="175.26" y2="149.86" width="0.1524" layer="91"/>
 <label x="170.18" y="170.18" size="1.27" layer="95"/>
+<pinref part="C40" gate="G$1" pin="+"/>
+<wire x1="175.26" y1="137.16" x2="172.72" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="172.72" y1="137.16" x2="172.72" y2="149.86" width="0.1524" layer="91"/>
+<junction x="172.72" y="149.86"/>
 </segment>
 </net>
 <net name="VDD" class="0">

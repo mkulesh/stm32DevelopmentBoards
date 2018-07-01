@@ -351,10 +351,10 @@ UsedLibrary="stm32.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="2228 181 3462 899"
+Loc="685 181 1919 899"
 State=1
 Number=0
 
 [Desktop]
-Screen="3840 1080"
+Screen="1920 1080"
 Window="Win_1"
