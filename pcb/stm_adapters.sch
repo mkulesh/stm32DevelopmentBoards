@@ -8,20 +8,20 @@
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
-<layer number="17" name="Pads" color="2" fill="1" visible="no" active="no"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="no" active="no"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="no"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="no"/>
-<layer number="21" name="tPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="no" active="no"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="no" active="no"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="no" active="no"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="no" active="no"/>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="no"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="no"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="no"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="no"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="no"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="no"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="no"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="no"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="no"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="no"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="no"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="no"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="no"/>
@@ -30,8 +30,8 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="no"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="no"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="no"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="no" active="no"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="no" active="no"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="no"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="no"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="no"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="no"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="no"/>
@@ -39,16 +39,16 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="no"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="no"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="no"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="no"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="no" active="no"/>
-<layer number="48" name="Document" color="7" fill="1" visible="no" active="no"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="no" active="no"/>
-<layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="no"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="no"/>
-<layer number="53" name="tGND_GNDA" color="7" fill="9" visible="no" active="no"/>
-<layer number="54" name="bGND_GNDA" color="1" fill="9" visible="no" active="no"/>
-<layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="no"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="no"/>
+<layer number="48" name="Document" color="7" fill="1" visible="yes" active="no"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="no"/>
+<layer number="50" name="dxf" color="7" fill="1" visible="yes" active="no"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="53" name="tGND_GNDA" color="7" fill="9" visible="yes" active="no"/>
+<layer number="54" name="bGND_GNDA" color="1" fill="9" visible="yes" active="no"/>
+<layer number="56" name="wert" color="7" fill="1" visible="yes" active="no"/>
 <layer number="90" name="Modules" color="5" fill="1" visible="yes" active="yes"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
@@ -826,7 +826,7 @@
 </library>
 <library name="MyComponents">
 <packages>
-<package name="HC-46X">
+<package name="Q-HC-46X">
 <description>&lt;B&gt;CRYSTAL&lt;/B&gt;</description>
 <wire x1="-1.409" y1="-1.996" x2="1.399" y2="-1.996" width="0.1524" layer="21"/>
 <wire x1="1.449" y1="2.006" x2="-1.359" y2="2.006" width="0.1524" layer="21"/>
@@ -1560,7 +1560,7 @@
 <wire x1="-1.905" y1="-0.889" x2="-1.905" y2="0.889" width="0.127" layer="21"/>
 <wire x1="0" y1="0.508" x2="0" y2="-0.508" width="0.127" layer="21"/>
 </package>
-<package name="MC-306">
+<package name="Q-MC-306">
 <description>&lt;b&gt;MC-306 CRYSTAL UNIT&lt;/b&gt;&lt;p&gt;
 Source: MC-306_405_406_E07X.PDF</description>
 <wire x1="-3.9" y1="1.5" x2="3.9" y2="1.5" width="0.2032" layer="51"/>
@@ -1663,6 +1663,48 @@ Source: MC-306_405_406_E07X.PDF</description>
 <wire x1="2.478" y1="2.416" x2="2.478" y2="-2.416" width="0.127" layer="21"/>
 <wire x1="2.478" y1="-2.416" x2="-2.478" y2="-2.416" width="0.127" layer="21"/>
 <wire x1="-2.478" y1="-2.416" x2="-2.478" y2="2.416" width="0.127" layer="21"/>
+</package>
+<package name="L0805">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;</description>
+<wire x1="-0.41" y1="0.635" x2="0.41" y2="0.635" width="0.1524" layer="51"/>
+<wire x1="-0.41" y1="-0.635" x2="0.41" y2="-0.635" width="0.1524" layer="51"/>
+<wire x1="-1.973" y1="0.983" x2="1.973" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="1.973" y1="0.983" x2="1.973" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="1.973" y1="-0.983" x2="-1.973" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-1.973" y1="-0.983" x2="-1.973" y2="0.983" width="0.0508" layer="39"/>
+<smd name="1" x="-0.95" y="0" dx="1.3" dy="1.5" layer="1"/>
+<smd name="2" x="0.95" y="0" dx="1.3" dy="1.5" layer="1"/>
+<text x="0" y="1.27" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-1.27" size="1.27" layer="27" rot="R180" align="bottom-center">&gt;VALUE</text>
+<rectangle x1="0.4064" y1="-0.6985" x2="1.0564" y2="0.7015" layer="51"/>
+<rectangle x1="-1.0668" y1="-0.6985" x2="-0.4168" y2="0.7015" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.5001" x2="0.1999" y2="0.5001" layer="35"/>
+<wire x1="-1.905" y1="0.889" x2="-1.905" y2="-0.889" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="-0.889" x2="1.905" y2="-0.889" width="0.127" layer="21"/>
+<wire x1="1.905" y1="-0.889" x2="1.905" y2="0.889" width="0.127" layer="21"/>
+<wire x1="1.905" y1="0.889" x2="-1.905" y2="0.889" width="0.127" layer="21"/>
+</package>
+<package name="Q-FA-128">
+<smd name="1" x="-0.725" y="-0.575" dx="0.95" dy="0.85" layer="1"/>
+<smd name="2" x="-0.725" y="0.575" dx="0.95" dy="0.85" layer="1"/>
+<smd name="3" x="0.725" y="0.575" dx="0.95" dy="0.85" layer="1"/>
+<smd name="4" x="0.725" y="-0.575" dx="0.95" dy="0.85" layer="1"/>
+<wire x1="-1.4" y1="1.2" x2="1.4" y2="1.2" width="0.127" layer="21"/>
+<wire x1="1.4" y1="1.2" x2="1.4" y2="-1.2" width="0.127" layer="21"/>
+<wire x1="1.4" y1="-1.2" x2="-1.4" y2="-1.2" width="0.127" layer="21"/>
+<wire x1="-1.4" y1="-1.2" x2="-1.4" y2="1.2" width="0.127" layer="21"/>
+<text x="0" y="1.27" size="1.27" layer="21" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-1.27" size="1.27" layer="21" rot="R180" align="bottom-center">&gt;VALUE</text>
+</package>
+<package name="Q-CM7V-T1A">
+<smd name="1" x="-1.25" y="0" dx="1.8" dy="1" layer="1" rot="R90"/>
+<smd name="2" x="1.25" y="0" dx="1.8" dy="1" layer="1" rot="R90"/>
+<wire x1="-2" y1="1.1" x2="2" y2="1.1" width="0.127" layer="21"/>
+<wire x1="2" y1="1.1" x2="2" y2="-1.1" width="0.127" layer="21"/>
+<wire x1="2" y1="-1.1" x2="-2" y2="-1.1" width="0.127" layer="21"/>
+<wire x1="-2" y1="-1.1" x2="-2" y2="1.1" width="0.127" layer="21"/>
+<text x="0" y="1.27" size="1.27" layer="21" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-1.27" size="1.27" layer="21" rot="R180" align="bottom-center">&gt;VALUE</text>
 </package>
 </packages>
 <symbols>
@@ -1944,8 +1986,8 @@ Source: MC-306_405_406_E07X.PDF</description>
 <wire x1="1.016" y1="-1.016" x2="1.651" y2="1.016" width="0.2032" layer="94"/>
 <wire x1="1.651" y1="1.016" x2="2.286" y2="-1.016" width="0.2032" layer="94"/>
 <wire x1="2.286" y1="-1.016" x2="2.54" y2="0" width="0.2032" layer="94"/>
-<text x="0" y="1.27" size="1.778" layer="95" align="bottom-center">&gt;NAME</text>
-<text x="0" y="-1.27" size="1.778" layer="96" rot="R180" align="bottom-center">&gt;VALUE</text>
+<text x="-3.175" y="0.635" size="1.778" layer="95" align="bottom-right">&gt;NAME</text>
+<text x="3.175" y="-0.635" size="1.778" layer="96" rot="R180" align="bottom-right">&gt;VALUE</text>
 <pin name="2" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
 <pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1"/>
 </symbol>
@@ -1961,26 +2003,38 @@ Source: MC-306_405_406_E07X.PDF</description>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="Q-HC-46X" prefix="Q" uservalue="yes">
-<description>Quartz Crystal HC-46X</description>
+<deviceset name="Q-HSE" prefix="Q" uservalue="yes">
+<description>HSE SMD Crystal</description>
 <gates>
 <gate name="G$1" symbol="Q" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="HC-46X">
+<device name="HC-46X" package="Q-HC-46X">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="520-160-20-46X" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="FA-128" package="Q-FA-128">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="3"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="732-FA12816F20X-AJ0" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="BUTTON-FSM14JRT" prefix="J">
-<description>Drucktastenschalter RADIAL TACT SWITCH
-TE Connectivity / Alcoswitch 1571010-1</description>
+<description>TE Connectivity / Alcoswitch Round Switch</description>
 <gates>
 <gate name="G$1" symbol="BUTTON-FSM14JRT" x="0" y="0"/>
 </gates>
@@ -1991,13 +2045,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="2" pad="P$2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="506-1571010-1" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA08-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 8 Position</description>
 <gates>
 <gate name="1" symbol="MA08-1" x="0" y="0"/>
 </gates>
@@ -2014,12 +2070,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="8" pad="8"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA08-1-NO-PL">
@@ -2040,7 +2091,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="MA07-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 7 Position</description>
 <gates>
 <gate name="1" symbol="MA07-1" x="0" y="0"/>
 </gates>
@@ -2056,12 +2107,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="7" pad="7"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA07-1-NO-PL">
@@ -2081,6 +2127,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="L-US" prefix="L" uservalue="yes">
+<description>SMD Ferrite Bead</description>
 <gates>
 <gate name="G$1" symbol="L-US" x="0" y="0"/>
 </gates>
@@ -2091,7 +2138,9 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="81-BLM11B421S" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="L3341" package="L3341">
@@ -2103,10 +2152,21 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <technology name=""/>
 </technologies>
 </device>
+<device name="L0805" package="L0805">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="963-CKP2012N1R0M-T" constant="no"/>
+</technology>
+</technologies>
+</device>
 </devices>
 </deviceset>
 <deviceset name="MA12-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 12 Position</description>
 <gates>
 <gate name="1" symbol="MA12-1" x="0" y="0"/>
 </gates>
@@ -2157,7 +2217,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="MA09-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 9 Position</description>
 <gates>
 <gate name="1" symbol="MA09-1" x="0" y="0"/>
 </gates>
@@ -2175,12 +2235,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 <device name="NO-PL" package="MA09-1-NO-PL">
@@ -2202,7 +2257,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="MA20-1" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 1 Row, 20 Position</description>
 <gates>
 <gate name="1" symbol="MA20-1" x="0" y="0"/>
 </gates>
@@ -2232,10 +2287,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="649-68000-420HLF" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2263,13 +2315,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="649-68000-420HLF" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA05-2" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 2 Row, 10 Position</description>
 <gates>
 <gate name="G$1" symbol="MA05-2" x="0" y="0"/>
 </gates>
@@ -2288,18 +2342,13 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="9" pad="9"/>
 </connects>
 <technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="MA10-2" prefix="SV" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
+<description>Headers &amp; Wire Housing, 2 Row, 20 Position</description>
 <gates>
 <gate name="G$1" symbol="MA10-2" x="0" y="0"/>
 </gates>
@@ -2339,7 +2388,7 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 </devices>
 </deviceset>
 <deviceset name="R-US" prefix="R" uservalue="yes">
-<description>SMD resistor</description>
+<description>SMD Resistor</description>
 <gates>
 <gate name="G$1" symbol="R-US" x="0" y="0"/>
 </gates>
@@ -2350,12 +2399,15 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
 <deviceset name="C-US" prefix="C" uservalue="yes">
+<description>SMD Multilayer Ceramic Capacitor</description>
 <gates>
 <gate name="G$1" symbol="C-US" x="0" y="0"/>
 </gates>
@@ -2366,29 +2418,38 @@ TE Connectivity / Alcoswitch 1571010-1</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
-<deviceset name="Q-MC-306" prefix="Q" uservalue="yes">
-<description>&lt;b&gt;kHz RANGE CRYSTAL UNIT&lt;/b&gt; SMD&lt;p&gt;
-Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; Homepage &lt;/a&gt;</description>
+<deviceset name="Q-LSE" prefix="Q" uservalue="yes">
+<description>32.768 kHz SMD Crystal</description>
 <gates>
 <gate name="P" symbol="Q" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="MC-306">
+<device name="MC-306" package="Q-MC-306">
 <connects>
 <connect gate="P" pin="1" pad="1"/>
 <connect gate="P" pin="2" pad="4"/>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="MC-306 60.0KHZ  100PPM ,12.5PF" constant="no"/>
-<attribute name="OC_FARNELL" value="1278040" constant="no"/>
-<attribute name="OC_NEWARK" value="31M5576" constant="no"/>
+<attribute name="MOUSER" value="732-MC30632.7680KA0R" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="CM7V-T1A" package="Q-CM7V-T1A">
+<connects>
+<connect gate="P" pin="1" pad="1"/>
+<connect gate="P" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="428-201562-MG01" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2419,7 +2480,7 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 <part name="SV16" library="MyComponents" deviceset="MA10-2" device=""/>
 <part name="C30" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="C31" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
-<part name="Q3" library="MyComponents" deviceset="Q-HC-46X" device="" value="HSE"/>
+<part name="Q3" library="MyComponents" deviceset="Q-HSE" device="HC-46X" value="HSE"/>
 <part name="C34" library="MyComponents" deviceset="C-US" device="0805" value="12pF"/>
 <part name="C33" library="MyComponents" deviceset="C-US" device="0805" value="12pF"/>
 <part name="SV14" library="MyComponents" deviceset="MA05-2" device="" value="JTAG"/>
@@ -2438,11 +2499,11 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 <part name="C28" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="R21" library="MyComponents" deviceset="R-US" device="0805" value="10K"/>
 <part name="J2" library="MyComponents" deviceset="BUTTON-FSM14JRT" device=""/>
-<part name="Q2" library="MyComponents" deviceset="Q-HC-46X" device="" value="HSE"/>
+<part name="Q2" library="MyComponents" deviceset="Q-HSE" device="HC-46X" value="HSE"/>
 <part name="C24" library="MyComponents" deviceset="C-US" device="0805" value="12pF"/>
 <part name="C25" library="MyComponents" deviceset="C-US" device="0805" value="12pF"/>
 <part name="C22" library="MyComponents" deviceset="C-US" device="0805" value="4.7uF"/>
-<part name="Q21" library="MyComponents" deviceset="Q-MC-306" device="" value="LSE"/>
+<part name="Q21" library="MyComponents" deviceset="Q-LSE" device="MC-306" value="LSE"/>
 <part name="SV4" library="MyComponents" deviceset="MA05-2" device="" value="JTAG"/>
 <part name="C13" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="C12" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
@@ -2455,8 +2516,8 @@ Source: MC-306_405_406_E07X.PDF &lt;a href="http://www.epsontoyocom.co.jp"&gt; H
 <part name="C19" library="MyComponents" deviceset="C-US" device="0805" value="0.1uF"/>
 <part name="R15" library="MyComponents" deviceset="R-US" device="0805" value="10K"/>
 <part name="J1" library="MyComponents" deviceset="BUTTON-FSM14JRT" device=""/>
-<part name="Q11" library="MyComponents" deviceset="Q-MC-306" device="" value="LSE"/>
-<part name="Q1" library="MyComponents" deviceset="Q-HC-46X" device="" value="HSE"/>
+<part name="Q11" library="MyComponents" deviceset="Q-LSE" device="MC-306" value="LSE"/>
+<part name="Q1" library="MyComponents" deviceset="Q-HSE" device="HC-46X" value="HSE"/>
 <part name="C2" library="MyComponents" deviceset="C-US" device="0805" value="12pF"/>
 <part name="C3" library="MyComponents" deviceset="C-US" device="0805" value="12pF"/>
 <part name="SV8" library="MyComponents" deviceset="MA07-1" device="NO-PL"/>

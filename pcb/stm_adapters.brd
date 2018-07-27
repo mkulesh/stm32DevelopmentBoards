@@ -609,7 +609,7 @@ gmail.com</text>
 </library>
 <library name="MyComponents">
 <packages>
-<package name="HC-46X">
+<package name="Q-HC-46X">
 <description>&lt;B&gt;CRYSTAL&lt;/B&gt;</description>
 <wire x1="-1.409" y1="-1.996" x2="1.399" y2="-1.996" width="0.1524" layer="21"/>
 <wire x1="1.449" y1="2.006" x2="-1.359" y2="2.006" width="0.1524" layer="21"/>
@@ -927,7 +927,7 @@ gmail.com</text>
 <wire x1="-1.905" y1="-0.889" x2="-1.905" y2="0.889" width="0.127" layer="21"/>
 <wire x1="0" y1="0.508" x2="0" y2="-0.508" width="0.127" layer="21"/>
 </package>
-<package name="MC-306">
+<package name="Q-MC-306">
 <description>&lt;b&gt;MC-306 CRYSTAL UNIT&lt;/b&gt;&lt;p&gt;
 Source: MC-306_405_406_E07X.PDF</description>
 <wire x1="-3.9" y1="1.5" x2="3.9" y2="1.5" width="0.2032" layer="51"/>
@@ -1140,9 +1140,11 @@ design rules under a new name.</description>
 </element>
 <element name="SV1" library="MyComponents" package="MA20-1-NO-PL" value="" x="1.27" y="26.67" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="-0.381" y="44.45" size="1.27" layer="28" ratio="10" rot="MR270"/>
+<attribute name="MOUSER" value="649-68000-420HLF" x="1.27" y="26.67" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="SV3" library="MyComponents" package="MA20-1-NO-PL" value="" x="21.59" y="26.67" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="23.241" y="8.89" size="1.27" layer="28" ratio="10" rot="MR90"/>
+<attribute name="MOUSER" value="649-68000-420HLF" x="21.59" y="26.67" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="IC2" library="stm32" package="LQFP48" value="STM32F303CBT" x="34.29" y="31.75" smashed="yes" rot="R225">
 <attribute name="NAME" x="34.29" y="31.75" size="1.016" layer="25" align="center"/>
@@ -1163,10 +1165,6 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="59.309" y="10.16" size="1.27" layer="28" ratio="10" rot="MR90"/>
 </element>
 <element name="SV13" library="MyComponents" package="MA05-2" value="" x="49.53" y="56.515" smashed="yes" rot="R270">
-<attribute name="MF" value="" x="49.53" y="56.515" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="OC_NEWARK" value="unknown" x="49.53" y="56.515" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="OC_FARNELL" value="unknown" x="49.53" y="56.515" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="MPN" value="" x="49.53" y="56.515" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="VALUE" x="45.339" y="56.515" size="1.27" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="SV16" library="MyComponents" package="MA10-2" value="" x="59.69" y="56.515" smashed="yes" rot="R270">
@@ -1178,149 +1176,168 @@ design rules under a new name.</description>
 </element>
 <element name="C30" library="MyComponents" package="C0805" value="0.1uF" x="54.61" y="16.764" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="56.896" y="16.764" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="54.61" y="16.764" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C31" library="MyComponents" package="C0805" value="0.1uF" x="54.61" y="26.416" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="56.896" y="26.416" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="54.61" y="26.416" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
-<element name="Q3" library="MyComponents" package="HC-46X" value="HSE" x="54.61" y="30.988" smashed="yes">
+<element name="Q3" library="MyComponents" package="Q-HC-46X" value="HSE" x="54.61" y="30.988" smashed="yes">
 <attribute name="VALUE" x="51.181" y="33.147" size="1.016" layer="25" ratio="10" rot="R90" align="bottom-center"/>
+<attribute name="MOUSER" value="520-160-20-46X" x="54.61" y="30.988" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C34" library="MyComponents" package="C0805" value="12pF" x="51.054" y="29.718" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="49.784" y="29.718" size="1.016" layer="26" rot="MR270" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="51.054" y="29.718" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C33" library="MyComponents" package="C0805" value="12pF" x="58.166" y="29.718" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="59.436" y="29.718" size="1.016" layer="26" rot="MR90" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="58.166" y="29.718" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="SV14" library="MyComponents" package="MA05-2" value="JTAG" x="54.61" y="7.62" smashed="yes" rot="R90">
-<attribute name="OC_NEWARK" value="unknown" x="54.61" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="" x="54.61" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MF" value="" x="54.61" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="OC_FARNELL" value="unknown" x="54.61" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" x="57.658" y="13.462" size="1.016" layer="25" ratio="10" rot="R270"/>
 </element>
 <element name="C35" library="MyComponents" package="C0805" value="0.1uF" x="58.166" y="34.544" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="58.166" y="33.274" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="58.166" y="34.544" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R42" library="MyComponents" package="R0805" value="10K" x="54.61" y="45.085" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="54.61" y="43.942" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="54.61" y="45.085" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R41" library="MyComponents" package="R0805" value="10K" x="54.61" y="48.895" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="54.61" y="47.752" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="54.61" y="48.895" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R40" library="MyComponents" package="R0805" value="10K" x="54.61" y="52.705" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="54.61" y="51.562" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="54.61" y="52.705" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C32" library="MyComponents" package="C0805" value="4.7uF" x="54.61" y="20.066" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="56.896" y="20.066" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="54.61" y="20.066" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R31" library="MyComponents" package="R0805" value="10K" x="51.054" y="34.544" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="51.054" y="33.274" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="51.054" y="34.544" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R30" library="MyComponents" package="R0805" value="0" x="54.61" y="23.114" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="56.896" y="23.114" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="54.61" y="23.114" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="J3" library="MyComponents" package="BUTTON-FSM14JRT" value="BUTTON-FSM14JRT" x="54.61" y="36.83" smashed="yes">
 <attribute name="NAME" x="54.61" y="35.56" size="1.016" layer="25" align="bottom-center"/>
+<attribute name="MOUSER" value="506-1571010-1" x="54.61" y="36.83" size="1.778" layer="27" display="off"/>
 </element>
 <element name="SV15" library="MyComponents" package="MA05-2" value="JTAG" x="34.29" y="7.62" smashed="yes" rot="R90">
-<attribute name="MF" value="" x="34.29" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="OC_NEWARK" value="unknown" x="34.29" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="" x="34.29" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="OC_FARNELL" value="unknown" x="34.29" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" x="37.338" y="13.462" size="1.016" layer="25" ratio="10" rot="R270"/>
 </element>
 <element name="R20" library="MyComponents" package="R0805" value="0" x="29.845" y="3.81" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="29.845" y="6.096" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="29.845" y="3.81" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="C23" library="MyComponents" package="C0805" value="0.1uF" x="33.274" y="36.322" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="35.56" y="36.322" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="33.274" y="36.322" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C21" library="MyComponents" package="C0805" value="0.1uF" x="33.274" y="27.178" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="35.56" y="27.178" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="33.274" y="27.178" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C28" library="MyComponents" package="C0805" value="0.1uF" x="29.845" y="17.78" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="29.845" y="20.066" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="29.845" y="17.78" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R21" library="MyComponents" package="R0805" value="10K" x="30.734" y="50.8" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="30.734" y="52.07" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="30.734" y="50.8" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="J2" library="MyComponents" package="BUTTON-FSM14JRT" value="BUTTON-FSM14JRT" x="34.29" y="19.05" smashed="yes" rot="R270">
 <attribute name="NAME" x="34.925" y="19.05" size="1.016" layer="21"/>
+<attribute name="MOUSER" value="506-1571010-1" x="34.29" y="19.05" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
-<element name="Q2" library="MyComponents" package="HC-46X" value="HSE" x="34.29" y="48.26" smashed="yes" rot="R180">
+<element name="Q2" library="MyComponents" package="Q-HC-46X" value="HSE" x="34.29" y="48.26" smashed="yes" rot="R180">
 <attribute name="VALUE" x="34.29" y="50.546" size="1.016" layer="25" ratio="10" align="bottom-center"/>
+<attribute name="MOUSER" value="520-160-20-46X" x="34.29" y="48.26" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="C24" library="MyComponents" package="C0805" value="12pF" x="37.846" y="46.99" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="39.116" y="46.99" size="1.016" layer="26" rot="MR90" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="37.846" y="46.99" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C25" library="MyComponents" package="C0805" value="12pF" x="30.734" y="46.99" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="29.464" y="46.99" size="1.016" layer="26" rot="MR270" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="30.734" y="46.99" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C22" library="MyComponents" package="C0805" value="4.7uF" x="33.274" y="24.765" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="35.56" y="24.765" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="33.274" y="24.765" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
-<element name="Q21" library="MyComponents" package="MC-306" value="LSE" x="34.29" y="41.91" smashed="yes">
-<attribute name="MF" value="" x="25.4" y="51.816" size="1.778" layer="27" display="off"/>
-<attribute name="OC_NEWARK" value="31M5576" x="25.4" y="51.816" size="1.778" layer="27" display="off"/>
-<attribute name="MPN" value="MC-306 60.0KHZ  100PPM ,12.5PF" x="25.4" y="51.816" size="1.778" layer="27" display="off"/>
-<attribute name="OC_FARNELL" value="1278040" x="25.4" y="51.816" size="1.778" layer="27" display="off"/>
+<element name="Q21" library="MyComponents" package="Q-MC-306" value="LSE" x="34.29" y="41.91" smashed="yes">
 <attribute name="VALUE" x="34.29" y="44.45" size="1.016" layer="25" align="bottom-center"/>
+<attribute name="MOUSER" value="732-MC30632.7680KA0R" x="34.29" y="41.91" size="1.778" layer="27" display="off"/>
 </element>
 <element name="SV4" library="MyComponents" package="MA05-2" value="JTAG" x="11.43" y="7.62" smashed="yes" rot="R90">
-<attribute name="OC_NEWARK" value="unknown" x="11.43" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MF" value="" x="11.43" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="" x="11.43" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="OC_FARNELL" value="unknown" x="11.43" y="7.62" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" x="14.4907" y="13.462" size="1.016" layer="25" ratio="10" rot="R270"/>
 </element>
 <element name="C13" library="MyComponents" package="C0805" value="0.1uF" x="10.414" y="37.592" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="10.414" y="36.322" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="10.414" y="37.592" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C12" library="MyComponents" package="C0805" value="0.1uF" x="10.414" y="44.45" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="12.7" y="44.45" size="1.016" layer="26" rot="MR180" align="center-left"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="10.414" y="44.45" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C27" library="MyComponents" package="C0805" value="0.1uF" x="33.274" y="31.623" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="35.56" y="30.353" size="1.016" layer="26" rot="MR0" align="center-right"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="33.274" y="31.623" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C16" library="MyComponents" package="C0805" value="0.1uF" x="10.414" y="31.75" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="8.128" y="31.75" size="1.016" layer="26" rot="MR0" align="center-left"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="10.414" y="31.75" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C11" library="MyComponents" package="C0805" value="4.7uF" x="10.414" y="29.337" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="8.128" y="29.337" size="1.016" layer="26" rot="MR0" align="center-left"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="10.414" y="29.337" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R12" library="MyComponents" package="R0805" value="P31" x="6.35" y="22.479" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="8.636" y="23.241" size="1.016" layer="26" rot="MR180" align="center-left"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="6.35" y="22.479" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R13" library="MyComponents" package="R0805" value="P47" x="16.256" y="34.036" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="16.256" y="31.75" size="1.016" layer="26" rot="MR180" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="16.256" y="34.036" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C1" library="MyComponents" package="C0805" value="P30" x="6.35" y="25.273" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="8.636" y="25.273" size="1.016" layer="26" rot="MR180" align="center-left"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="6.35" y="25.273" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C19" library="MyComponents" package="C0805" value="0.1uF" x="5.08" y="17.78" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="6.35" y="17.78" size="1.016" layer="26" rot="MR180" align="center-left"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="5.08" y="17.78" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R15" library="MyComponents" package="R0805" value="10K" x="7.874" y="66.04" smashed="yes" rot="MR180">
 <attribute name="VALUE" x="7.874" y="67.31" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="7.874" y="66.04" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="J1" library="MyComponents" package="BUTTON-FSM14JRT" value="BUTTON-FSM14JRT" x="11.43" y="19.05" smashed="yes" rot="R270">
 <attribute name="NAME" x="12.7" y="19.05" size="1.016" layer="25"/>
+<attribute name="MOUSER" value="506-1571010-1" x="11.43" y="19.05" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
-<element name="Q11" library="MyComponents" package="MC-306" value="LSE" x="11.43" y="53.34" smashed="yes">
-<attribute name="OC_FARNELL" value="1278040" x="11.43" y="53.34" size="1.778" layer="27" display="off"/>
-<attribute name="MF" value="" x="11.43" y="53.34" size="1.778" layer="27" display="off"/>
-<attribute name="OC_NEWARK" value="31M5576" x="11.43" y="53.34" size="1.778" layer="27" display="off"/>
-<attribute name="MPN" value="MC-306 60.0KHZ  100PPM ,12.5PF" x="11.43" y="53.34" size="1.778" layer="27" display="off"/>
+<element name="Q11" library="MyComponents" package="Q-MC-306" value="LSE" x="11.43" y="53.34" smashed="yes">
 <attribute name="VALUE" x="11.43" y="55.88" size="1.016" layer="25" align="bottom-center"/>
+<attribute name="MOUSER" value="732-MC30632.7680KA0R" x="11.43" y="53.34" size="1.778" layer="27" display="off"/>
 </element>
-<element name="Q1" library="MyComponents" package="HC-46X" value="HSE" x="11.43" y="59.69" smashed="yes" rot="R180">
+<element name="Q1" library="MyComponents" package="Q-HC-46X" value="HSE" x="11.43" y="59.69" smashed="yes" rot="R180">
 <attribute name="VALUE" x="11.43" y="61.976" size="1.016" layer="25" ratio="10" align="bottom-center"/>
+<attribute name="MOUSER" value="520-160-20-46X" x="11.43" y="59.69" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="C2" library="MyComponents" package="C0805" value="12pF" x="14.986" y="58.42" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="16.256" y="58.42" size="1.016" layer="26" rot="MR90" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="14.986" y="58.42" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C3" library="MyComponents" package="C0805" value="12pF" x="7.874" y="58.42" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="6.604" y="58.42" size="1.016" layer="26" rot="MR270" align="bottom-center"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="7.874" y="58.42" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="SV8" library="MyComponents" package="MA07-1-NO-PL" value="" x="1.27" y="60.96" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="4.191" y="63.5" size="1.27" layer="28" ratio="10" rot="MR270"/>
@@ -1330,18 +1347,23 @@ design rules under a new name.</description>
 </element>
 <element name="C14" library="MyComponents" package="C0805" value="22pF" x="10.414" y="53.34" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="12.7" y="53.34" size="1.016" layer="26" rot="MR180" align="center-left"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="10.414" y="53.34" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C15" library="MyComponents" package="C0805" value="22pF" x="10.414" y="49.784" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="12.7" y="49.784" size="1.016" layer="26" rot="MR180" align="center-left"/>
+<attribute name="MOUSER" value="80-C0805C104J5RAUTO" x="10.414" y="49.784" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R11" library="MyComponents" package="R0805" value="0" x="5.08" y="3.81" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="5.08" y="6.096" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="5.08" y="3.81" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="RQ" library="MyComponents" package="R0805" value="220" x="5.08" y="57.912" smashed="yes" rot="R270">
 <attribute name="NAME" x="6.35" y="57.912" size="1.016" layer="25" rot="R270" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="5.08" y="57.912" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="R32" library="MyComponents" package="R0805" value="10K" x="50.165" y="11.43" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="50.165" y="13.716" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="50.165" y="11.43" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="SV5" library="MyComponents" package="MA07-1-NO-PL" value="" x="46.99" y="30.48" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="49.911" y="33.02" size="1.27" layer="28" ratio="10" rot="MR270"/>
@@ -1351,6 +1373,7 @@ design rules under a new name.</description>
 </element>
 <element name="R22" library="MyComponents" package="R0805" value="10K" x="29.845" y="11.43" smashed="yes" rot="MR90">
 <attribute name="VALUE" x="29.845" y="13.716" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="29.845" y="11.43" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="SV12" library="MyComponents" package="MA09-1-NO-PL" value="" x="26.67" y="43.18" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="29.591" y="43.18" size="1.27" layer="28" ratio="10" rot="MR270"/>
@@ -1360,25 +1383,32 @@ design rules under a new name.</description>
 </element>
 <element name="R10" library="MyComponents" package="R0805" value="10K" x="5.08" y="11.43" smashed="yes" rot="MR270">
 <attribute name="VALUE" x="5.08" y="13.716" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
+<attribute name="MOUSER" value="660-RK73H2ATTDD1R00F" x="5.08" y="11.43" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="L1" library="MyComponents" package="L0603" value="" x="54.61" y="65.405" smashed="yes">
 <attribute name="VALUE" x="54.61" y="64.135" size="1.27" layer="27" align="top-center"/>
+<attribute name="MOUSER" value="81-BLM11B421S" x="54.61" y="65.405" size="1.778" layer="27" display="off"/>
 </element>
 <element name="L2" library="MyComponents" package="L0603" value="" x="54.61" y="56.515" smashed="yes" rot="MR180">
 <attribute name="NAME" x="54.61" y="57.912" size="1.016" layer="26" rot="MR0" align="bottom-center"/>
 <attribute name="VALUE" x="54.61" y="57.785" size="1.27" layer="28" rot="MR180" align="top-center"/>
+<attribute name="MOUSER" value="81-BLM11B421S" x="54.61" y="56.515" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="L3" library="MyComponents" package="L0603" value="" x="54.61" y="62.865" smashed="yes">
 <attribute name="VALUE" x="54.61" y="61.595" size="1.27" layer="27" align="top-center"/>
+<attribute name="MOUSER" value="81-BLM11B421S" x="54.61" y="62.865" size="1.778" layer="27" display="off"/>
 </element>
 <element name="L4" library="MyComponents" package="L0603" value="" x="54.61" y="60.325" smashed="yes">
 <attribute name="VALUE" x="54.61" y="59.055" size="1.27" layer="27" align="top-center"/>
+<attribute name="MOUSER" value="81-BLM11B421S" x="54.61" y="60.325" size="1.778" layer="27" display="off"/>
 </element>
 <element name="L5" library="MyComponents" package="L0603" value="" x="54.61" y="52.705" smashed="yes">
 <attribute name="VALUE" x="54.61" y="51.435" size="1.27" layer="27" align="top-center"/>
+<attribute name="MOUSER" value="81-BLM11B421S" x="54.61" y="52.705" size="1.778" layer="27" display="off"/>
 </element>
 <element name="L6" library="MyComponents" package="L0603" value="" x="54.61" y="50.165" smashed="yes">
 <attribute name="VALUE" x="54.61" y="48.895" size="1.27" layer="27" align="top-center"/>
+<attribute name="MOUSER" value="81-BLM11B421S" x="54.61" y="50.165" size="1.778" layer="27" display="off"/>
 </element>
 </elements>
 <signals>
