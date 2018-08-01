@@ -10,7 +10,7 @@ The first board is a two-layers STM32F4 board, which have a form-factor of Raspb
 
 ![Case view](https://github.com/mkulesh/stm32DevelopmentBoards/blob/master/images/stm32pi-perspective.jpg)
 
-If you like to test this board, you can order it [on DirtyPCBs.com](http://dirtypcbs.com/store/designer/details/9348/6009/stm32-pi-board-v1-2-zip)
+If you like to test this board, you can order it [on DirtyPCBs.com](http://dirtypcbs.com/store/designer/details/9348/6105/stm32-pi-board-v1-3-zip)
 
 ### Specification
 * It is based on high-performance ARM®Cortex®-M4 32-bit RISC micro-controller [STM32F405RG](http://www.st.com/en/microcontrollers/stm32f405rg.html)
@@ -20,7 +20,7 @@ If you like to test this board, you can order it [on DirtyPCBs.com](http://dirty
 * A separate +5V DC connector (1 mm X 3.2 mm) instead of Raspberry Pi audio jack
 * 6-pin SWD connector used to program the MCU
 * [ESP8266](https://en.wikipedia.org/wiki/ESP8266) WiFi Module ESP-11 instead of Raspberry Pi network connector
-* 6-pin connector used to flash and program the ESP-11 module
+* 5-pin connector used to flash and program the ESP-11 module
 * Breadboard-compatible 1x20-pin and 1x10-pin headers connected to free MCU pins
 * Reset button
 * One RGB LED
