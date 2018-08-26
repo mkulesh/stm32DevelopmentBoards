@@ -2829,7 +2829,9 @@ with SPI Interface</description>
 <connect gate="1" pin="C" pad="P$2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MOUSER" value="604-APFA3010LSEEZGKQ" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
