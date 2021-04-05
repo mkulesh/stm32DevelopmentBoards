@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.4.0">
+<eagle version="7.7.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -305,7 +305,7 @@
 <text x="40.64" y="74.93" size="1.016" layer="25" rot="R180" align="center-left">4</text>
 <text x="40.64" y="77.47" size="1.016" layer="25" rot="R180" align="center-left">2</text>
 <text x="54.61" y="38.1" size="1.016" layer="25" rot="R180" align="center">LQFP32</text>
-<text x="54.483" y="77.69225" size="1.016" layer="25" rot="R180" align="center">STM32 - Breadboard
+<text x="54.483" y="77.69225" size="0.8128" layer="25" rot="R180" align="center">STM32 - Breadboard
 Adapters (pitch 2.54 mm)
 (C) Mikhail Kulesh, 2017
 mikhail.kulesh@gmail.com</text>
